@@ -1,0 +1,38 @@
+<%- include("../../views/partials/user/header") %>
+
+<section class="container my-5">
+    <h2 class="mb-4">Available Coupons</h2>
+    <div class="row">
+        <% coupons.forEach(coupon => { %>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= coupon.name %></h5>
+                        <p class="card-text">
+                            Discount: ₹<%= coupon.offerPrice %><br>
+                            Minimum Purchase: ₹<%= coupon.minimumPrice %><br>
+                            Valid Till: <%= coupon.expireOn.toLocaleDateString() %>
+                        </p>
+                        <button class="btn btn-primary" onclick="selectCoupon('<%= coupon.name %>')">
+                            Select Coupon
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</section>
+
+<script>
+function selectCoupon(couponCode) {
+    // Close the modal or navigate back to checkout
+    window.location.href = '/checkout';
+    
+    // Optionally, you can pre-fill the coupon code
+    setTimeout(() => {
+        document.getElementById('couponCode').value = couponCode;
+    }, 500);
+}
+</script>
+
+<%- include("../../views/partials/user/footer") %>

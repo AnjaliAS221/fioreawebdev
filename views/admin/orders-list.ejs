@@ -1,0 +1,267 @@
+<%- include("../../views/partials/admin/header") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .status-pending { background-color: #f0ad4e; color: white; }
+    .status-processing { background-color: #5bc0de; color: white; }
+    .status-shipped { background-color: #0275d8; color: white; }
+    .status-delivered { background-color: #5cb85c; color: white; }
+    .status-cancelled { background-color: #d9534f; color: white; }
+    .status-return-request { background-color: #f7a35c; color: white; }
+    .status-returned { background-color: #8e8e8e; color: white; }
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    .order-details-modal .modal-dialog {
+        max-width: 800px;
+    }
+    .order-details-modal .product-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .order-details-modal .product-image {
+        width: 80px;
+        height: 80px;
+        margin-right: 15px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order Management </h2>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select" onchange="filterByStatus(this.value)">
+                        <option value="All" <%= currentStatus === 'All' ? 'selected' : '' %>>All</option>
+                        <option value="Pending" <%= currentStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="Processing" <%= currentStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                        <option value="Shipped" <%= currentStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                        <option value="Cancelled" <%= currentStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        <option value="Delivered" <%= currentStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                        <option value="Return Request" <%= currentStatus === 'Return Request' ? 'selected' : '' %>>Return request</option>
+                        <option value="Returned" <%= currentStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Payment Method</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%for(let i=orders.length-1;i>=0;i--){%>
+                            <tr>
+                                <td><%=orders[i].orderId%></td>
+                                <td><%=orders[i].createdAt.toLocaleDateString()%></td>
+                                <td><b><%= orders[i].user ? orders[i].user.name : 'User not found' %></b></td>
+                                <td>₹<%=orders[i].finalAmount.toLocaleString()%></td>
+                                <td><%=orders[i].paymentMethod%></td>
+                                <td>
+                                    <select
+                                        class="badge rounded-pill <%= `status-${orders[i].status.toLowerCase().replace(/ /g, '-')}` %>"
+                                        onchange="updateOrderStatus('<%= orders[i]._id %>', this.value)"
+                                    >
+                                        <% 
+                                            const statuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned"];
+                                            const currentIndex = statuses.indexOf(orders[i].status);
+                                        %>
+                                        
+                                        <% statuses.forEach((statusOption, index) => { %>
+                                            <option 
+                                                value="<%= statusOption %>" 
+                                                <%= orders[i].status === statusOption ? 'selected' : '' %>
+                                                <%= index < currentIndex ? 'disabled' : '' %>
+                                            >
+                                                <%= statusOption %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button 
+                                        class="btn btn-sm btn-info" 
+                                        onclick="showOrderDetails('<%= JSON.stringify(orders[i]) %>')"
+                                    >
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        <%}%>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Pagination code remains the same -->
+</section>
+
+<!-- Order Details Modal -->
+<div class="modal fade order-details-modal" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="orderDetailsModalBody">
+                <!-- Order details will be dynamically populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function updateOrderStatus(orderId, newStatus) {
+        fetch(`/admin/update-order-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orderId, newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Status Updated',
+                    text: 'The order status has been updated successfully!',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+
+                const selectElement = document.querySelector(`select[onchange="updateOrderStatus('${orderId}', this.value)"]`);
+                selectElement.className = ''; 
+                selectElement.classList.add('badge', 'rounded-pill', `status-${newStatus.toLowerCase().replace(/ /g, '-')}`);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: 'Failed to update order status. Please try again.',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Close'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating order status:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'An Error Occurred',
+                text: 'There was a problem updating the order status. Please try again.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Close'
+            });
+        });
+    }
+
+    function filterByStatus(status) {
+        window.location.href = `/admin/orders?status=${status}`;
+    }
+
+    function showOrderDetails(orderData) {
+    try {
+        const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
+        
+    
+        
+        const modalBody = document.getElementById('orderDetailsModalBody');
+        
+        const orderDetails = {
+            orderId: order.orderId || 'N/A',
+            date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
+            paymentMethod: order.paymentMethod || 'N/A',
+            finalAmount: order.finalAmount || 0,
+            status: order.status || 'N/A',
+            shippingAddress: order.shippingAddress || null,
+            items: order.items || []
+        };
+
+        
+        let detailsHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><strong>Order Information</strong></h6>
+                    <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
+                    <p><strong>Date:</strong> ${orderDetails.date}</p>
+                    <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
+                    <p><strong>Total Amount:</strong> ₹${orderDetails.finalAmount.toLocaleString()}</p>
+                    <p><strong>Status:</strong> ${orderDetails.status}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6><strong>Shipping Address</strong></h6>
+                    <p>
+                        ${orderDetails.shippingAddress ? `
+                            ${orderDetails.address.name || 'Name not provided'}<br>
+                            ${orderDetails.shippingAddress.address || 'Address line not provided'}<br>
+                            ${orderDetails.shippingAddress.city || 'City'}, 
+                            ${orderDetails.shippingAddress.state || 'State'} 
+                            ${orderDetails.shippingAddress.pincode || 'Pincode'}<br>
+                            ${orderDetails.shippingAddress.landmark || 'landmark not provided'}<br>
+                            ${orderDetails.shippingAddress.phone || 'phone not provided'}
+                        ` : 'No shipping address available'}
+                    </p>
+                </div>
+            </div>
+            <hr>
+            <h6><strong>Ordered Items</strong></h6>
+            <div class="row">
+                ${orderDetails.items.length > 0 ? 
+                    orderDetails.items.map(item => `
+                        <div class="col-md-12 product-row">
+                            <div>
+                                <img src="${
+                                    (item.productId && item.productId.productImage) ? 
+                                    '/uploads/re-image/'+item.productId.productImage[0] : 
+                                    '/default-product-image.png'
+                                }" 
+                                     alt="${(item.productId && item.productId.productName) ? item.productId.productName : 'Product'}" 
+                                     class="product-image">
+                            </div>
+                            <div>
+                                <p><strong>${(item.productId && item.productId.productName) ? item.productId.productName : 'Product Name Unavailable'}</strong></p>
+                                <p>Quantity: ${item.quantity || 'N/A'}</p>
+                                <p>Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
+                            </div>
+                        </div>
+                    `).join('<hr>') : 
+                    '<p>No items found in this order.</p>'
+                }
+            </div>
+        `;
+
+        modalBody.innerHTML = detailsHTML;
+        
+        const orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+        orderDetailsModal.show();
+
+    } catch (error) {
+        console.error('Error in showOrderDetails:', error);
+        alert('Failed to load order details. Please check the console for more information.');
+    }
+}
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

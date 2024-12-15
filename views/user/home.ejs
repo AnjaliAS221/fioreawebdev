@@ -1,510 +1,465 @@
+<%- include("../../views/partials/user/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
 
-<%- include("../../views/partials/user/header")%>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f7f6;
+    color: #333;
+}
 
-    <!-- Hero Section Begin -->
-    <section class="hero">
-        <div class="hero__slider owl-carousel">
-            <div class="hero__items set-bg" data-setbg="img/hero/hero-1.jpg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xl-5 col-lg-7 col-md-8">
-                            <div class="hero__text">
-                                <h6>Summer Collection</h6>
-                                <h2>Fall - Winter Collections 2030</h2>
-                                <p>A specialist label creating luxury essentials. Ethically crafted with an unwavering
-                                commitment to exceptional quality.</p>
-                                <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                                <div class="hero__social">
-                                    <a href="#"><i class="fa fa-facebook"></i></a>
-                                    <a href="#"><i class="fa fa-twitter"></i></a>
-                                    <a href="#"><i class="fa fa-pinterest"></i></a>
-                                    <a href="#"><i class="fa fa-instagram"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="hero__items set-bg" data-setbg="img/hero/hero-2.jpg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xl-5 col-lg-7 col-md-8">
-                            <div class="hero__text">
-                                <h6>Summer Collection</h6>
-                                <h2>Fall - Winter Collections 2030</h2>
-                                <p>A specialist label creating luxury essentials. Ethically crafted with an unwavering
-                                commitment to exceptional quality.</p>
-                                <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                                <div class="hero__social">
-                                    <a href="#"><i class="fa fa-facebook"></i></a>
-                                    <a href="#"><i class="fa fa-twitter"></i></a>
-                                    <a href="#"><i class="fa fa-pinterest"></i></a>
-                                    <a href="#"><i class="fa fa-instagram"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Hero Section End -->
+/* Keyframe Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    <!-- Banner Section Begin -->
-    <section class="banner spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-7 offset-lg-4">
-                    <div class="banner__item">
-                        <div class="banner__item__pic">
-                            <img src="img/banner/banner-1.jpg" alt="">
-                        </div>
-                        <div class="banner__item__text">
-                            <h2>Clothing Collections 2030</h2>
-                            <a href="#">Shop now</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-5">
-                    <div class="banner__item banner__item--middle">
-                        <div class="banner__item__pic">
-                            <img src="img/banner/banner-2.jpg" alt="">
-                        </div>
-                        <div class="banner__item__text">
-                            <h2>Accessories</h2>
-                            <a href="#">Shop now</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-7">
-                    <div class="banner__item banner__item--last">
-                        <div class="banner__item__pic">
-                            <img src="img/banner/banner-3.jpg" alt="">
-                        </div>
-                        <div class="banner__item__text">
-                            <h2>Shoes Spring 2030</h2>
-                            <a href="#">Shop now</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Banner Section End -->
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
 
-    <!-- Product Section Begin -->
-    <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <ul class="filter__controls">
-                        <li class="active" data-filter="*">Best Sellers</li>
-                        <li data-filter=".new-arrivals">New Arrivals</li>
-                        <li data-filter=".hot-sales">Hot Sales</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="row product__filter">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-1.jpg">
-                            <span class="label">New</span>
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Piqué Biker Jacket</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$67.24</h5>
-                            <div class="product__color__select">
-                                <label for="pc-1">
-                                    <input type="radio" id="pc-1">
-                                </label>
-                                <label class="active black" for="pc-2">
-                                    <input type="radio" id="pc-2">
-                                </label>
-                                <label class="grey" for="pc-3">
-                                    <input type="radio" id="pc-3">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix hot-sales">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-2.jpg">
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Piqué Biker Jacket</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$67.24</h5>
-                            <div class="product__color__select">
-                                <label for="pc-4">
-                                    <input type="radio" id="pc-4">
-                                </label>
-                                <label class="active black" for="pc-5">
-                                    <input type="radio" id="pc-5">
-                                </label>
-                                <label class="grey" for="pc-6">
-                                    <input type="radio" id="pc-6">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item sale">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-3.jpg">
-                            <span class="label">Sale</span>
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Multi-pocket Chest Bag</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$43.48</h5>
-                            <div class="product__color__select">
-                                <label for="pc-7">
-                                    <input type="radio" id="pc-7">
-                                </label>
-                                <label class="active black" for="pc-8">
-                                    <input type="radio" id="pc-8">
-                                </label>
-                                <label class="grey" for="pc-9">
-                                    <input type="radio" id="pc-9">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix hot-sales">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-4.jpg">
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Diagonal Textured Cap</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$60.9</h5>
-                            <div class="product__color__select">
-                                <label for="pc-10">
-                                    <input type="radio" id="pc-10">
-                                </label>
-                                <label class="active black" for="pc-11">
-                                    <input type="radio" id="pc-11">
-                                </label>
-                                <label class="grey" for="pc-12">
-                                    <input type="radio" id="pc-12">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-5.jpg">
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Lether Backpack</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$31.37</h5>
-                            <div class="product__color__select">
-                                <label for="pc-13">
-                                    <input type="radio" id="pc-13">
-                                </label>
-                                <label class="active black" for="pc-14">
-                                    <input type="radio" id="pc-14">
-                                </label>
-                                <label class="grey" for="pc-15">
-                                    <input type="radio" id="pc-15">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix hot-sales">
-                    <div class="product__item sale">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-6.jpg">
-                            <span class="label">Sale</span>
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Ankle Boots</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$98.49</h5>
-                            <div class="product__color__select">
-                                <label for="pc-16">
-                                    <input type="radio" id="pc-16">
-                                </label>
-                                <label class="active black" for="pc-17">
-                                    <input type="radio" id="pc-17">
-                                </label>
-                                <label class="grey" for="pc-18">
-                                    <input type="radio" id="pc-18">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-7.jpg">
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>T-shirt Contrast Pocket</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$49.66</h5>
-                            <div class="product__color__select">
-                                <label for="pc-19">
-                                    <input type="radio" id="pc-19">
-                                </label>
-                                <label class="active black" for="pc-20">
-                                    <input type="radio" id="pc-20">
-                                </label>
-                                <label class="grey" for="pc-21">
-                                    <input type="radio" id="pc-21">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix hot-sales">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="img/product/product-8.jpg">
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Basic Flowing Scarf</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$26.28</h5>
-                            <div class="product__color__select">
-                                <label for="pc-22">
-                                    <input type="radio" id="pc-22">
-                                </label>
-                                <label class="active black" for="pc-23">
-                                    <input type="radio" id="pc-23">
-                                </label>
-                                <label class="grey" for="pc-24">
-                                    <input type="radio" id="pc-24">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Product Section End -->
+.container {
+    width: 90%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
 
-    <!-- Categories Section Begin -->
-    <section class="categories spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="categories__text">
-                        <h2>Clothings Hot <br /> <span>Shoe Collection</span> <br /> Accessories</h2>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="categories__hot__deal">
-                        <img src="img/product-sale.png" alt="">
-                        <div class="hot__deal__sticker">
-                            <span>Sale Of</span>
-                            <h5>$29.99</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 offset-lg-1">
-                    <div class="categories__deal__countdown">
-                        <span>Deal Of The Week</span>
-                        <h2>Multi-pocket Chest Bag Black</h2>
-                        <div class="categories__deal__countdown__timer" id="countdown">
-                            <div class="cd-item">
-                                <span>3</span>
-                                <p>Days</p>
-                            </div>
-                            <div class="cd-item">
-                                <span>1</span>
-                                <p>Hours</p>
-                            </div>
-                            <div class="cd-item">
-                                <span>50</span>
-                                <p>Minutes</p>
-                            </div>
-                            <div class="cd-item">
-                                <span>18</span>
-                                <p>Seconds</p>
-                            </div>
-                        </div>
-                        <a href="#" class="primary-btn">Shop now</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Categories Section End -->
+/* Hero Section Enhanced */
+.hero {
+    position: relative;
+    overflow: hidden;
+}
 
-    <!-- Instagram Section Begin -->
-    <section class="instagram spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="instagram__pic">
-                        <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-1.jpg"></div>
-                        <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-2.jpg"></div>
-                        <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-3.jpg"></div>
-                        <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-4.jpg"></div>
-                        <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-5.jpg"></div>
-                        <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-6.jpg"></div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="instagram__text">
-                        <h2>Instagram</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua.</p>
-                        <h3>#Male_Fashion</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Instagram Section End -->
+.hero__slider {
+    position: relative;
+}
 
-    <!-- Latest Blog Section Begin -->
-    <section class="latest spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title">
-                        <span>Latest News</span>
-                        <h2>Fashion New Trends</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic set-bg" data-setbg="img/blog/blog-1.jpg"></div>
-                        <div class="blog__item__text">
-                            <span><img src="img/icon/calendar.png" alt=""> 16 February 2020</span>
-                            <h5>What Curling Irons Are The Best Ones</h5>
-                            <a href="#">Read More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic set-bg" data-setbg="img/blog/blog-2.jpg"></div>
-                        <div class="blog__item__text">
-                            <span><img src="img/icon/calendar.png" alt=""> 21 February 2020</span>
-                            <h5>Eternity Bands Do Last Forever</h5>
-                            <a href="#">Read More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic set-bg" data-setbg="img/blog/blog-3.jpg"></div>
-                        <div class="blog__item__text">
-                            <span><img src="img/icon/calendar.png" alt=""> 28 February 2020</span>
-                            <h5>The Health Benefits Of Sunglasses</h5>
-                            <a href="#">Read More</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Latest Blog Section End -->
+.hero__items {
+    position: relative;
+    height: 70vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    background-blend-mode: overlay;
+    background-color: rgba(0,0,0,0.4);
+}
 
-   <%- include("../../views/partials/user/footer")%>
+.hero__text {
+    animation: fadeIn 1s ease-out;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero__text h6 {
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.hero__text h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.primary-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.primary-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: 0.5s;
+}
+
+.primary-btn:hover::before {
+    left: 100%;
+}
+
+.primary-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+}
+
+/* Banner Section Enhanced */
+.banner__section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin: 50px 0;
+}
+
+.banner__item {
+    flex: 1 1 calc(33.333% - 25px);
+    background-color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    position: relative;
+    perspective: 1000px;
+}
+
+.banner__item:hover {
+    transform: rotateX(5deg) translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.banner__item__pic {
+    position: relative;
+    overflow: hidden;
+}
+
+.banner__item__pic img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.6s ease;
+}
+
+.banner__item:hover .banner__item__pic img {
+    transform: scale(1.1);
+}
+
+.banner__item__text {
+    padding: 20px;
+    text-align: center;
+    background: linear-gradient(to right, #f9f9f9, #f0f0f0);
+}
+
+.banner__item__text h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.banner__item__text a {
+    display: inline-block;
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.banner__item__text a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
+
+.banner__item__text a:hover::after {
+    width: 100%;
+}
+
+/* Product Section Enhanced */
+.product-section {
+    margin: 50px 0;
+    background-color: #f9f9f9;
+    padding: 30px 0;
+}
+
+.product-cart-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: space-between;
+}
+
+.product-item {
+    flex: 1 1 calc(25% - 25px);
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: all 0.4s ease;
+    position: relative;
+    animation: fadeIn 0.7s ease-out;
+}
+
+.product-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, #007bff, #00bfff);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s ease;
+}
+
+.product-item:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.product-item:hover {
+    transform: translateY(-10px) rotateX(3deg);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+}
+
+.product-img {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-img img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.6s ease;
+}
+
+.product-item:hover .product-img img {
+    transform: scale(1.1);
+}
+
+.product-info {
+    padding: 20px;
+    text-align: center;
+    background: linear-gradient(to right, #f9f9f9, #f0f0f0);
+}
+
+.product-info h5 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.product-info .price {
+    font-size: 1.3rem;
+    color: #007bff;
+    margin-top: 10px;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+.product-info a {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.product-info a:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .banner__item, .product-item {
+        flex: 1 1 calc(50% - 25px);
+    }
+}
+
+@media (max-width: 768px) {
+    .banner__item, .product-item {
+        flex: 1 1 100%;
+    }
+
+    .hero__items {
+        height: 50vh;
+    }
+
+    .hero__text h2 {
+        font-size: 2rem;
+    }
+}
+
+/* Accessibility and Performance Enhancements */
+img {
+    max-width: 100%;
+    height: auto;
+    will-change: transform;
+}
+
+/* Scroll Bar Styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
+
+</style>
+<section class="hero">
+  <div class="hero__slider owl-carousel">
+      <div class="hero__items set-bg" data-setbg="img/hero/hero-1.webp">
+          <div class="container">
+              <div class="row">
+                  <div class="col-xl-5 col-lg-12 col-md-8">
+                      <div class="hero__text">
+                          <h6>Summer Collection</h6>
+                          <h2>Fall - Winter Collections 2030</h2>
+                          <p>A specialist label creating luxury essentials. Ethically created.</p>
+                          <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="hero__items set-bg" data-setbg="img/hero/hero-2.jpg">
+          <div class="container">
+              <div class="row">
+                  <div class="col-xl-5 col-lg-7 col-md-8">
+                      <div class="hero__text">
+                          <h6>Summer Collection</h6>
+                          <h2>Fall - Winter Collections 2030</h2>
+                          <p>A specialist label creating luxury essentials.</p>
+                          <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+<section class="banner spad">
+  <div class="container">
+      <div class="row">
+          <div class="col-lg-7 offset-lg-4">
+              <div class="banner__item">
+                  <div class="banner__item__pic">
+                      <img src="img/banner/banner-1.webp" alt="Prints">
+                  </div>
+                  <div class="banner__item__text">
+                      <h2>Prints</h2>
+                      <a href="#">Shop now</a>
+                  </div>
+              </div>
+          </div>
+          <div class="col-lg-5">
+              <div class="banner__item banner__item--middle">
+                  <div class="banner__item__pic">
+                      <img src="img/banner/banner-2.webp" alt="Accessories">
+                  </div>
+                  <div class="banner__item__text">
+                      <h2>Occassional wear</h2>
+                      <a href="#">Shop now</a>
+                  </div>
+              </div>
+          </div>
+          <div class="col-lg-7">
+              <div class="banner__item banner__item--last">
+                  <div class="banner__item__pic">
+                      <img src="img/banner/banner-3.webp" alt="Shoes Spring 2030">
+                  </div>
+                  <div class="banner__item__text">
+                      <h2>Embroidery</h2>
+                      <a href="#">Shop now</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+<section class="product spad">
+  <div class="container">
+      <div class="row">
+          <div class="col-lg-12">
+              <ul class="filter__controls">
+                  <li data-filter=".new-arrivals">New Arrivals</li>
+              </ul>
+          </div>
+      </div>
+      <div class="row product__filter">
+        <%for(let i =0; i<products.length; i++){%>
+              <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                  <div class="product-cart-wrap mb-30">
+                      <div class="product-img-action-wrap">
+                          <div class="product-img product-img-zoom">
+                              <a href="/productDetails?id=<%=products[i]._id%>">
+                                  <img class="default-img" src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>">
+                              </a>
+                          </div class="product-action-1">
+                          <a aria-label="Add to Wishlist" href="/addToWishlist?id=<%products[i]._id%>" class="action-btn hover-up"></a>
+                      </div>
+
+
+                      <div class="product-content-wrap">
+                          <h6><%=products[i].productName%></h6>
+                          <h5><%=products[i].salePrice%></h5>
+                          <a href="/addToCart?id=<%=products[i]._id%>" >Add to Cart</a>
+                      </div>
+                  </div>
+              </div>
+              <%}%>
+      </div>
+  </div>
+</section>
+<%- include("../../views/partials/user/footer") %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

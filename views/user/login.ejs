@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log In</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Nunito Sans", sans-serif;
+      }
+      .card {
+        width: 90%;
+        max-width: 800px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: none;
+        border-radius: 10px;
+      }
+      .card-body {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+      }
+      .login-form {
+        flex: 1;
+        padding: 20px;
+      }
+      .login-image {
+        flex: 1;
+        background-color: #fff5e6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .login-image img {
+        max-width: 100%;
+        height: auto;
+      }
+      .social-btns img {
+        width: 24px;
+        height: 24px;
+      }
+      .error-message {
+        color: red;
+        font-size: 0.75rem;
+        display: none;
+      }
+      .btn {
+        width: 100%;
+        margin-top: 10px;
+      }
+      .sign-up-link {
+        text-decoration: none;
+        color: #333;
+      }
+      .sign-up-link:hover {
+        color: #ff7f50;
+      }
+
+     
+.forgot-password-link {
+    display: inline-block;
+    color: #007BFF; 
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.forgot-password-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.forgot-password-link:active {
+    color: #003d80; 
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="card-body">
+        <div class="login-form">
+          <h3 class="text-center">Log In</h3>
+          <form id="loginform" method="post" action="/login">
+            <div class="form-group mt-3">
+              <label for="email">Email address</label>
+              <input
+                type="email"
+                class="form-control"
+                name="email"
+                id="email"
+                placeholder="Enter email"
+              />
+              <div id="error1" class="error-message"></div>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                name="password"
+                id="password"
+                placeholder="Password"/>
+              <div id="error2" class="error-message"></div>
+            </div>
+
+              <div class="form-group d-flex justify-content-end">
+                <a href="/forgot-password" class="forgot-password-link ms-auto">Forgot Password</a>
+              </div>
+
+
+            <% if (locals.message && message.length > 0) { %>
+            <div class="alert alert-danger text-center"><%= message %></div>
+            <% } %>
+            <button type="submit" class="btn btn-primary">Log In</button>
+            <p class="text-center mt-2">or log in with</p>
+            <div class="text-center social-btns">
+              <a href="/auth/google" class="btn btn-outline-danger">
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  onerror="this.onerror=null; this.src='/img/placeholder.png';"
+                  alt="Google Login"
+                />
+              </a>
+            </div>
+          </form>
+        </div>
+        <div class="login-image">
+          <a href="/">
+            <img
+              src="/img/vertical-two-cheerful-girls-sweaters-with-packages-rejoices-white-wall_171337-2679.jpg"
+              onerror="this.onerror=null; this.src='/img/placeholder.png';"
+              alt="Shopping Illustration"
+            />
+          </a>
+          <div class="text-center mt-2">
+            <a href="/signup" class="sign-up-link">Not registered? Sign up</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const emailid = document.getElementById("email");
+      const passid = document.getElementById("password");
+      const error1 = document.getElementById("error1");
+      const error2 = document.getElementById("error2");
+      const loginform = document.getElementById("loginform");
+
+      function emailValidateChecking() {
+        const emailval = emailid.value;
+        const emailpattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+        if (!emailpattern.test(emailval)) {
+          error1.style.display = "block";
+          error1.innerHTML = "Invalid Format";
+        } else {
+          error1.style.display = "none";
+          error1.innerHTML = "";
+        }
+      }
+
+      function passValidateChecking() {
+        const passval = passid.value;
+        if (passval.length < 6) {
+          error2.style.display = "block";
+          error2.innerHTML = "Should contain at least 6 characters";
+        } else {
+          error2.style.display = "none";
+          error2.innerHTML = "";
+        }
+      }
+
+      loginform.addEventListener("submit", (e) => {
+        emailValidateChecking();
+        passValidateChecking();
+        if (error1.innerHTML || error2.innerHTML) {
+          e.preventDefault();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,460 @@
+<%- include('../partials/user/header') %>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e3fdf5, #ffe6fa);
+            padding: 0;
+            margin: 0;
+        }
+
+        .order-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .order-container:hover {
+            transform: scale(1.01);
+        }
+
+        .order-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .status-badge:hover {
+            transform: scale(1.1);
+        }
+
+        .status-pending {
+            background-color: #FFC107;
+            color: white;
+        }
+
+        .status-processing {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .status-shipped {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-delivered {
+            background-color: #9C27B0;
+            color: white;
+        }
+
+        .status-cancelled {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .product-list {
+            margin-top: 15px;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .product-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-right: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s ease;
+        }
+
+        .btn-cancel {
+            background: #f44336;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #d32f2f;
+            transform: scale(1.05);
+        }
+
+        .btn-edit {
+            background: #2196f3;
+            color: #fff;
+        }
+
+        .btn-edit:hover {
+            background: #1976d2;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .order-container {
+                width: 95%;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-image {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .order-container {
+                width: 80%;
+                max-width: 1200px;
+                padding: 40px;
+                margin: 50px auto;
+                border-radius: 15px;
+                background: linear-gradient(135deg, #ffffff, #f8f8f8);
+            }
+
+            .order-header {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .order-header div {
+                flex-grow: 1;
+            }
+
+            .status-badge {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+
+            .product-list {
+                padding: 10px 0;
+                border-top: 1px solid #ddd;
+            }
+
+            .product-item {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+            }
+
+            .product-image {
+                width: 100px;
+                height: 100px;
+                margin-right: 20px;
+            }
+
+            .order-actions {
+                justify-content: flex-end;
+            }
+
+            .btn-cancel,
+            .btn-edit {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+
+            .order-card {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            }
+
+            .order-card:hover {
+                transform: translateY(-5px) scale(1.03);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+
+            .product-image:hover {
+                transform: scale(1.1);
+                transition: transform 0.3s ease-in-out;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+        }
+    </style>
+
+    <div class="container order-container">
+        <h1 class="text-center mb-4">Order History</h1>
+
+        <% if (orders && orders.length> 0) { %>
+            <% orders.forEach(function(order) { %>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <strong>Order #<%= order._id.toString().slice(-8).toUpperCase() %></strong>
+                            <p class="text-muted">
+                                Ordered on <%= new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric' ,
+                                    month: 'long' , day: 'numeric' }) %>
+                            </p>
+                        </div>
+                        <span class="status-badge status-<%= order.status.toLowerCase() %>">
+                            <%= order.status %>
+                        </span>
+                    </div>
+
+                    <div class="product-list">
+                        <% order.orderedItems.forEach(function(item) { %>
+                            <div class="product-item">
+                                <img src="/uploads/re-image/<%= item.product.productImage[0] %>"
+                                    alt="<%= item.product.productName %>" class="product-image">
+                                <div class="flex-grow-1">
+                                    <%= item.product.productName %>
+                                        <small>(Qty: <%= item.quantity %>)</small>
+                                </div>
+                                <strong>₹<%= (item.price).toFixed(2) %></strong>
+                            </div>
+                            <% }); %>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <strong>Total: ₹<%= order.finalAmount.toFixed(2) %></strong>
+                        </div>
+                        <div class="order-actions">
+                            <% if (order.status==='Pending' ) { %>
+                                <button class="btn-cancel"
+                                    onclick="cancelOrder('<%= order._id %>', 'Processing')">Cancel Order</button>
+                                <% } %>
+                                    <button class="btn-edit"
+                                        onclick="showOrderDetails('<%= JSON.stringify( order ) %>')">View
+                                        Details</button>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+                    <% } else { %>
+                        <div class="text-center">
+                            <p>No orders found.</p>
+                        </div>
+                        <% } %>
+    </div>
+    <div class="modal fade order-details-modal" id="orderDetailsModal" tabindex="-1"
+        aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsModalBody">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function cancelOrder(orderId) {
+            try {
+                const result = await Swal.fire({
+                    title: 'Cancel Order',
+                    text: 'Are you sure you want to cancel this order?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, cancel it!'
+                });
+
+                if (result.isConfirmed) {
+                    const response = await fetch('/cancel-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ orderId })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire(
+                            'Cancelled!',
+                            'Your order has been cancelled.',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            data.message || 'Failed to cancel order.',
+                            'error'
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error('Cancel order error:', error);
+                Swal.fire(
+                    'Error!',
+                    'Something went wrong. Please try again.',
+                    'error'
+                );
+            }
+        };
+
+        function sanitizeString(str) {
+            return str.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+        }
+
+
+        function showOrderDetails(orderData) {
+            try {
+                const sanitizedOrderData = typeof orderData === 'string' ? sanitizeString(orderData) : orderData;
+                const order = typeof sanitizedOrderData === 'string' ? JSON.parse(sanitizedOrderData) : sanitizedOrderData;
+
+
+                const modalBody = document.getElementById('orderDetailsModalBody');
+                const orderDetails = {
+                    id:order._id,
+                    orderId: order.orderId || 'N/A',
+                    date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
+                    paymentMethod: order.paymentMethod || 'N/A',
+                    finalAmount: order.finalAmount || 0,
+                    status: order.status || 'N/A',
+                    shippingAddress: order.address || order.shippingAddress || null,
+                    items: order.orderedItems || []
+                };
+
+                
+
+                let detailsHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><strong>Order Information</strong></h6>
+                    <p><strong>Order ID:</strong> Order # ${orderDetails.id.toString().slice(-8).toUpperCase()}</p>
+                    <p><strong>Date:</strong> ${orderDetails.date}</p>
+                    <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
+                    <p><strong>Total Amount:</strong> ₹${orderDetails.finalAmount.toLocaleString()}</p>
+                    <p><strong>Status:</strong> ${orderDetails.status}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6><strong>Shipping Address</strong></h6>
+                    <p>
+                        ${orderDetails.shippingAddress ? `
+                            ${orderDetails.shippingAddress.name || 'Name not provided'}<br>
+                            ${orderDetails.shippingAddress.address || 'Address line not provided'}<br>
+                            ${orderDetails.shippingAddress.city || 'City'}, 
+                            ${orderDetails.shippingAddress.state || 'State'} 
+                            ${orderDetails.shippingAddress.pincode || 'Pincode'}<br>
+                            ${orderDetails.shippingAddress.landmark || 'landmark not provided'}<br>
+                            ${orderDetails.shippingAddress.phone || 'phone not provided'}
+                        ` : 'No shipping address available'}
+                    </p>
+                </div>
+            </div>
+            <hr>
+            <h6><strong>Ordered Items</strong></h6>
+            <div class="row">
+                        ${orderDetails.items.length > 0 ?
+                        orderDetails.items.map(item => `
+                    <div class="col-md-12 product-row">
+                          <div>
+                                <img src="/uploads/re-image/${item.product.productImage[0]}" 
+                                     alt="${item.product.productName}" 
+                                     class="product-image">
+                            </div>
+                            <div>
+                                <p><strong>${item.product.productName}</strong></p>
+                                <p>Quantity: ${item.quantity}</p>
+                                <p>Price: ₹${item.price.toLocaleString()}</p>
+
+
+                            </div>
+                    </div>
+                `).join('<hr>') :
+                        '<p>No items found in this order.</p>'
+                    }
+            </div>
+        `;
+
+                modalBody.innerHTML = detailsHTML;
+
+                const orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                orderDetailsModal.show();
+
+            } catch (error) {
+                console.error('Error in showOrderDetails:', error);
+                alert('Failed to load order details. Please check the console for more information.');
+            }
+        }
+
+        function viewOrderDetails(orderId) {
+            window.location.href = `/order-details/${orderId}`;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        const orderCards = document.querySelectorAll('.order-card');
+        orderCards.forEach(card => {
+            card.addEventListener('mouseover', () => {
+                card.style.transform = 'scale(1.02)';
+            });
+            card.addEventListener('mouseout', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <%- include('../partials/user/footer') %>

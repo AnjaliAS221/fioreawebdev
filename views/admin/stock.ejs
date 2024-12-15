@@ -1,0 +1,260 @@
+<%- include("../../views/partials/admin/header") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .content-main {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .content-header input {
+        width: 300px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: box-shadow 0.3s ease;
+    }
+    .content-header input:focus {
+        box-shadow: 0 0 5px #800000;
+    }
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+        transition: background-color 0.3s ease;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #800000, #800000);
+        border: none;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #800000, #800000);
+        transform: scale(1.05);
+    }
+    .pagination-area .page-item.active .page-link {
+        background-color: #800000;
+        border-color: #800000;
+    }
+    .pagination-area .page-item .page-link {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .pagination-area .page-item .page-link:hover {
+        background-color: #800000;
+        transform: scale(1.1);
+    }
+    .loading-spinner {
+        display: none;
+        width: 40px;
+        height: 40px;
+        border: 4px solid #ddd;
+        border-top: 4px solid #800000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+    }
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Stock Management</h2>
+        </div>
+        <div>
+            <input type="text" placeholder="Search product name" id="search-input" class="form-control bg-white">
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option value="All">All Categories</option>
+                        <option value="Mens">Embroidery</option>
+                        <option value="Womens">Sustain Wear</option>
+                        <option value="Home">Occassional Wear</option>
+                        <option value="New Arrivals">Co-ords</option>
+                        <option value="new Style's">New Arrivals</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Current Stock</th>
+                            <th>Update Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(let i=0; i < products.length; i++) { %>
+                            <tr>
+                                <td><%= products[i]._id %></td>
+                                <td><%= products[i].productName %></td>
+                                <td><%= products[i].category.name %></td>
+                                <td><%= products[i].quantity %></td>
+                                <td>
+                                    <input type="number" min="0" value="<%= products[i].quantity %>"
+                                        id="stock-<%= products[i]._id %>" class="form-control d-inline-block"
+                                        style="width: 100px;">
+                                    <button class="btn btn-primary btn-sm ms-2"
+                                        onclick="updateStock('<%= products[i]._id %>')">Update</button>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="loading-spinner" id="loading-spinner"></div>
+        </div>
+    </div>
+
+    <div class="pagination-area mt-15 mb-50 container">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% 
+                let startPage = Math.max(1, currentPage - 2); 
+                let endPage = Math.min(totalPages, startPage + 4);
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+                if (startPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">1</a>
+                    </li>
+                    <% if (startPage > 2) { %>
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    <% } %>
+                <% } %>
+                <% for (let i = startPage; i <= endPage; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+                <% if (endPage < totalPages) { %>
+                    <% if (endPage < totalPages - 1) { %>
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    <% } %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= totalPages %>"><%= totalPages %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+
+<script>
+    function updateStock(productId) {
+        const spinner = document.getElementById('loading-spinner');
+        spinner.style.display = 'block';
+        const newStock = document.getElementById(`stock-${productId}`).value;
+
+        fetch(`/admin/update-stock`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId, newStock })
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Stock Updated',
+                    text: 'The stock has been updated successfully!',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: 'Failed to update stock. Please try again.',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Close'
+                });
+            }
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            console.error('Error updating stock:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'An Error Occurred',
+                text: 'There was a problem updating the stock. Please try again.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Close'
+            });
+        });
+    }
+
+
+    document.getElementById('search-input').addEventListener('input', function() {
+    const searchQuery = this.value;
+
+    // Fetch the filtered products from the server
+    fetch(`/admin/search-products?query=${searchQuery}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const productsTableBody = document.querySelector('table tbody');
+                productsTableBody.innerHTML = ''; // Clear the existing rows
+                
+                // Populate the table with filtered products
+                data.products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product._id}</td>
+                        <td>${product.productName}</td>
+                        <td>${product.category.name}</td>
+                        <td>${product.quantity}</td>
+                        <td>
+                            <input type="number" min="0" value="${product.quantity}" id="stock-${product._id}" class="form-control d-inline-block" style="width: 100px;">
+                            <button class="btn btn-primary btn-sm ms-2" onclick="updateStock('${product._id}')">Update</button>
+                        </td>
+                    `;
+                    productsTableBody.appendChild(row);
+                });
+            } else {
+                // Handle error (e.g., no products found)
+                console.log('No products found');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+});
+
+
+</script>
+<%- include("../../views/partials/admin/footer") %>

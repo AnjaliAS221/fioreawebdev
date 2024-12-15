@@ -1,0 +1,168 @@
+<%- include("../../views/partials/user/header") %>
+<main class="main">
+ <div class="page-header breadcrumb-wrap">
+     <div class="container">
+         <div class="breadcrumb">
+             <a href="#" rel="nofollow">Home</a>
+             <span></span> Fashion
+             <span></span> Product Detail Page
+         </div>
+     </div>
+ </div>
+ <section class="mt-50 mb-50">
+     <div class="container">
+         <div class="row">
+             <div class="col-lg-9">
+                 <div class="product-detail accordion-detail">
+                     <div class="row mb-50">
+                         <div class="col-md-6 col-sm-12 col-xs-12">
+                             <div class="detail-gallery">
+                                 <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                                 <div class="product-image-slider">
+                                     <figure class="border-radius-10">
+                                         <img src="/uploads/re-image/<%= product.productImage[0]%>" alt="product image">
+                                     </figure>
+                                     <figure class="border-radius-10">
+                                       <img src="/uploads/re-image/<%= product.productImage[1]%>" alt="product image">
+                                   </figure>
+                                   <figure class="border-radius-10">
+                                       <img src="/uploads/re-image/<%= product.productImage[2]%>" alt="product image">
+                                   </figure>
+                                   <figure class="border-radius-10">
+                                       <img src="/uploads/re-image/<%= product.productImage[3]%>" alt="product image">
+                                   </figure>
+                                   <figure class="border-radius-10">
+                                       <img src="/uploads/re-image/<%= product.productImage[4]%>" alt="product image">
+                                   </figure>
+                                 </div>
+                                 <div  class="slider-nav-thumbnails pl-15 pr-15">
+                                    <% for (let i = 0; i < product.productImage.length; i++) { %>
+                                       <div>
+                                           <img style="object-fit:contain ;" src="/uploads/re-image/<%= product.productImage[i] %>" alt="product image">
+                                       </div>
+                                  <% } %>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-sm-12 col-xs-12">
+                             <div class="detail-info">
+                                 <h2 class="title-detail"><%= product.productName %></h2>
+                                 <div class="product-detail-rating">
+                                     <div class="product-rate-cover text-end">
+                                         <div class="product-rate d-inline-block">
+                                             <div class="product-rating" style="width:90%"></div>
+                                         </div>
+                                         <span class="font-small ml-5 text-muted"> (25 reviews)</span>
+                                     </div>
+                                 </div>
+                                 <div class="price-section mb-4">
+                                    <h3 class="text-brand">Rs.<%= product.salePrice %></h3>
+                                    <span class="text-muted"><strike>₹<%= product.regularPrice %></strike></span>
+                                    <% if (totalOffer) { %>
+                                        <span class="badge bg-success ms-2"><%= totalOffer %>% Off</span>
+                                    <% } else { %>
+                                        <span class="badge bg-secondary ms-2">No Offers</span>
+                                    <% } %>
+                                </div>
+
+                                <!-- Size and Color Selection -->
+                                <div class="product-sizes mb-3">
+                                    <label for="size-select" class="form-label">Size:</label>
+                                    <select id="size-select" name="size" class="form-select">
+                                        <% product.sizes.forEach(size => { %>
+                                            <option value="<%= size %>"><%= size %></option>
+                                        <% }); %>
+                                    </select>
+                                </div>
+
+                                <div class="product-colors mb-3">
+                                    <label for="color-select" class="form-label">Color:</label>
+                                    <select id="color-select" name="color" class="form-select">
+                                        <% product.colors.forEach(color => { %>
+                                            <option value="<%= color %>"><%= color %></option>
+                                        <% }); %>
+                                    </select>
+                                </div>
+
+                                 <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                                 <div class="short-desc mb-30">
+                                     <p><%= product.description %></p>
+                                 </div>
+                                 <div class="product_sort_info font-xs mb-30">
+                                     <ul>
+                                         <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 7 Days Return Policy</li>
+                                         <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                                     </ul>
+                                 </div>
+                               
+                                 <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                 <div class="detail-extralink">
+                                     <div class="detail-qty border radius">
+                                         <a href="#" class="qty-down" onclick="decrementQuantity()"><i class="fi-rs-angle-small-down"></i></a>
+                                         <span class="qty-val" id="quantity">1</span>
+                                         <a href="#" class="qty-up" onclick="incrementQuantity()"><i class="fi-rs-angle-small-up"></i></a>
+                                     </div>
+                                     <div class="product-extra-link2">
+                                        <p id="error-message" style="color: red;"></p>
+                                         <button type="button" class="button button-add-to-cart" onclick="addToCart('<%= product._id %>')">Add to cart</button>
+                                         <a href="/checkout?id=<%= product._id %>" class="btn action-btn standard-size">Buy Now</a>
+                                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>
+                                     </div>
+                                 </div>
+                                 <ul class="product-meta font-xs color-grey mt-50">
+                                     <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
+                                     <li class="mb-5">Tags: <a href="#" rel="tag"></a> <a href="#" rel="tag"></a> <a href="#" rel="tag"><%= category.name %></a> </li>
+                                     <li>Available:<span class="in-stock text-success ml-5"><%= quantity %></span></li>
+                                 </ul>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </section>
+</main>
+
+<script>
+  let quantity = 1; 
+
+  
+  function incrementQuantity() {
+    quantity++;
+    document.getElementById("quantity").innerText = quantity;
+  }
+
+  
+  function decrementQuantity() {
+    if (quantity > 1) {
+      quantity--;
+      document.getElementById("quantity").innerText = quantity;
+    }
+  }
+
+
+  
+  function addToCart(productId) {
+  fetch('/add-to-cart', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ productId }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Product added to cart successfully!');
+        window.location.href = '/cart';  
+      } else {
+        alert('Error adding product to cart: ' + data.message);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+</script>
+
+<%- include("../../views/partials/user/footer") %>

@@ -7,7 +7,7 @@
     <meta name="keywords" content="Male_Fashion, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Male-Fashion | Template</title>
+    <title>Fiorea</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
@@ -22,6 +22,78 @@
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="css/style.css" type="text/css">
+    <link rel="stylesheet" href="./user-assets/css/maind134.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+ 
+    <style>
+  /* Dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    font-family: 'Nunito Sans', sans-serif;
+}
+
+/* Dropdown content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0; /* Aligns dropdown to the right */
+    background-color: #ffffff;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    z-index: 1;
+    padding: 8px 0; /* Adds padding between links */
+    border: 1px solid #e0e0e0;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: #333; /* Consistent dark text */
+    padding: 10px 20px; /* Uniform padding for proper alignment */
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    text-align: left; /* Align text uniformly */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: 100%; /* Ensures links take up the same width */
+    border-bottom: 1px solid #f0f0f0; /* Separator between items */
+}
+
+/* Remove border for the last item */
+.dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+/* Hover effect for dropdown links */
+.dropdown-content a:hover {
+    background-color: #f4f4f4;
+    color: #000;
+}
+
+/* Show the dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Style for user name link */
+.sign-in-link {
+    font-weight: 600;
+    color: #000;
+    text-decoration: none;
+    font-size: 15px;
+    padding: 8px;
+    transition: color 0.3s ease;
+}
+
+.sign-in-link:hover {
+    color: #007bff; /* Accent color on hover */
+}
+
+
+
+</style>
+
 </head>
 
 <body>
@@ -67,15 +139,27 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-7">
                         <div class="header__top__left">
-                            <p>Free shipping, 30-day return or refund guarantee.</p>
+                            <p>Shipping Worldwide</p>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-5">
                         <div class="header__top__right">
                             <div class="header__top__links">
-                                <a href="#">Sign in</a>
+                                <% if (locals.user) { %>
+                                    <div class="dropdown">
+                                        <a href="#" class="sign-in-link"><%=locals.user.name%></a>
+                                        <div class="dropdown-content">
+                                            <a href="/userProfile">Profile</a>
+                                            <a href="/logout">Logout</a>
+                                        </div>
+                                    </div>
+                                <% } else { %>
+                                    <a href="/signup" class="sign-up-link">Sign Up</a>
+                                    <a href="/login" class="sign-in-link">Login</a>
+                                <% } %>
                                 <a href="#">FAQs</a>
                             </div>
+                            
                             <div class="header__top__hover">
                                 <span>Usd <i class="arrow_carrot-down"></i></span>
                                 <ul>
@@ -93,19 +177,19 @@
             <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <div class="header__logo">
-                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                        <a href="/"><h1>𝖋𝖎𝖔𝖗𝖊𝖆</h1></a>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <nav class="header__menu mobile-menu">
                         <ul>
-                            <li class="active"><a href="./index.html">Home</a></li>
-                            <li><a href="./shop.html">Shop</a></li>
+                            <li class="active"><a href="/">Home</a></li>
+                            <li><a href="/shop">Shop</a></li>
                             <li><a href="#">Pages</a>
                                 <ul class="dropdown">
                                     <li><a href="./about.html">About Us</a></li>
                                     <li><a href="./shop-details.html">Shop Details</a></li>
-                                    <li><a href="./shopping-cart.html">Shopping Cart</a></li>
+                                    <li><a href="/cart">Shopping Cart</a></li>
                                     <li><a href="./checkout.html">Check Out</a></li>
                                     <li><a href="./blog-details.html">Blog Details</a></li>
                                 </ul>
@@ -118,8 +202,8 @@
                 <div class="col-lg-3 col-md-3">
                     <div class="header__nav__option">
                         <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
-                        <a href="#"><img src="img/icon/heart.png" alt=""></a>
-                        <a href="#"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
+                        <a href="/wishlist"><img src="img/icon/heart.png" alt=""></a>
+                        <a href="/cart"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
                         <div class="price">$0.00</div>
                     </div>
                 </div>
