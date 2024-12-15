@@ -200,13 +200,11 @@ const loadCheckout = async (req, res) => {
              payment_method,
              couponDiscount,
              originalPrice,
-             discount,
-            
-             
+             discount
             } = req.body;
 
             console.log(discount);
-       
+        // Validate required fields
         if (!req.session.user) {
             console.error('Authentication Error: User not authenticated');
             return res.status(401).json({ 
@@ -243,7 +241,7 @@ const loadCheckout = async (req, res) => {
 
         const user = req.session.user;
         let orderItems = [];
-        ;
+        let finalAmount = parseFloat(totalPrice);
 
         // Process single product order
         if (singleProduct) {
