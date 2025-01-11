@@ -67,13 +67,13 @@ const securePassword = async(password)=>{
 // forgot password
 const getForgotPassPage = async (req, res) => {
     try {
-        // Render the forgot password page
+   
         res.render('forgot-password', {
             title: 'Forgot Password',
             message: 'Enter your email to reset your password.',
         });
     } catch (error) {
-        // Handle errors 
+        
         console.error('Error loading the Forgot Password page:', error);
         res.redirect("/pageNotFound");
     }
@@ -171,6 +171,21 @@ const userProfile = async (req,res)=>{
         res.redirect("/pageNotFound");
     }
 }
+
+
+const updateProfile = async (req, res) => {
+    try {
+      const { username, phone } = req.body;
+      
+      
+      const user = await User.findByIdAndUpdate(req.user._id, { name: username, phone: phone }, { new: true });
+      
+      res.redirect('/userProfile');
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Error updating profile");
+    }
+  };
 
 //resetting password
 const postNewPassword = async(req,res)=>{
@@ -456,6 +471,7 @@ module.exports = {
     getResetPassPage,
     resendOtp,
     userProfile,
+    updateProfile,
     postNewPassword,
     changeEmail,
     changeEmailValid,

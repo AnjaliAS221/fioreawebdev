@@ -30,6 +30,40 @@
         object-fit: cover;
         border-radius: 5px;
     }
+
+    #pagination .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    #pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+    
+    #pagination .page-link {
+        color: #007bff;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        margin: 0 0.25rem;
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    #pagination .page-link:hover {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    #pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
 </style>
 
 <section class="content-main">
@@ -51,6 +85,7 @@
                         <option value="Delivered" <%= currentStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                         <option value="Return Request" <%= currentStatus === 'Return Request' ? 'selected' : '' %>>Return request</option>
                         <option value="Returned" <%= currentStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
+                        <option value="Failed" <%= currentStatus === 'Failed' ? 'selected' : '' %>>Failed</option>
                     </select>
                 </div>
             </div>
@@ -113,7 +148,55 @@
             </div>
         </div>
     </div>
-    <!-- Pagination code remains the same -->
+
+    <div id="pagination" class="d-flex justify-content-center align-items-center mt-4">
+        <nav aria-label="Order pagination">
+            <ul class="pagination">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/orders?page=<%= currentPage - 1 %>&status=<%= currentStatus %>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                <% } else { %>
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                <% } %>
+    
+                <% 
+               
+                const maxPages = 5; 
+                let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+                let endPage = Math.min(totalPages, startPage + maxPages - 1);
+    
+                
+                if (endPage - startPage + 1 < maxPages) {
+                    startPage = Math.max(1, endPage - maxPages + 1);
+                }
+                %>
+    
+                <% for (let i = startPage; i <= endPage; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/admin/orders?page=<%= i %>&status=<%= currentStatus %>"><%= i %></a>
+                    </li>
+                <% } %>
+    
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/orders?page=<%= currentPage + 1 %>&status=<%= currentStatus %>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                <% } else { %>
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+    
 </section>
 
 <!-- Order Details Modal -->
@@ -125,7 +208,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="orderDetailsModalBody">
-                <!-- Order details will be dynamically populated here -->
             </div>
         </div>
     </div>
@@ -193,20 +275,23 @@
             orderId: order.orderId || 'N/A',
             date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
             paymentMethod: order.paymentMethod || 'N/A',
+            paymentStatus: order.paymentStatus,
             finalAmount: order.finalAmount || 0,
             status: order.status || 'N/A',
             shippingAddress: order.shippingAddress || null,
-            items: order.items || []
+            items: order.orderedItems || []
         };
+        
 
         
         let detailsHTML = `
             <div class="row">
                 <div class="col-md-6">
                     <h6><strong>Order Information</strong></h6>
-                    <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
+                    <p><strong>Order ID:</strong> ${orderDetails.orderId.toString().slice(-8).toUpperCase()}</p>
                     <p><strong>Date:</strong> ${orderDetails.date}</p>
                     <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
+                    <p><strong> Payment Status:</strong> ${orderDetails.paymentStatus}</p>
                     <p><strong>Total Amount:</strong> ₹${orderDetails.finalAmount.toLocaleString()}</p>
                     <p><strong>Status:</strong> ${orderDetails.status}</p>
                 </div>
@@ -233,15 +318,15 @@
                         <div class="col-md-12 product-row">
                             <div>
                                 <img src="${
-                                    (item.productId && item.productId.productImage) ? 
-                                    '/uploads/re-image/'+item.productId.productImage[0] : 
+                                    (item.product && item.product.productImage) ? 
+                                    '/uploads/re-image/'+item.product.productImage[0] : 
                                     '/default-product-image.png'
                                 }" 
-                                     alt="${(item.productId && item.productId.productName) ? item.productId.productName : 'Product'}" 
+                                     alt="${(item.product && item.product.productName) ? item.product.productName : 'Product'}" 
                                      class="product-image">
                             </div>
                             <div>
-                                <p><strong>${(item.productId && item.productId.productName) ? item.productId.productName : 'Product Name Unavailable'}</strong></p>
+                                <p><strong>${(item.product && item.product.productName) ? item.product.productName : 'Product Name Unavailable'}</strong></p>
                                 <p>Quantity: ${item.quantity || 'N/A'}</p>
                                 <p>Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
                             </div>

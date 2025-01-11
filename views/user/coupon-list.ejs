@@ -2,36 +2,103 @@
 
 <section class="container my-5">
     <h2 class="mb-4">Available Coupons</h2>
+    
     <div class="row">
-        <% coupons.forEach(coupon => { %>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title"><%= coupon.name %></h5>
-                        <p class="card-text">
-                            Discount: ₹<%= coupon.offerPrice %><br>
-                            Minimum Purchase: ₹<%= coupon.minimumPrice %><br>
-                            Valid Till: <%= coupon.expireOn.toLocaleDateString() %>
-                        </p>
-                        <button class="btn btn-primary" onclick="selectCoupon('<%= coupon.name %>')">
-                            Select Coupon
-                        </button>
+        <% if (typeof coupons !== 'undefined' && coupons.length > 0) { %>
+            <% coupons.forEach(coupon => { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= coupon.name %></h5>
+                            <p class="card-text">
+                                <% if (typeof coupon.offerPrice !== 'undefined') { %>
+                                    Discount: ₹<%= coupon.offerPrice %><br>
+                                <% } %>
+                                <% if (typeof coupon.minimumPrice !== 'undefined') { %>
+                                    Minimum Purchase: ₹<%= coupon.minimumPrice %><br>
+                                <% } %>
+                                <% if (typeof coupon.expireOn !== 'undefined') { %>
+                                    Valid Till: <%= coupon.expireOn.toLocaleDateString() %><br>
+                                <% } %>
+                              
+                            </p>
+                            <button class="btn btn-primary" onclick="selectCoupon('<%= coupon.name %>')">
+                                Select Coupon
+                            </button>
+                        </div>
                     </div>
                 </div>
+            <% }); %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="alert alert-info">No coupons available at this time.</div>
             </div>
-        <% }); %>
+        <% } %>
     </div>
 </section>
 
 <script>
 function selectCoupon(couponCode) {
-    // Close the modal or navigate back to checkout
-    window.location.href = '/checkout';
+    const totalPriceElement = document.getElementById('totalPriceAmt');
     
-    // Optionally, you can pre-fill the coupon code
-    setTimeout(() => {
-        document.getElementById('couponCode').value = couponCode;
-    }, 500);
+    if (!totalPriceElement) {
+        console.error('Total price element not found');
+        alert('Error: Could not find total price');
+        return;
+    }
+    
+    fetch('/applyCoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            couponCode, 
+            totalPriceAmt: totalPriceElement.value 
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            const elements = {
+                totalPrice: document.getElementById('totalPriceElement'),
+                finalPrice: document.getElementById('finalPrice'),
+                discountapp: document.getElementById('discountapp'),
+                coupon: document.getElementById('coupon'),
+                removeBtn: document.getElementById('removeCouponBtn'),
+                applyBtn: document.getElementById('applyCouponBtn')
+            };
+
+            // Check if all required elements exist
+            const missingElements = Object.entries(elements)
+                .filter(([key, element]) => !element)
+                .map(([key]) => key);
+
+            if (missingElements.length > 0) {
+                console.error('Missing elements:', missingElements);
+                alert('Some required elements are missing on the page');
+                return;
+            }
+
+            elements.totalPrice.textContent = `₹${data.discountedPrice.toLocaleString()}`;
+            elements.finalPrice.value = data.discountedPrice;
+            elements.discountapp.value = data.couponDiscount;
+            elements.coupon.value = couponCode;
+            elements.removeBtn.style.display = 'inline-block';
+            elements.applyBtn.style.display = 'none';
+        } else {
+            alert(data.message || 'Failed to apply coupon');
+        }
+    })
+    .catch(error => {
+        console.error('Error applying coupon:', error);
+        alert('Error applying coupon. Please try again.');
+    });
 }
 </script>
 

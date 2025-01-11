@@ -1,166 +1,439 @@
 <%- include("../../views/partials/user/header") %>
+
+<style>
+    
+    .guides-container {
+        display: flex;
+        gap: 20px;
+        margin: 15px 0;
+        padding: 10px 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .guide-link {
+        margin: 0;
+    }
+    
+    .guide-link a {
+        text-decoration: none;
+        font-size: 0.95rem;
+        color: #444;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .guide-link a:hover {
+        color: #3BB77E;
+    }
+    
+    .guide-link i {
+        font-size: 1.2rem;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .fi-rs-ruler {
+        color: #FF9800;
+    }
+    
+    .fi-rs-palette {
+        color: #E91E63;
+    }
+    
+    /* Action Buttons Styling */
+    .product-extra-link2 {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .button {
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: 500;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 150px;
+    }
+    
+    .button-add-to-cart {
+        background-color: #3BB77E;
+        color: white;
+        border: none;
+    }
+    
+    .button-add-to-cart:hover {
+        background-color: #2f9d69;
+    }
+    
+    .buy-now-btn {
+        background-color: #FD6E6E;
+        color: white;
+        border: none;
+    }
+    
+    .buy-now-btn:hover {
+        background-color: #fc5555;
+    }
+    
+    .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    
+    /* Modal Styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+    
+    .modal-content {
+        position: relative;
+        margin: 15% auto;
+        padding: 20px;
+        width: 80%;
+        max-width: 500px;
+        background-color: white;
+        border-radius: 8px;
+    }
+    
+    .modal-content img {
+        width: 100%;
+        height: auto;
+    }
+    
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #aaa;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
 <main class="main">
- <div class="page-header breadcrumb-wrap">
-     <div class="container">
-         <div class="breadcrumb">
-             <a href="#" rel="nofollow">Home</a>
-             <span></span> Fashion
-             <span></span> Product Detail Page
-         </div>
-     </div>
- </div>
- <section class="mt-50 mb-50">
-     <div class="container">
-         <div class="row">
-             <div class="col-lg-9">
-                 <div class="product-detail accordion-detail">
-                     <div class="row mb-50">
-                         <div class="col-md-6 col-sm-12 col-xs-12">
-                             <div class="detail-gallery">
-                                 <span class="zoom-icon"><i class="fi-rs-search"></i></span>
-                                 <div class="product-image-slider">
-                                     <figure class="border-radius-10">
-                                         <img src="/uploads/re-image/<%= product.productImage[0]%>" alt="product image">
-                                     </figure>
-                                     <figure class="border-radius-10">
-                                       <img src="/uploads/re-image/<%= product.productImage[1]%>" alt="product image">
-                                   </figure>
-                                   <figure class="border-radius-10">
-                                       <img src="/uploads/re-image/<%= product.productImage[2]%>" alt="product image">
-                                   </figure>
-                                   <figure class="border-radius-10">
-                                       <img src="/uploads/re-image/<%= product.productImage[3]%>" alt="product image">
-                                   </figure>
-                                   <figure class="border-radius-10">
-                                       <img src="/uploads/re-image/<%= product.productImage[4]%>" alt="product image">
-                                   </figure>
-                                 </div>
-                                 <div  class="slider-nav-thumbnails pl-15 pr-15">
-                                    <% for (let i = 0; i < product.productImage.length; i++) { %>
-                                       <div>
-                                           <img style="object-fit:contain ;" src="/uploads/re-image/<%= product.productImage[i] %>" alt="product image">
-                                       </div>
-                                  <% } %>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-sm-12 col-xs-12">
-                             <div class="detail-info">
-                                 <h2 class="title-detail"><%= product.productName %></h2>
-                                 <div class="product-detail-rating">
-                                     <div class="product-rate-cover text-end">
-                                         <div class="product-rate d-inline-block">
-                                             <div class="product-rating" style="width:90%"></div>
-                                         </div>
-                                         <span class="font-small ml-5 text-muted"> (25 reviews)</span>
-                                     </div>
-                                 </div>
-                                 <div class="price-section mb-4">
-                                    <h3 class="text-brand">Rs.<%= product.salePrice %></h3>
-                                    <span class="text-muted"><strike>₹<%= product.regularPrice %></strike></span>
-                                    <% if (totalOffer) { %>
-                                        <span class="badge bg-success ms-2"><%= totalOffer %>% Off</span>
-                                    <% } else { %>
-                                        <span class="badge bg-secondary ms-2">No Offers</span>
-                                    <% } %>
-                                </div>
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="#" rel="nofollow">Home</a>
+                <span></span> Fashion
+                <span></span> Product Detail Page
+            </div>
+        </div>
+    </div>
 
-                                <!-- Size and Color Selection -->
-                                <div class="product-sizes mb-3">
-                                    <label for="size-select" class="form-label">Size:</label>
-                                    <select id="size-select" name="size" class="form-select">
-                                        <% product.sizes.forEach(size => { %>
-                                            <option value="<%= size %>"><%= size %></option>
-                                        <% }); %>
-                                    </select>
-                                </div>
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="product-detail accordion-detail">
+                        <div class="row mb-50">
+                            <div class="col-md-6 col-sm-12 col-xs-12">
+                                <div class="detail-gallery">
+                                    <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                                    <div class="product-image-slider">
+                                        <figure class="border-radius-10">
+                                            <img src="/uploads/re-image/<%= product.productImage[0]%>" alt="product image">
+                                        </figure>
+                                        <figure class="border-radius-10">
+                                            <img src="/uploads/re-image/<%= product.productImage[1]%>" alt="product image">
+                                        </figure>
+                                        <figure class="border-radius-10">
+                                            <img src="/uploads/re-image/<%= product.productImage[2]%>" alt="product image">
+                                        </figure>
+                                        <figure class="border-radius-10">
+                                            <img src="/uploads/re-image/<%= product.productImage[3]%>" alt="product image">
+                                        </figure>
+                                        <figure class="border-radius-10">
+                                            <img src="/uploads/re-image/<%= product.productImage[4]%>" alt="product image">
+                                        </figure>
+                                    </div>
 
-                                <div class="product-colors mb-3">
-                                    <label for="color-select" class="form-label">Color:</label>
-                                    <select id="color-select" name="color" class="form-select">
-                                        <% product.colors.forEach(color => { %>
-                                            <option value="<%= color %>"><%= color %></option>
-                                        <% }); %>
-                                    </select>
+                                    <div class="slider-nav-thumbnails pl-15 pr-15">
+                                        <% for (let i = 0; i < product.productImage.length; i++) { %>
+                                            <div>
+                                                <img style="object-fit:contain;" src="/uploads/re-image/<%= product.productImage[i] %>" alt="product image">
+                                            </div>
+                                        <% } %>
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12 col-xs-12">
+                                <div class="detail-info">
+                                    <h2 class="title-detail"><%= product.productName %></h2>
 
-                                 <div class="bt-1 border-color-1 mt-15 mb-15"></div>
-                                 <div class="short-desc mb-30">
-                                     <p><%= product.description %></p>
-                                 </div>
-                                 <div class="product_sort_info font-xs mb-30">
-                                     <ul>
-                                         <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 7 Days Return Policy</li>
-                                         <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
-                                     </ul>
-                                 </div>
-                               
-                                 <div class="bt-1 border-color-1 mt-30 mb-30"></div>
-                                 <div class="detail-extralink">
-                                     <div class="detail-qty border radius">
-                                         <a href="#" class="qty-down" onclick="decrementQuantity()"><i class="fi-rs-angle-small-down"></i></a>
-                                         <span class="qty-val" id="quantity">1</span>
-                                         <a href="#" class="qty-up" onclick="incrementQuantity()"><i class="fi-rs-angle-small-up"></i></a>
-                                     </div>
-                                     <div class="product-extra-link2">
-                                        <p id="error-message" style="color: red;"></p>
-                                         <button type="button" class="button button-add-to-cart" onclick="addToCart('<%= product._id %>')">Add to cart</button>
-                                         <a href="/checkout?id=<%= product._id %>" class="btn action-btn standard-size">Buy Now</a>
-                                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>
-                                     </div>
-                                 </div>
-                                 <ul class="product-meta font-xs color-grey mt-50">
-                                     <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
-                                     <li class="mb-5">Tags: <a href="#" rel="tag"></a> <a href="#" rel="tag"></a> <a href="#" rel="tag"><%= category.name %></a> </li>
-                                     <li>Available:<span class="in-stock text-success ml-5"><%= quantity %></span></li>
-                                 </ul>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-         </div>
-     </div>
- </section>
+                                    <div class="product-detail-rating">
+                                        <div class="product-rate-cover text-end">
+                                            <div class="product-rate d-inline-block">
+                                                <div class="product-rating" style="width:90%"></div>
+                                            </div>
+                                            <span class="font-small ml-5 text-muted"> (25 reviews)</span>
+                                        </div>
+                                    </div>
+                                    <div class="price-section mb-4">
+                                        <h3 class="text-brand">Rs.<%= product.salePrice %></h3>
+                                        <span class="text-muted"><strike>₹<%= product.regularPrice %></strike></span>
+                                        <% if (totalOffer) { %>
+                                            <span class="badge bg-success ms-2"><%= totalOffer %>% Off</span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary ms-2">No Offers</span>
+                                        <% } %>
+                                    </div>
+
+                                    <!-- Size Selection -->
+                                    <div class="product-sizes mb-3">
+                                        <div class="size-selection-container">
+                                            <label for="size-select" class="form-label">Size:</label>
+                                            <select id="size-select" name="size" class="form-select mb-2">
+                                                <% product.sizes.forEach(size => { %>
+                                                    <option value="<%= size %>"><%= size %></option>
+                                                <% }); %>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Color Selection -->
+                                    <div class="product-colors mb-3">
+                                        <div class="color-selection-container">
+                                            <label for="color-select" class="form-label">Color:</label>
+                                            <select id="color-select" name="color" class="form-select mb-2">
+                                                <% product.colors.forEach(color => { %>
+                                                    <option value="<%= color %>"><%= color %></option>
+                                                <% }); %>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                   
+                                    <div class="guides-container">
+                                        <div class="guide-link">
+                                            <a href="#" id="size-guide-link">
+                                                <i class="fi-rs-ruler"></i>
+                                                Size Guide
+                                            </a>
+                                        </div>
+                                        <div class="guide-link">
+                                            <a href="#" id="color-guide-link">
+                                                <i class="fi-rs-palette"></i>
+                                                Color Guide
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <!-- Size Guide Modal -->
+                                    <div id="size-guide-modal" class="modal">
+                                        <div class="modal-content">
+                                            <span class="close" onclick="closeModal('size-guide-modal')">&times;</span>
+                                            <img src="img/Size_Chart.webp" alt="Size Guide">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Color Guide Modal -->
+                                    <div id="color-guide-modal" class="modal">
+                                        <div class="modal-content">
+                                            <span class="close" onclick="closeModal('color-guide-modal')">&times;</span>
+                                            <img src="img/color_guide_fiorea.webp" alt="Color Guide">
+                                        </div>
+                                    </div>
+
+                                    <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                                    <div class="short-desc mb-30">
+                                        <p><%= product.description %></p>
+                                    </div>
+
+                                    <div class="product_sort_info font-xs mb-30">
+                                        <ul>
+                                            <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 7 Days Return Policy</li>
+                                            <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                    <div class="detail-extralink">
+                                        <div class="detail-qty border radius">
+                                            <a href="#" class="qty-down" onclick="decrementQuantity()"><i class="fi-rs-angle-small-down"></i></a>
+                                            <span class="qty-val" id="quantity">1</span>
+                                            <a href="#" class="qty-up" onclick="incrementQuantity()"><i class="fi-rs-angle-small-up"></i></a>
+                                        </div>
+                                        <div class="product-extra-link2">
+                                            <p id="error-message" style="color: red;"></p>
+                                            <% if (quantity <= 0) { %>
+                                                <button type="button" class="button button-add-to-cart" disabled>Out of Stock</button>
+                                                <button type="button" class="button buy-now-btn" disabled>Out of Stock</button>
+                                            <% } else { %>
+                                                <button type="button" class="button button-add-to-cart" onclick="addToCart('<%= product._id %>')">Add to cart</button>
+                                                <a href="/checkout?id=<%= product._id %>" class="button buy-now-btn">Buy Now</a>
+                                            <% } %>
+                                            <a aria-label="Add To Wishlist" 
+                                            class="action-btn hover-up" 
+                                            href="#" 
+                                            onclick="addToWishlist('<%= product._id %>')">
+                                                <i class="fi-rs-heart"></i>
+                                            </a>
+
+                                        </div>
+                                    </div>
+
+                                    <ul class="product-meta font-xs color-grey mt-50">
+                                        <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
+                                        <li class="mb-5">Tags: <a href="#" rel="tag"></a> <a href="#" rel="tag"></a> <a href="#" rel="tag"><%= category.name %></a> </li>
+                                        <li>
+                                            Available: 
+                                            <% if (quantity <= 0) { %>
+                                                <span class="out-of-stock text-danger ml-5">Out of Stock</span>
+                                            <% } else { %>
+                                                <span class="in-stock text-success ml-5"><%= quantity %></span>
+                                            <% } %>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
 
 <script>
-  let quantity = 1; 
+let quantity = 1; 
 
-  
-  function incrementQuantity() {
+function incrementQuantity() {
     quantity++;
     document.getElementById("quantity").innerText = quantity;
-  }
+}
 
-  
-  function decrementQuantity() {
+function decrementQuantity() {
     if (quantity > 1) {
-      quantity--;
-      document.getElementById("quantity").innerText = quantity;
+        quantity--;
+        document.getElementById("quantity").innerText = quantity;
     }
-  }
+}
 
-
-  
-  function addToCart(productId) {
-  fetch('/add-to-cart', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ productId }),
-  })
+function addToCart(productId) {
+    const selectedQuantity = quantity;
+    
+    fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId, quantity: selectedQuantity }),
+    })
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
-        alert('Product added to cart successfully!');
-        window.location.href = '/cart';  
-      } else {
-        alert('Error adding product to cart: ' + data.message);
-      }
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Cart',
+                text: 'Product added to cart successfully!',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Go to Cart',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/cart';
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error adding product to cart: ' + data.message,
+                confirmButtonColor: '#d33',
+            });
+        }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please try again later.',
+            confirmButtonColor: '#d33',
+        });
+    });
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = "block";
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+}
+
+document.getElementById("size-guide-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal("size-guide-modal");
+});
+
+document.getElementById("color-guide-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal("color-guide-modal");
+});
+
+
+function addToWishlist(productId){
+
+$.ajax({
+  url:'/addToWishlist',
+  method: 'POST',
+  data : {productId : productId},
+  success: (response)=>{
+    if(response.status){
+      Swal.fire({
+        title: "Added to wishlist",
+        text: 'The product has been added to your wishlist',
+        icon: 'success',
+        timer: 2000,
+      })
+    }else{
+      Swal.fire({
+        title: 'Already in wishlist',
+        text: response.message,
+        icon: 'info',
+        timer:2000
+      })
+    }
+  },
+  error : (error)=>{
+    Swal.fire({
+      title: 'Error',
+      text: 'There was an error while adding the product to your wishlist',
+      icon: 'error',
+      timer: 2000
+    })
+  }
+})  
+
 }
 
 </script>

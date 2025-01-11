@@ -1,0 +1,338 @@
+<%- include('../partials/admin/header') %>
+<style>
+        .filter-container {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+    .filter-container:hover {
+        box-shadow: 0 0 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #495057;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .material-icons {
+        font-size: 18px;
+        margin-right: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .filter-container {
+            padding: 1rem !important;
+        }
+    }
+</style>
+
+    <div class="filter-container bg-light rounded-3 p-4 shadow-sm mb-4">
+        <form id="filterForm" method="get" action="/admin/salesReport">
+            <% if (currentPage) { %>
+                <input type="hidden" name="page" value="<%= currentPage %>">
+            <% } %>
+            <div class="row g-3">
+                <div class="col-12">
+                    <h5 class="text-primary mb-3">
+                        <i class="material-icons align-middle me-2"></i>
+                        Filter Options
+                    </h5>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="dateRangeSelect" class="form-label">
+                            <i class="material-icons me-1 text-muted"></i>
+                            Predefined Range
+                        </label>
+                        <select class="form-select" name="dateRange" id="dateRangeSelect">
+                            <option value="">Select Range</option>
+                            <option value="today" <%= dateRange === 'today' ? 'selected' : '' %>>
+                                Today
+                            </option>
+                            <option value="week" <%= dateRange === 'week' ? 'selected' : '' %>>
+                                This Week
+                            </option>
+                            <option value="month" <%= dateRange === 'month' ? 'selected' : '' %>>
+                                This Month
+                            </option>
+                            <option value="year" <%= dateRange === 'year' ? 'selected' : '' %>>
+                                This Year
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="startDate" class="form-label">
+                            <i class="material-icons me-1 text-muted"></i>
+                            Start Date
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="material-icons"></i></span>
+                            <input type="date" class="form-control" id="startDate" name="startDate" value="<%= startDate %>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="endDate" class="form-label">
+                            <i class="material-icons me-1 text-muted"></i>
+                            End Date
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="material-icons"></i></span>
+                            <input type="date" class="form-control" id="endDate" name="endDate" value="<%= endDate %>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="material-icons me-1"></i>
+                            Apply Filter
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetFilter()">
+                            <i class="material-icons me-1"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Sales</h6>
+                    <h3 class="text-primary">₹<%= totalSales %></h3>
+                </div>
+            </div>
+        </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Orders</h6>
+                        <h3 class="text-success">
+                            <%= count %>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Discount</h6>
+                        <h3 class="text-warning">₹<%=totalDiscount %></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Customers</h6>
+                        <h3 class="text-info"><%= totalUsers %></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive shadow-sm">
+            <table class="table table-hover align-middle" id="salesTable">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Sl No</th>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Products (Quantity)</th>
+                        <th>Date</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                        <th>Final Amount</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach((order, index) => { %>
+                        <tr>
+                            <td><%= serialNumberOffset + index + 1 %></td>
+                            <td><%= order.user ? order.user.username : 'N/A' %></td>
+                            <td><%= order.user ? order.user.email : 'N/A' %></td>
+                            <td>
+                                <% if (order.orderedItems && order.orderedItems.length > 0) { %>
+                                    <%= order.orderedItems.map(item => 
+                                        `${item.product ? item.product.productName : 'N/A'} (${item.quantity})`
+                                    ).join(', ') %>
+                                <% } else { %>
+                                    No items
+                                <% } %>
+                            </td>
+                            <td><%= moment(order.createdOn).format('DD/MM/YYYY') %></td>
+                            <td>₹<%= Math.round(order.totalPrice).toLocaleString() %></td>
+                            <td>₹<%= Math.round(order.discount).toLocaleString() %></td>
+                            <td>₹<%= Math.round(order.finalAmount).toLocaleString() %></td>
+                            <td><%= order.paymentMethod || 'N/A' %></td>
+                            <td><%= order.status || 'N/A' %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+      
+        <div class="export-buttons mb-3">
+            <form id="exportForm" class="d-inline">
+                <% if (startDate) { %>
+                    <input type="hidden" name="startDate" value="<%= startDate %>">
+                <% } %>
+                <% if (endDate) { %>
+                    <input type="hidden" name="endDate" value="<%= endDate %>">
+                <% } %>
+                <% if (dateRange) { %>
+                    <input type="hidden" name="dateRange" value="<%= dateRange %>">
+                <% } %>
+                
+                <button type="button" class="btn btn-primary me-2" onclick="exportToPDF()">
+                    <i class="bi bi-file-pdf"></i> Export PDF
+                </button>
+                <button type="button" class="btn btn-success" onclick="exportToExcel()">
+                    <i class="bi bi-file-excel"></i> Export Excel
+                </button>
+            </form>
+        </div>
+
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                <% } %>
+    
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === currentPage) { %>
+                        <li class="page-item active">
+                            <span class="page-link"><%= i %></span>
+                        </li>
+                    <% } else if (i <= 3 || i > totalPages - 2 || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } else if (i === 4 && currentPage > 4) { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    <% } %>
+                <% } %>
+    
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+
+    <br>
+    <br>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+       document.addEventListener('DOMContentLoaded', function() {
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Date range selection handler
+    dateRangeSelect.addEventListener('change', function() {
+        if (this.value) {
+            // Clear custom date inputs
+            startDateInput.value = '';
+            endDateInput.value = '';
+            
+            // Create hidden input for current page if it exists
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('page')) {
+                const pageInput = document.createElement('input');
+                pageInput.type = 'hidden';
+                pageInput.name = 'page';
+                pageInput.value = urlParams.get('page');
+                filterForm.appendChild(pageInput);
+            }
+            
+            filterForm.submit();
+        }
+    });
+
+    // Custom date selection handlers
+    [startDateInput, endDateInput].forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value) {
+                dateRangeSelect.value = '';
+            }
+        });
+    });
+
+    // Form submit handler
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const queryString = new URLSearchParams(formData).toString();
+        window.location.href = `/admin/salesReport?${queryString}`;
+    });
+});
+
+// Export functions
+function exportToPDF() {
+    const currentUrl = new URL(window.location.href);
+    const params = new URLSearchParams(currentUrl.search);
+    window.location.href = `/admin/salesReport/pdf?${params.toString()}`;
+}
+
+function exportToExcel() {
+    const currentUrl = new URL(window.location.href);
+    const params = new URLSearchParams(currentUrl.search);
+    window.location.href = `/admin/salesReport/excel?${params.toString()}`;
+}
+
+function resetFilter() {
+    const filterForm = document.getElementById('filterForm');
+    document.getElementById('dateRangeSelect').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    
+    // Remove all existing hidden inputs
+    filterForm.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
+    
+    // Submit the form
+    filterForm.submit();
+}
+        
+        </script>
+
+    <%- include('../partials/admin/footer') %>

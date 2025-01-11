@@ -138,15 +138,15 @@
 <div class="main-container">
   <section class="shop-page container">
     <!-- Search Bar -->
-    <div class="shop-topbar">
-      <form action="/search" method="POST" class="search-form">
-        <input type="text" name="query" placeholder="Search items..." class="search-input" />
-        <button type="submit" class="search-button">Search</button>
-      </form>
-      
-      <!-- Sorting Dropdown -->
-      <div class="sorting-container">
-        <select id="sort-by" class="sort-select" onchange="handleSortChange()">
+   
+<div class="shop-topbar">
+  <form action="/search" method="POST" class="search-form">
+      <input type="text" name="query" id="search-input" placeholder="Search items..." class="search-input" />
+      <button type="submit" class="search-button">Search</button>
+  </form>
+  
+  <div class="sorting-container">
+      <select id="sort-by" class="sort-select" onchange="handleSortChange()">
           <option value="default">Sort by: Default</option>
           <option value="popularity">Popularity</option>
           <option value="price-low-high">Price: Low to High</option>
@@ -155,19 +155,17 @@
           <option value="new-arrivals">New Arrivals</option>
           <option value="alphabetical-a-z">Alphabetical (A-Z)</option>
           <option value="alphabetical-z-a">Alphabetical (Z-A)</option>
-        </select>
-      </div>
-    </div>
+      </select>
+  </div>
 
-
-    <!-- Category Filter Dropdown -->
-<div class="category-filter-container">
-  <select id="cat-filter" class="cat-filter-select" onchange="handleSortChange()">
-    <option value="all-categories">All Categories</option>
-    <% categories.forEach(category => { %>
-      <option value="<%= category._id %>"><%= category.name %></option>
-    <% }) %>
-  </select>
+  <div class="category-filter-container">
+      <select id="cat-filter" class="cat-filter-select" onchange="handleSortChange()">
+          <option value="all-categories">All Categories</option>
+          <% categories.forEach(category => { %>
+              <option value="<%= category._id %>"><%= category.name %></option>
+          <% }) %>
+      </select>
+  </div>
 </div>
 
 
@@ -265,91 +263,118 @@
 
 
 
-function handleSortChange() {
+  function handleSortChange() {
     const sortBy = document.getElementById('sort-by').value;
     const category = document.getElementById('cat-filter').value;
+    const searchInput = document.getElementById('search-input');
+    const searchQuery = searchInput ? searchInput.value : '';
 
-    fetch('/sort-and-search', {
+    // Store the current filters in sessionStorage to maintain state
+    sessionStorage.setItem('currentFilters', JSON.stringify({
+        sort: sortBy,
+        category: category,
+        search: searchQuery
+    }));
+
+    $.ajax({
+        url: '/sort-and-search',
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
+        data: {
+            sort: sortBy,
+            category: category,
+            search: searchQuery
         },
-        body: JSON.stringify({ 
-            sort: sortBy, 
-            category: category
-        }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to fetch products');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.products) {
-            updateProductList(data.products);
-        } else {
-            const productsContainer = document.getElementById('products-container');
-            productsContainer.innerHTML = '<p>No products found.</p>';
-            
+        success: function(response) {
+            if (response.products && response.products.length > 0) {
+                updateProductList(response.products);
+            } else {
+                $('#products-container').html('<p>No products found.</p>');
+                Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    title: "No products found",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        },
+        error: function(error) {
+            console.error('Error:', error);
             Swal.fire({
                 position: "center",
-                icon: "warning",
-                title: "No products found",
+                icon: "error",
+                title: "Failed to load products",
                 showConfirmButton: false,
                 timer: 1500
             });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        
-        Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Failed to load products",
-            text: error.message,
-            showConfirmButton: false,
-            timer: 1500
-        });
     });
 }
 
-function catFilter() {
-    handleSortChange();
-}
+// Add event listeners for all filter changes
+document.addEventListener('DOMContentLoaded', function() {
+    const sortSelect = document.getElementById('sort-by');
+    const categorySelect = document.getElementById('cat-filter');
+    const searchInput = document.getElementById('search-input');
 
+    // Restore previous filters if they exist
+    const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
+    if (savedFilters.sort) sortSelect.value = savedFilters.sort;
+    if (savedFilters.category) categorySelect.value = savedFilters.category;
+    if (savedFilters.search) searchInput.value = savedFilters.search;
+
+    // Add event listeners
+    sortSelect.addEventListener('change', handleSortChange);
+    categorySelect.addEventListener('change', handleSortChange);
+    
+    // Debounce search input to prevent too many requests
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(handleSortChange, 300);
+    });
+
+    // Initial load
+    handleSortChange();
+});
 
 function updateProductList(products) {
-  const productsContainer = document.getElementById('products-container');
-  productsContainer.innerHTML = ''; 
-
-  products.forEach(product => {
-    const productCard = `
-      <div class="product-card">
-        <span class="wishlist-btn">❤️</span>
-        <a href="/productDetails?id=${product._id}">
-          <div class="product-image-container">
-            <img src="uploads/re-image/${product.productImage[0]}" alt="${product.productName}" />
-          </div>
-          <div class="product-details">
-            <h4>${product.productName}</h4>
-            <p>Price: ₹${product.salePrice.toLocaleString('en-IN')}
-              <span class="text-muted">
-                <strike>₹${product.regularPrice.toLocaleString('en-IN')}</strike>
-              </span>
-            </p>
-          </div>
-        </a>
-        <div class="add-to-cart-icon" onclick="addToCart('${product._id}')">
-          <i class="fas fa-cart-plus"></i>
-        </div>
-      </div>
-    `;
-    productsContainer.insertAdjacentHTML('beforeend', productCard);
-  });
+    const container = $('#products-container');
+    container.empty();
+    
+    products.forEach(product => {
+        const card = `
+            <div class="product-card">
+                <span class="wishlist-btn" onclick="addToWishlist('${product._id}')">❤️</span>
+                <a href="/productDetails?id=${product._id}">
+                    <div class="product-image-container">
+                        <img src="uploads/re-image/${product.productImage[0]}" alt="${product.productName}" />
+                    </div>
+                    <div class="product-details">
+                        <h4>${product.productName}</h4>
+                        <p>Price: ₹${product.salePrice.toLocaleString('en-IN')}
+                            <span class="text-muted">
+                                <strike>₹${product.regularPrice.toLocaleString('en-IN')}</strike>
+                            </span>
+                        </p>
+                    </div>
+                </a>
+                <div class="add-to-cart-icon" onclick="addToCart('${product._id}')">
+                    <i class="fas fa-cart-plus"></i>
+                </div>
+            </div>
+        `;
+        container.append(card);
+    });
 }
 
+
+$(document).ready(function() {
+    $('.search-form').on('submit', function(e) {
+        e.preventDefault();
+        handleSortChange();
+    });
+});
 
 function addToWishlist(productId){
 

@@ -36,19 +36,6 @@ const login = async(req,res)=>{
 }
 
 
-// Load dashboard page
-const loadDashboard = async(req,res)=>{
-    if(req.session.admin){
-        try {
-            res.render("dashboard");
-        } catch (error) {
-            res.redirect("/admin/pageerror");
-        }
-    }
-}
-
-
-
 // error  page
 const pageerror = async(req,res)=>{
     res.render("admin-error");
@@ -74,7 +61,6 @@ const logout = async(req,res)=>{
 module.exports = {
     loadLogin,
     login,
-    loadDashboard,
     pageerror,
     logout,
 }

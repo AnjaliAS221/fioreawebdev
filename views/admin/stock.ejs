@@ -224,15 +224,14 @@
     document.getElementById('search-input').addEventListener('input', function() {
     const searchQuery = this.value;
 
-    // Fetch the filtered products from the server
     fetch(`/admin/search-products?query=${searchQuery}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const productsTableBody = document.querySelector('table tbody');
-                productsTableBody.innerHTML = ''; // Clear the existing rows
+                productsTableBody.innerHTML = ''; 
                 
-                // Populate the table with filtered products
+               
                 data.products.forEach(product => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -248,7 +247,7 @@
                     productsTableBody.appendChild(row);
                 });
             } else {
-                // Handle error (e.g., no products found)
+              
                 console.log('No products found');
             }
         })

@@ -1,4 +1,6 @@
 <%- include("../../views/partials/user/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <style>
  .card-green {
    background-color: #ADD8E6;
@@ -132,8 +134,8 @@
  <div class="page-header breadcrumb-wrap mb-3">
    <div class="container">
      <div class="breadcrumb">
-       <a href="#" rel="nofollow">Home</a>
-       <span></span> Profile <span></span> Account
+       <a href="/" rel="nofollow">Home</a>
+       <span></span> <a href="#" rel="nofollow">Profile</a> <span></span><a href="#" rel="nofollow">Account</a>
      </div>
    </div>
  </div>
@@ -160,18 +162,21 @@
                      <i class="fi-rs-shopping-bag mr-10"></i>Orders
                    </a>
                  </li>
+
                  <li class="nav-item">
-                   <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab" aria-controls="track-orders" aria-selected="false">
-                     <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet Status
+                  <a class="nav-link" id="track-orders-tab"  href="/wishlist"  aria-selected="false">
+                    <i class="fa fa-heart mr-10"></i> Wishlist
+                  </a>
+                </li>
+
+                 <li class="nav-item">
+                   <a class="nav-link" id="track-orders-tab"  href="/wallet"  aria-selected="false">
+                     <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet
                    </a>
                  </li>
+                
                  <li class="nav-item">
-                   <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#wallet-history" role="tab" aria-controls="track-orders" aria-selected="false">
-                     <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet History
-                   </a>
-                 </li>
-                 <li class="nav-item">
-                   <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#referal" role="tab" aria-controls="track-orders" aria-selected="false">
+                   <a class="nav-link" id="referrals" data-bs-toggle="tab" href="/referrals" role="tab" aria-controls="track-orders" aria-selected="false">
                      <i class="fi-rs-shopping-cart-check mr-10"></i>Referals
                    </a>
                  </li>
@@ -183,6 +188,8 @@
                </ul>
              </div>
            </div>
+
+           
            <div class="col-md-8">
              <div class="tab-content dashboard-content">
 
@@ -199,6 +206,19 @@
                      <p class="card-text">
                        <strong>Email:</strong><%=user.email%>
                      </p>
+
+                     <form action="/update-profile" method="POST">
+                      <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-control" value="<%= user.name %>" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" id="phone" name="phone" class="form-control" value="<%= user.phone %>" required>
+                      </div>
+                      <button type="submit" class="btn btn-sm btn-success ml-2">Update</button>
+                    </form>
+
                      <a href="/change-email" class="btn btn-sm btn-success ml-2">Change Email</a>
                      <a href="/change-password" class="btn btn-sm btn-success">Change Password</a>
                    </div>
@@ -295,58 +315,8 @@
                </div>
 
 
-               <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
-                 <div class="card">
-                   <div class="card-header">
-                     <h5 class="mb-0">Wallet</h5>
-                   </div>
-                   <div class="card-body contact-from-area">
-                     <div class="row">
-                       <div class="col-lg-8 mx-auto text-center mt-90">
-                         <form>
-                           <div class="form-group">
-                             <label for="walletAmount" class="h4">Amount</label>
-                             <div class="h3"></div>
-                           </div>
-                           <button type="button" class="btn btn-success" onclick="">Add Money</button>
-                         </form>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-
-
-               <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
-                 <div class="card">
-                   <div class="card-header">
-                     <h5 class="mb-0">Wallet History</h5>
-                   </div>
-                   <div class="card-body">
-                     <div class="table-responsive">
-                       <table class="table">
-                         <thead>
-                           <tr>
-                             <th>Date</th>
-                             <th>Status</th>
-                             <th>Amount</th>
-                           </tr>
-                         </thead>
-                         <tbody>
-                           <tr>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                           </tr>
-                         </tbody>
-                       </table>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-
-
-               <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
+    
+               <div class="tab-pane fade" id="referrals" role="tabpanel" aria-labelledby="track-orders-tab">
                  <div class="card">
                    <div class="card-header">
                      <h5 class="mb-0">Referal</h5>

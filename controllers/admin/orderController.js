@@ -2,6 +2,10 @@ const Order = require('../../models/orderSchema');
 const User = require('../../models/userSchema');
 const mongoose = require('mongoose');
 const Address = require('../../models/addressSchema');
+const PDFDocument = require('pdfkit');
+const Return = require('../../models/returnSchema');
+const Wallet = require('../../models/walletSchema');
+const ExcelJS = require('exceljs');
 
 
 
@@ -18,7 +22,7 @@ const loadOrders = async(req,res)=>{
             .populate('user')
             .populate('address')
             .populate({
-                path: 'items.productId', 
+                path: 'orderedItems.product', 
                 model: 'Product', 
                 select: 'productName productImage', 
                 strictPopulate: false 
@@ -73,7 +77,73 @@ const updateOrderStatus = async (req, res) => {
         });
     }
 };
+
+
+
+
+const getReturnPage= async (req,res)=>{
+    try {
+        const limit =5;
+        
+        const page= Math.max(1,parseInt(req.query.page))||0
+        const skip= (page-1)/limit
+        const returnData=await Return.find().populate('userId').populate('orderId').sort({createdAt:-1}).limit(limit).skip(skip);
+
+        console.log(returnData);
+        const count =await Return.countDocuments();
+        res.render('returnOrder',{returns:returnData,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        })
+
+    } catch (error) {
+        console.error(error);
+        res.redirect('/pageeorror')
+    }
+}
+const returnRequest= async (req,res)=>{
+    try {
+        const status=req.body.status;
+        const returnId=req.query.id;
+
+        const returnData = await Return.findById(returnId);
+        if(!returnData){
+            return res.json({message:'return id not found'})
+
+        }
+        const orderId=returnData.orderId;
+        const userId=returnData.userId;
+        const amount=returnData.refundAmount;
+        console.log(orderId);
+
+        if(status=='approved'){
+            const wallet=await Wallet.findOneAndUpdate({userId},{$inc:{balance:amount},$push:{transactions:{type:'Refund',amount,orderId,description:'Refund for your returned product'}}})
+            returnData.returnStatus ='approved';
+            await returnData.save();
+            await Order.findByIdAndUpdate(orderId,{$set:{status:'Returned'}})
+
+        }else if(status=='rejected'){
+            returnData.returnStatus =status;
+            await returnData.save();
+            await Order.findByIdAndUpdate(orderId,{$set:{status:'Return Requeest'}})
+
+        }else{
+            return res.status(400).json({message:'something wend wrong'})
+        }
+        res.redirect('/admin/getReturnRequest')
+
+
+    } catch (error) {
+        res.redirect('/admin/pageerror')
+        
+    }
+}
+
+
+
 module.exports={
     loadOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    getReturnPage,
+    returnRequest,
 }

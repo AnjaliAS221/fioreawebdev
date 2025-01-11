@@ -53,9 +53,7 @@ const addProducts = async(req,res)=>{
                 }
             }
 
-           
-            
-
+        
             const categoryId = await Category.findOne({name:products.category});
             if(!categoryId){
                 return res.status(400).join("Invalid category name");
@@ -140,6 +138,14 @@ const addProductOffer = async (req, res) => {
     try {
         const { productId, percentage } = req.body;
 
+        if (percentage > 100 ) {
+            return res.json({ status: false, message: "Offer percentage cannot exceed 100%" });
+        }
+
+        if (percentage < 1 ) {
+            return res.json({ status: false, message: "Offer percentage must be at least 1%" });
+        }
+
         const findProduct = await Product.findOne({ _id: productId });
         const findCategory = await Category.findOne({ _id: findProduct.category });
 
@@ -148,11 +154,11 @@ const addProductOffer = async (req, res) => {
         }
 
         
-        findProduct.salePrice = findProduct.salePrice.Math.floor(findProduct.regularPrice * (percentage / 100));
+        findProduct.salePrice = findProduct.regularPrice * (1 - percentage / 100);
         findProduct.productOffer = parseInt(percentage);
         await findProduct.save();
 
-       
+      
         findCategory.categoryOffer = 0;
         await findCategory.save();
 

@@ -46,7 +46,7 @@ const loadHomepage = async (req, res) => {
         productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
         productData = productData.slice(0, 4);
 
-        // let userData = null;
+        
 
         if (user) {
            
@@ -237,8 +237,10 @@ const loadLogin = async (req,res)=>{
 // user login
 const login = async(req,res)=>{
     try {
+        
         const {email,password} = req.body;
         const findUser = await User.findOne({isAdmin:false,email:email});
+
 
             if(!findUser){
                 return res.render("login",{message:"User not Found"});

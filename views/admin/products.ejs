@@ -106,30 +106,144 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <script>
-    async function addOffer(productId) {
-        const {value:amount} = await Swal.fire({
-            title:"Offer in percentage",
+  async function addOffer(productId) {
+    try {
+        const { value: amount, isConfirmed } = await Swal.fire({
+            title: "Offer in percentage",
             input: 'number',
-            inputLabel:'percentage',
-            inputPlaceholder: "%"
-        })
-        $.ajax({
-            url:"/admin/addProductOffer",
-            method:"post",
-            data:{
-                percentage:amount,
-                productId:productId
-            },
-            success:(response)=>{
-                if(response.status === true){
-                    location.reload()
-                    Swal.fire('Offer added','The offer has been removed');
-                }else{
-                    alert('failed');
+            inputLabel: 'percentage',
+            inputPlaceholder: "%",
+            showCancelButton: true,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Please enter a percentage';
+                }
+                if (value < 1) {
+                    return 'Percentage must be at least 1%';
+                }
+                if (value > 100) {
+                    return 'Percentage cannot exceed 100%';
                 }
             }
-        })
+        });
+
+        if (!isConfirmed || !amount) return;
+
+        const response = await $.ajax({
+            url: "/admin/addProductOffer",
+            method: "post",
+            data: {
+                percentage: parseFloat(amount),
+                productId: productId
+            },
+            dataType: 'json'
+        });
+
+        console.log('Server Response:', response); // Debug log
+
+        if (response.status === true) {
+            await Swal.fire('Success', 'The offer has been applied successfully', 'success');
+            location.reload();
+        } else {
+            throw new Error(response.message || 'Failed to add offer');
+        }
+
+    } catch (error) {
+        console.error("Error details:", error);
+        Swal.fire('Failed', error.message || 'Something went wrong', 'error');
     }
+}
+
+
+const addProductOffer = async (req, res) => {
+    try {
+        const { productId, percentage } = req.body;
+        
+        // Input validation
+        if (!productId || !percentage) {
+            return res.json({ 
+                status: false, 
+                message: "Product ID and percentage are required" 
+            });
+        }
+
+        
+        const offerPercentage = parseFloat(percentage);
+
+        if (isNaN(offerPercentage)) {
+            return res.json({ 
+                status: false, 
+                message: "Invalid percentage value" 
+            });
+        }
+
+        if (offerPercentage > 100) {
+            return res.json({ 
+                status: false, 
+                message: "Offer percentage cannot exceed 100%" 
+            });
+        }
+
+        if (offerPercentage < 1) {
+            return res.json({ 
+                status: false, 
+                message: "Offer percentage must be at least 1%" 
+            });
+        }
+
+        // Find product and validate
+        const findProduct = await Product.findById(productId);
+        if (!findProduct) {
+            return res.json({ 
+                status: false, 
+                message: "Product not found" 
+            });
+        }
+
+        // Find category and validate
+        const findCategory = await Category.findById(findProduct.category);
+        if (!findCategory) {
+            return res.json({ 
+                status: false, 
+                message: "Category not found" 
+            });
+        }
+
+        if (findCategory.categoryOffer > offerPercentage) {
+            return res.json({ 
+                status: false, 
+                message: "This product category already has a higher category offer" 
+            });
+        }
+
+        
+        const newSalePrice = findProduct.regularPrice * (1 - offerPercentage / 100);
+        
+       
+        await Product.findByIdAndUpdate(productId, {
+            salePrice: newSalePrice,
+            productOffer: offerPercentage
+        });
+
+        
+        await Category.findByIdAndUpdate(findCategory._id, {
+            categoryOffer: 0
+        });
+
+        return res.json({ 
+            status: true,
+            message: "Offer added successfully" 
+        });
+
+    } catch (error) {
+        console.error("Error in addProductOffer:", error);
+        return res.status(500).json({ 
+            status: false, 
+            message: "Internal server error",
+            error: error.message 
+        });
+    }
+};
 
     async function removeOffer(productId) {
     try {

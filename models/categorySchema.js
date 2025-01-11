@@ -18,7 +18,8 @@ const categorySchema = new mongoose.Schema({
     },
     categoryOffer: {
         type: Number,
-        defualt:0
+        defualt:0,
+        
     },
     createdAt: {
         type: Date,

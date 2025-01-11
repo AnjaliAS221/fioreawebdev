@@ -42,13 +42,79 @@
    background-color: #0056b3;
    border-color: #0056b3;
  }
+
+ .alert {
+   padding: 15px;
+   margin-bottom: 20px;
+   border: 1px solid transparent;
+   border-radius: 4px;
+ }
+
+ .alert-success {
+   color: #155724;
+   background-color: #d4edda;
+   border-color: #c3e6cb;
+ }
+
+ .alert-danger {
+   color: #721c24;
+   background-color: #f8d7da;
+   border-color: #f5c6cb;
+ }
+
+ .pagination {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin-top: 20px;
+   gap: 5px;
+ }
+
+ .pagination a, .pagination span {
+   padding: 8px 16px;
+   text-decoration: none;
+   border: 1px solid #ddd;
+   color: #007bff;
+   background-color: #fff;
+   border-radius: 4px;
+ }
+
+ .pagination a:hover {
+   background-color: #e9ecef;
+ }
+
+ .pagination .active {
+   background-color: #007bff;
+   color: white;
+   border-color: #007bff;
+ }
+
+ .pagination .disabled {
+   color: #6c757d;
+   pointer-events: none;
+   background-color: #fff;
+ }
+
 </style>
+
 <section class="content-main">
  <div class="content-header">
    <div>
      <h2 class="content-title card-title">Coupons</h2>
    </div>
  </div>
+
+        <% if (message) { %>
+          <div class="alert alert-success" role="alert">
+            <%= message %>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-danger" role="alert">
+            <%= error %>
+          </div>
+        <% } %>
+
  <div class="card">
    <div class="card-body">
      <div class="row">
@@ -151,8 +217,47 @@
                      <% } %>
                  </tbody>
              </table>
+
+
+           <!-- Pagination -->
+           <% if (totalPages > 1) { %>
+            <div class="pagination">
+              <% if (hasPrevPage) { %>
+                <a href="/admin/coupon?page=1" class="first">«</a>
+                <a href="/admin/coupon?page=<%= prevPage %>" class="prev">‹</a>
+              <% } else { %>
+                <span class="disabled">«</span>
+                <span class="disabled">‹</span>
+              <% } %>
+
+              <% 
+              let startPage = Math.max(1, currentPage - 2);
+              let endPage = Math.min(totalPages, startPage + 4);
+              if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+              }
+              %>
+
+              <% for(let i = startPage; i <= endPage; i++) { %>
+                <% if (i === currentPage) { %>
+                  <span class="active"><%= i %></span>
+                <% } else { %>
+                  <a href="/admin/coupon?page=<%= i %>"><%= i %></a>
+                <% } %>
+              <% } %>
+
+              <% if (hasNextPage) { %>
+                <a href="/admin/coupon?page=<%= nextPage %>" class="next">›</a>
+                <a href="/admin/coupon?page=<%= totalPages %>" class="last">»</a>
+              <% } else { %>
+                <span class="disabled">›</span>
+                <span class="disabled">»</span>
+              <% } %>
+            </div>
+          <% } %>
+
          </div>
-     </div>
+      </div>
      </div>
    </div>
  </div>
@@ -160,6 +265,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            alert.style.display = 'none';
+        });
+    }, 5000);
+
   setDefaultStartDate();
 });
 
@@ -215,6 +327,7 @@ function validateForm() {
      return false;
    }
 
+
    const formData = {
        couponName: name,
        startDate: sDateObj,
@@ -242,27 +355,35 @@ function confirmDelete(couponId) {
 }
 
 function deleteCoupon(couponId) {
-   $.ajax({
-     url: `/admin/deletecoupon?id=${couponId}`,
-     method: "GET",
-     success: function () {
-       Swal.fire({
-         icon: "success",
-         title: "Deleted!",
-         text: "The coupon has been deleted.",
-         confirmButtonText: "OK",
-       }).then(() => {
-         window.location.reload();
-       });
-     },
-     error: function () {
-       Swal.fire({
-         icon: "error",
-         title: "Error!",
-         text: "Failed to delete the coupon. Please try again.",
-       });
-     },
-   });
+    $.ajax({
+        url: `/admin/deletecoupon?id=${couponId}`,
+        method: "GET",
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: response.message,
+                    confirmButtonText: "OK",
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error!",
+                    text: response.message
+                });
+            }
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: xhr.responseJSON?.message || "Failed to delete the coupon"
+            });
+        }
+    });
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -6,8 +6,11 @@ const categoryController = require("../controllers/admin/categoryController");
 const productController = require("../controllers/admin/productController");
 const bannerController = require("../controllers/admin/bannerController");
 const stockController = require('../controllers/admin/stockController');
+const salesController = require('../controllers/admin/salesController');
 const orderController = require("../controllers/admin/orderController");
 const couponController = require("../controllers/admin/couponController");
+const dashboardController = require('../controllers/admin/dashboardController');
+const returnController = require('../controllers/admin/returnController');
 const {adminAuth, userAuth} = require("../middlewares/auth");
 const multer = require("multer");
 const storage = require("../helpers/multer");
@@ -17,10 +20,10 @@ const uploads = multer({storage:storage});
 
 //error management
 router.get("/pageerror",adminController.pageerror);
+
 //login management
 router.get("/login",adminController.loadLogin);
 router.post("/login",adminController.login);
-router.get("/",adminAuth,adminController.loadDashboard);
 router.get("/logout",adminController.logout);
 
 //customer management
@@ -68,6 +71,9 @@ router.get("/search-products",adminAuth,stockController.searchProducts);
 //order Controller
 router.get('/orders', adminAuth, orderController.loadOrders);
 router.post('/update-order-status', adminAuth, orderController.updateOrderStatus);
+router.get('/getReturnRequest',adminAuth,orderController.getReturnPage);
+router.post('/returnDataUpdate',adminAuth,orderController.returnRequest);
+
 
 //coupon management
 router.get("/coupon",adminAuth,couponController.loadCoupon);
@@ -75,6 +81,19 @@ router.post("/createCoupon",adminAuth,couponController.createCoupon);
 router.get("/editCoupon",adminAuth,couponController.editCoupon);
 router.post("/updateCoupon",adminAuth,couponController.updateCoupon);
 router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon);
+
+//dashboard management
+router.get("/",adminAuth,dashboardController.loadDashboard);
+router.get('/generate-ledger',adminAuth, dashboardController.generateLedgerBook);
+
+//sales management
+router.get("/salesReport",adminAuth,salesController.loadSalesReport);
+router.get('/salesReport/pdf',adminAuth, salesController.exportSalesToPDF);
+router.get('/salesReport/excel',adminAuth, salesController.exportSalesToExcel);
+
+// return management
+router.get('/return-approvals',adminAuth,returnController.getReturnApprovals)
+router.post('/returnDataUpdate',adminAuth,returnController.returnUpdate);
 
 
 module.exports = router;

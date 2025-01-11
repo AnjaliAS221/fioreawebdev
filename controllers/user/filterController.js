@@ -4,56 +4,92 @@ const Product = require("../../models/productSchema");
 
 
 const sortSearch = async (req, res) => {
-
     try {
-
         const { search = '', category = 'all-categories', sort = 'default' } = req.body;
 
-        let SortingCondition;
+        // Build the query
+        const query = {};
+
+        // Add search condition if search term exists
+        if (search.trim()) {
+            query.$or = [
+                { productName: { $regex: search.trim(), $options: 'i' } },
+                { description: { $regex: search.trim(), $options: 'i' } }
+            ];
+        }
+
+        // Add category filter if specific category selected
+        if (category !== 'all-categories') {
+            query.category = category;
+        }
+
+        // Define sorting conditions with collation for proper alphabetical sorting
+        let sortCondition = {};
+        let collation = null;
 
         switch (sort) {
             case 'popularity':
-                SortingCondition = { popularity: -1 };
+                sortCondition = { popularity: -1 };
                 break;
             case 'price-low-high':
-                SortingCondition = { salePrice: 1 };
+                sortCondition = { salePrice: 1 };
                 break;
             case 'price-high-low':
-                SortingCondition = { salePrice: -1 };
+                sortCondition = { salePrice: -1 };
                 break;
             case 'rating':
-                SortingCondition = { rating: -1 };
+                sortCondition = { rating: -1 };
                 break;
             case 'new-arrivals':
-                SortingCondition = { createdAt: -1 };
+                sortCondition = { createdAt: -1 };
                 break;
             case 'alphabetical-a-z':
-                SortingCondition = { productName: -1 };
+                sortCondition = { productName: 1 };
+                collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
                 break;
             case 'alphabetical-z-a':
-                SortingCondition = { productName: 1 };
+                sortCondition = { productName: -1 };
+                collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
                 break;
             default:
-                SortingCondition = { createdAt: -1 };
+                sortCondition = { createdAt: -1 };
         }
 
-        const query = {
-            productName: { $regex: search, $options: 'i' }, 
-        };
+        // Fetch products with combined query
+        let productsQuery = Product.find(query)
+            .sort(sortCondition)
+            .lean();
 
-        if (category !== 'all-categories') {
-            query.category = category; 
+        // Apply collation for alphabetical sorting if needed
+        if (collation) {
+            productsQuery = productsQuery.collation(collation);
         }
 
-        const products = await Product.find(query).sort(SortingCondition);
-        const categories = await Category.find();
-        res.status(200).json({ products,categories });
+        const products = await productsQuery;
+
+        // Log the sorted products for debugging (remove in production)
+        if (sort === 'alphabetical-a-z' || sort === 'alphabetical-z-a') {
+            console.log('Sorted products:', products.map(p => p.productName));
+        }
+
+        res.json({
+            success: true,
+            products: products,
+            filters: { search, category, sort }
+        });
+
     } catch (error) {
         console.error("Error in sort and search:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
     }
 };
 
+
+
 module.exports = {
     sortSearch,
+    
 };

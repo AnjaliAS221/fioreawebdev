@@ -9,30 +9,25 @@ passport.use(new googleStrategy({
     callbackURL: 'http://localhost:3006/auth/google/callback',
     scope: ['profile', 'email']
 }, 
-(accessToken, refreshToken, profile, done) => {
-    const displayName = profile.displayName || 'No Name';
-    const email = profile.emails?.[0]?.value || 'No Email';
-
-    User.findOne({ googleId: profile.id })
-        .then(existingUser => {
-            if (existingUser) {
-                // User already exists, pass the existing user
-                return done(null, existingUser);
-            } else {
-                // Create new user
-                const newUser = new User({
-                    name: displayName,
-                    email: email,
-                    googleId: profile.id
-                });
-
-                newUser.save()
-                    .then(user => done(null, user))
-                    .catch(error => done(error, null));
-            }
-        })
-        .catch(error => done(error, null));
-}));
+async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ googleId: profile.id });
+      if (user) {
+        return done(null, user);
+      } else {
+        user = new User({
+          name: profile.displayName,
+          email: profile.emails ? profile.emails[0].value : null, // Safeguard check
+          googleId: profile.id,
+        });
+        await user.save();
+        return done(null, user);
+      }
+    } catch (error) {
+      return done(error, null);
+    }
+  }
+));
 
 passport.serializeUser((user, done) => {
     done(null, user.id);

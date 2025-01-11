@@ -7,6 +7,9 @@ const productController = require("../controllers/user/productController");
 const filterController = require("../controllers/user/filterController");
 const cartController = require('../controllers/user/cartController');
 const wishlistController = require('../controllers/user/wishlistController');
+const walletController = require("../controllers/user/walletController");
+const referralController = require("../controllers/user/referralController");
+const invoiceController = require("../controllers/user/invoiceController");
 const {userAuth} = require("../middlewares/auth");
 const User = require('../models/userSchema.js')
 
@@ -59,6 +62,7 @@ router.post("/update-email",userAuth,profileController.updateEmail);
 router.get("/change-password",userAuth,profileController.changePassword);
 router.post("/change-password",userAuth,profileController.changePasswordValid);
 router.post("/verify-changepassword-otp",userAuth,profileController.verifyChangePassOtp);
+router.post("/update-profile",userAuth,profileController.updateProfile);
 
 // Address management
 router.get("/addAddress",userAuth,profileController.addAddress);
@@ -88,12 +92,18 @@ router.post('/update-cart-quantity', userAuth,cartController.updateCart);
 
 //order management
 router.get('/checkout',userAuth, productController.loadCheckout);
-router.post('/place-order-initial',userAuth,productController.placeOrderInitial);
 router.get('/order-confirmation',userAuth, productController.orderConfirm);
 router.post('/cancel-order',userAuth, productController.cancelOrder);
 router.get('/order-history',userAuth,productController.orderHistory);
+router.post('/place-order-initial',userAuth,productController.placeOrderInitial);
+router.post('/create-order',userAuth,productController.createOrder)
+router.post('/place-order',userAuth,productController.placeOrder);
+router.post('/return-order',productController.returnOrder);
 
 
+router.post('/update-failed-order', userAuth, productController.updateFailedOrder);
+router.post('/retry-payment',userAuth,productController.retryPayment);
+router.post('/verify-payment',userAuth,productController.verifyPayment);
 
 //wishlist management 
 router.get('/wishlist',userAuth,wishlistController.loadWishlist);
@@ -105,9 +115,17 @@ router.post('/applyCoupon', userAuth, productController.applyCoupon);
 router.post('/removeCoupon', userAuth, productController.removeCoupon);
 router.get('/coupons', userAuth, productController.loadCoupons);
 
+// wallet management
+router.get('/wallet', userAuth, walletController.loadWallet);
+router.post('/create-wallet', userAuth, walletController.createWallet);
+router.post('/verify-wallet', userAuth, walletController.verifyWallet);
 
 
+//referal management
+router.get('/referrals',userAuth,referralController.loadDashboard);
 
+//invoice
+router.get('/download-invoice/:orderId', userAuth, invoiceController.generateInvoice);
 
 
 

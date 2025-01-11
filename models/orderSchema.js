@@ -8,6 +8,7 @@ const orderSchema = new Schema({
     orderId: {
         type:String,
         default: ()=>uuidv4(),
+        required: true,
         unique:true
     },
     orderedItems: [{
@@ -49,7 +50,7 @@ const orderSchema = new Schema({
     status:  {
         type:String,
         required:true,
-        enum: ["Pending","Processing","Shipped","Delivered","Cancelled","Return Request","Returned"]
+        enum: ["Pending","Processing","Shipped","Delivered","Cancelled","Return Request","Returned","Failed"]
     },
     createdAt: {
         type:Date,
@@ -58,7 +59,7 @@ const orderSchema = new Schema({
     },
     couponApplied:{
         type: Boolean,
-        defualt: false
+        default: false
     },
     paymentMethod:{
         type:String,
@@ -66,7 +67,36 @@ const orderSchema = new Schema({
     },
     paymentStatus:{
         type:String,
-        enum:["pending","processing","completed"]
+        enum:["Pending","Processing","Paid","Refunded","Failed"]
+    },
+    cancellation: {
+        isCancelled: {
+            type: Boolean,
+            default: false
+        },
+        cancelledAt: {
+            type: Date,
+        },
+        cancelReason: {
+            type: String,
+        },
+        cancelNote: {
+            type: String,
+        },
+        cancelledBy: {
+            type: String,
+            enum: ['user', 'admin'],
+        }
+    },
+    refundDetails: {
+        refundedAt: Date,
+        refundAmount: Number,
+        refundStatus: {
+            type: String,
+            enum: ['Pending', 'Completed', 'Failed'],
+            default: 'Pending'
+        },
+        refundedToWallet: Boolean
     }
 })
 
