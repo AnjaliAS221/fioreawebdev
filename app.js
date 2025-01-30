@@ -12,62 +12,80 @@ db();
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({extended :true}));
-app.use(express.static(path.join(__dirname,"public")));
+app.use(express.urlencoded({ extended: true }));
 
-app.use(session({
-    secret:process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:true,
-    cookie:{
-        secure:false,
-        httpOnly:true,
-        maxAge:72*60*60*1000
-     }
-  }));
-
-  app.use((req, res, next) => {
-    res.set({
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'Surrogate-Control': 'no-store'
-    });
-    next();
+// MIME type middleware
+app.use((req, res, next) => {
+  if (req.url.endsWith('.js')) {
+    res.type('application/javascript');
+  } else if (req.url.endsWith('.css')) {
+    res.type('text/css');
+  } else if (req.url.endsWith('.png')) {
+    res.type('image/png');
+  }
+  next();
 });
 
-  app.use(flash());
+// Static file serving
+app.use(express.static(path.join(__dirname, "public")));
+app.use('/user-assets', express.static(path.join(__dirname, "user-assets")));
+app.use('/uploads', express.static(path.join(__dirname, "uploads")));
 
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 72 * 60 * 60 * 1000
+  }
+}));
 
+app.use((req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store'
+  });
+  next();
+});
+
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.set("views", [
+  path.join(__dirname, 'views/user'),
+  path.join(__dirname, 'views/admin')
+]);
+app.set("view engine", "ejs");
 
-// app.set('views', path.join(__dirname, 'views'));
-app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')]);
-app.set("view engine","ejs");
-
-
-app.use("/",userRouter);
-
-app.use('/admin',adminRouter);
-
-
-app.listen(process.env.PORT, ()=>{
-    console.log("Server is running");
-
-})
-
-
-
-
+// Flash middleware
 app.use((req, res, next) => {
-    res.locals.success_msg = req.flash('success_msg');
-    res.locals.error_msg = req.flash('error_msg');
-    next();
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  next();
 });
 
+// Routes
 
+app.use('/admin', adminRouter);
+app.use("/", userRouter);
 
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+app.use((req, res, next) => {
+  res.status(404).send('Sorry, we cannot find that!');
+});
+
+app.listen(process.env.PORT, () => {
+  console.log("Server is running");
+});
 
 module.exports = app;

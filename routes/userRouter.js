@@ -81,6 +81,7 @@ router.post("/search",userAuth,userController.searchProducts);
 router.get("/productDetails",userAuth,productController.productDetails);
 router.get('/all-products',userAuth,productController.getAllProducts);
 
+
 // filtering products
 router.post('/sort-and-search',filterController.sortSearch)
 
@@ -89,6 +90,7 @@ router.get('/cart',userAuth,cartController.loadCart);
 router.post('/add-to-cart',userAuth,cartController.addCart);
 router.post('/remove-cart-item',userAuth,cartController.removeCartItem);
 router.post('/update-cart-quantity', userAuth,cartController.updateCart);
+router.post('/update-cart-item',userAuth,cartController.updateCartItem);
 
 //order management
 router.get('/checkout',userAuth, productController.loadCheckout);
@@ -99,16 +101,18 @@ router.post('/place-order-initial',userAuth,productController.placeOrderInitial)
 router.post('/create-order',userAuth,productController.createOrder)
 router.post('/place-order',userAuth,productController.placeOrder);
 router.post('/return-order',productController.returnOrder);
-
-
 router.post('/update-failed-order', userAuth, productController.updateFailedOrder);
 router.post('/retry-payment',userAuth,productController.retryPayment);
 router.post('/verify-payment',userAuth,productController.verifyPayment);
+router.get('/payment-failed', userAuth, productController.paymentFailed);
 
 //wishlist management 
 router.get('/wishlist',userAuth,wishlistController.loadWishlist);
-router.post('/addToWishlist',userAuth,wishlistController.addToWishlist);
+router.post('/toggleWishlist',userAuth,wishlistController.toggleWishlist);
+router.get('/get-wishlist', userAuth, wishlistController.getWishlist);
 router.get('/removeFromWishlist',userAuth,wishlistController.removeProduct);
+router.get('/getProductDetails/:id', userAuth, wishlistController.getProductDetails);
+router.post('/addToCartFromWishlist', userAuth, wishlistController.addToCart);
 
 //coupon management
 router.post('/applyCoupon', userAuth, productController.applyCoupon);

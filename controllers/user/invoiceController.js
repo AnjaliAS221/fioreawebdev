@@ -20,6 +20,13 @@ const generateInvoice = async (req, res) => {
             throw new Error('Order not found');
         }
 
+        if (order.status !== 'Delivered') {
+            return res.status(403).json({
+                error: 'Invoice unavailable',
+                message: 'Invoice can only be generated for delivered orders'
+            });
+        }
+
         await order.populate([
             {
                 path: 'orderedItems.product',
@@ -173,7 +180,6 @@ const generateInvoice = async (req, res) => {
             orderId,
             stack: error.stack
         });
-        
         
         try {
             doc.end();

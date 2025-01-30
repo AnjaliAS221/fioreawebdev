@@ -7,9 +7,25 @@ const { Transaction } = require("mongodb");
 
 const getReturnApprovals = async (req, res) => {
     try {
-        const returnData = await Return.find().populate('orderId userId'); 
+        const page = parseInt(req.query.page) || 1;
+        const limit = 6; 
+        const skip = (page - 1) * limit;
+
+        const totalReturns = await Return.countDocuments();
+        const totalPages = Math.ceil(totalReturns / limit);
+
+        const returnData = await Return.find()
+            .populate('orderId userId')
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 }); 
+
         res.render('returnOrder', {
             returns: returnData,
+            currentPage: page,
+            totalPages: totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1
         });
     } catch (error) {
         console.error('Error fetching return approvals:', error);

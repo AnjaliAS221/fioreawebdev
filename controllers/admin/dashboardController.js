@@ -174,7 +174,6 @@ const generateLedgerBook = async (req, res) => {
             return res.status(403).json({ error: 'Unauthorized' });
         }
 
-        // Fetch Sales Data
         const salesData = await Order.aggregate([
             {
                 $group: {
@@ -198,7 +197,6 @@ const generateLedgerBook = async (req, res) => {
             { $sort: { year: 1, month: 1 } }
         ]);
 
-        // Fetch Product Sales
         const productData = await Order.aggregate([
             { $unwind: "$orderedItems" },
             {
@@ -221,7 +219,7 @@ const generateLedgerBook = async (req, res) => {
             { $sort: { totalQuantitySold: -1 } }
         ]);
 
-        // Fetch Category Sales
+        
         const categoryData = await Order.aggregate([
             { $unwind: "$orderedItems" },
             {

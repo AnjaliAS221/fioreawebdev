@@ -25,36 +25,32 @@ const productSchema = new Schema({
     },
     productOffer: {
         type: Number,
-        default:0
+        default: 0
     },
-    quantity: {
-        type: Number,
-        required: true
-    },
-    colors: {
+    variants: [{
+        color: { 
+            type: String, 
+            required: true 
+        },
+        sizes: [{
+            size: { type: String, required: true },
+            stock: { type: Number, required: true, min: 0 }
+        }]
+    }],
+    productImage: {
         type: [String],
         required: true
     },
-    sizes: { 
-        type: [String], 
-        required: true
-    },
-    productImage:{
-        type:[String],
-        required:true
-    },
-    isBlocked:{
+    isBlocked: {
         type: Boolean,
-        default:false
+        default: false
     },
-    status:{
+    status: {
         type: String,
-        enum:["Available","out of stock","Discontinued"],
-        required:true,
-        defualt: "Available"
+        enum: ["Available", "out of stock", "Discontinued"],
+        required: true,
+        default: "Available"
     }
-},{timestamps:true});
+}, {timestamps: true});
 
-
-const Product = mongoose.model("Product",productSchema);
-module.exports = Product;
+module.exports = mongoose.model('Product', productSchema);

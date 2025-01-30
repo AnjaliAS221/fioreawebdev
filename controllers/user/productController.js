@@ -15,6 +15,8 @@ const crypto = require('crypto');
 
 
 
+
+
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
@@ -43,20 +45,47 @@ const productDetails = async (req, res) => {
         const productOffer = product.productOffer || 0;
         const totalOffer = categoryOffer + productOffer;
 
-        const colors = product.colors || [];
-        const sizes = product.sizes || [];
+        
+        let isInWishlist = false;
+        if (userId && userData) {
+            isInWishlist = userData.wishlist?.includes(productId) || false;
+        }
+
+        const colors = [...new Set(product.variants.map(variant => variant.color))];
+        console.log("Product Variants:", product.variants);
+
+        const colorSizeMap = {};
+        colors.forEach(color => {
+            const variantsForColor = product.variants.find(v => v.color === color);
+            if (variantsForColor) {
+                colorSizeMap[color] = variantsForColor.sizes.map(s => ({
+                    size: s.size,
+                    stock: s.stock
+                }));
+            }
+        });
+
+        const totalQuantity = product.variants.reduce((total, variant) => {
+            return total + variant.sizes.reduce((sizeTotal, size) => {
+                return sizeTotal + size.stock;
+            }, 0);
+        }, 0);
 
         res.render("product-details", {
             user: userData,
-            product: product,
-            quantity: product.quantity,
-            totalOffer: totalOffer,
+            product: {
+                ...product.toObject(),
+                colors,
+                colorSizeMap, 
+                variants: product.variants
+            },
+            totalOffer,
             category: findCategory,
-            colors: colors,
-            sizes: sizes
+            quantity: totalQuantity,
+            isInWishlist  
         });
     } catch (error) {
-        console.error("Error  fetching product details", error);
+        console.error("Error fetching product details", error);
         res.redirect("/pageNotFound");
     }
 }
@@ -65,19 +94,29 @@ const getAllProducts = async (req, res) => {
     try {
         const limit = 16;
         const page = Math.max(1, parseInt(req.query.page) || 1);
+        const userId = req.session.user;
 
-        const [products, count, categories] = await Promise.all([
-            Product.find({ isBlocked: false })
-                .limit(limit)
-                .skip((page - 1) * limit),
+        const [products, count, categories, user] = await Promise.all([
+            Product.find({ isBlocked: false }).lean(),
             Product.countDocuments(),
-            Category.find({ isListed: false })
+            Category.find({ isListed: false }),
+            User.findById(userId)
         ]);
+
+        const wishlistedProducts = user ? user.wishlist.map(id => id.toString()) : [];
+
+        const productsWithWishlistStatus = products.map(product => ({
+            ...product,
+            isInWishlist: wishlistedProducts.includes(product._id.toString())
+        }));
+
+        const paginatedProducts = productsWithWishlistStatus
+            .slice((page - 1) * limit, page * limit);
 
         const totalPages = Math.ceil(count / limit);
 
         res.render('all-products', {
-            products,
+            products: paginatedProducts,
             categories,
             totalPages,
             currentPage: page
@@ -87,11 +126,13 @@ const getAllProducts = async (req, res) => {
     }
 };
 
+
+
+
+
 const loadCheckout = async (req, res) => {
     try {
         const user = req.session.user;
-
-
 
         const addressDoc = await Address.findOne({ userId: user });
         const addresses = addressDoc ? addressDoc.address : [];
@@ -104,33 +145,46 @@ const loadCheckout = async (req, res) => {
             isList: true
         });
 
-
         if (productId) {
-            const product = await Product.findOne({ _id: productId, });
+            // Handle single product checkout
+            const product = await Product.findOne({ _id: productId });
 
             if (!product) {
                 return res.status(400).json({ message: "Product not found" });
             }
 
-            totalPrice = product.salePrice;
+            // Structure the product data for the checkout page
+            const structuredProduct = {
+                _id: product._id,
+                productName: product.productName,
+                productImage: product.productImage,
+                color: req.query.color || product.color,
+                size: req.query.size || product.size,
+                quantity: parseInt(req.query.quantity) || 1,
+                price: product.salePrice || product.price,
+                salePrice: product.salePrice,
+                totalPrice: (product.salePrice || product.price) * (parseInt(req.query.quantity) || 1)
+            };
+
+            totalPrice = structuredProduct.totalPrice;
 
             return res.render('checkout', {
                 cart: null,
                 products: null,
                 address: addresses,
                 totalPrice,
-                totalPrice, product: product,
+                product: structuredProduct,
                 availableCoupons: availableCoupons
-            })
+            });
 
         } else {
+            // Handle cart checkout
             const cartItems = await Cart.findOne({ userId: user }).populate('items.productId');
             if (!cartItems) {
-
                 return res.status(400).json({ success: false, message: "cart is empty" });
             }
-            if (cartItems.items == []) {
-                return res.redirect('/')
+            if (cartItems.items.length === 0) {
+                return res.redirect('/');
             }
 
             totalPrice = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0);
@@ -208,43 +262,97 @@ const applyCoupon = async (req, res) => {
         });
     }
 }
+
 const placeOrderInitial = async (req, res) => {
     try {
         const { cart, totalPrice, addressId, singleProduct, payment_method, finalPrice, coupon, discount } = req.body;
-        console.log(totalPrice);
-
         const userId = req.session.user;
 
-        const parsedTotalPrice = Number(totalPrice);
-        if (isNaN(parsedTotalPrice)) {
-            return res.status(400).json({ success: false, message: 'Invalid or missing totalPrice' });
+        if (!addressId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Address ID is required' 
+            });
         }
-        console.log("totalprice:", req.body);
+
+        if (!payment_method) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Payment method is required' 
+            });
+        }
+
+        if (!cart && !singleProduct) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Either cart or single product information is required' 
+            });
+        }
+
+
+        const parsedTotalPrice = Number(totalPrice);
+        const parsedFinalPrice = Number(finalPrice);
+        const parsedDiscount = Number(discount || 0);
+
+        if (isNaN(parsedTotalPrice) || isNaN(parsedFinalPrice)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid price values' 
+            });
+        }
 
         let orderedItems = [];
         if (singleProduct) {
             const product = JSON.parse(singleProduct);
+            
+            
+            let variantId;
+            if (product.selectedVariant) {
+                variantId = product.selectedVariant;
+            } else if (product.variants && product.variants.length > 0) {
+                variantId = product.variants[0]._id;
+            } else {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'No variant information found for the product' 
+                });
+            }
+
             orderedItems.push({
                 product: product._id,
+                variantId: variantId,
                 quantity: 1,
-                price: product.salePrice,
+                price: product.salePrice || product.regularPrice,
+                color: product.selectedColor,
+                size: product.selectedSize
             });
+
             await Product.findByIdAndUpdate(product._id, {
                 $inc: { quantity: -1 }
             });
-            console.log(product);
 
         } else if (cart) {
             const cartItems = JSON.parse(cart);
-            orderedItems = cartItems.map(item => ({
-                product: item.productId,
-                quantity: item.quantity,
-                price: item.totalPrice / item.quantity,
-            }));
-            for (const item of cartItems) {
-                await Product.findByIdAndUpdate(item.productId, { $inc: { quantity: -item.quantity } });
-            }
 
+            orderedItems = cartItems.map(item => {
+                if (!item.variantId) {
+                    throw new Error(`Variant ID missing for product ${item.productId}`);
+                }
+                return {
+                    product: item.productId,
+                    variantId: item.variantId,
+                    quantity: item.quantity,
+                    price: item.totalPrice / item.quantity,
+                    color: item.color,
+                    size: item.size
+                };
+            });
+
+            for (const item of cartItems) {
+                await Product.findByIdAndUpdate(item.productId, { 
+                    $inc: { quantity: -item.quantity } 
+                });
+            }
         }
 
         const addressDoc = await Address.findOne({ userId });
@@ -269,18 +377,26 @@ const placeOrderInitial = async (req, res) => {
                 { name: coupon },
                 { $push: { userId: userId } }
             );
-
         }
-        const cartempty = await Cart.findOne({ userId })
-        cartempty.items = []
-        await cartempty.save()
 
+        const cartempty = await Cart.findOne({ userId });
+        cartempty.items = [];
+        await cartempty.save();
 
         await newOrder.save();
-        res.status(200).json({ success: true, orderId: newOrder._id, key: process.env.RAZORPAY_KEY_ID });
+        res.status(200).json({ 
+            success: true, 
+            orderId: newOrder._id, 
+            key: process.env.RAZORPAY_KEY_ID 
+        });
+
     } catch (error) {
         console.error("Error placing initial order:", error);
-        res.status(500).json({ success: false, message: 'Failed to save order. Please try again.' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to save order. Please try again.',
+            error: error.message 
+        });
     }
 };
 
@@ -398,7 +514,7 @@ const updateFailedOrder = async (req, res) => {
             });
         }
 
-        // Update order status
+     
         order.paymentStatus = 'Failed';
         order.paymentError = {
             message: error,
@@ -440,17 +556,76 @@ const updateFailedOrder = async (req, res) => {
 
 
 
+
+const decrementStock = async (productId, variantId, quantity, size) => {
+    try {
+        const product = await Product.findById(productId);
+        if (!product) {
+            throw new Error('Product not found');
+        }
+
+        const variant = product.variants.id(variantId);
+        if (!variant) {
+            throw new Error('Variant not found');
+        }
+
+        const sizeObj = variant.sizes.find(s => s.size === size);
+        if (!sizeObj) {
+            throw new Error('Size not found');
+        }
+
+        if (sizeObj.stock < quantity) {
+            throw new Error(`Insufficient stock for product ${product.productName}`);
+        }
+
+        sizeObj.stock -= quantity;
+        await product.save();
+
+        return {
+            success: true,
+            newStock: sizeObj.stock
+        };
+    } catch (error) {
+        console.error('Error in decrementStock:', error);
+        throw error;
+    }
+};
+
 const placeOrder = async (req, res) => {
     try {
         const { orderId, paymentDetails, paymentSuccess } = req.body;
 
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(orderId).populate("orderedItems.product");
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
         if (paymentSuccess) {
             order.paymentStatus = 'Paid';
+
+            // Update stock for each ordered item
+            for (const item of order.orderedItems) {
+                try {
+                    const variant = item.product.variants.id(item.variantId);
+                    if (!variant) {
+                        throw new Error(`Variant not found for product ${item.product.productName}`);
+                    }
+
+                    await decrementStock(
+                        item.product._id,
+                        item.variantId,
+                        item.quantity,
+                        item.size
+                    );
+                } catch (stockError) {
+                    console.error('Stock update failed:', stockError);
+                    return res.status(400).json({
+                        success: false,
+                        message: stockError.message
+                    });
+                }
+            }
+
         } else {
             order.paymentStatus = 'Pending';
         }
@@ -464,11 +639,14 @@ const placeOrder = async (req, res) => {
         res.status(200).json({
             success: true,
             message: `Order ${paymentSuccess ? 'Paid' : 'pending due to payment failure'}`,
-            orderId: order._id
+            orderId: order._id,
         });
     } catch (error) {
-        console.error("Error updating order payment status:", error);
-        res.status(500).json({ success: false, message: 'Failed to update order. Please try again.' });
+        console.error("Error processing order:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to process the order. Please try again.' 
+        });
     }
 };
 
@@ -561,13 +739,31 @@ const orderHistory = async (req, res) => {
             return res.redirect('/login');
         }
 
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5; 
+        const skip = (page - 1) * limit;
+
+        const totalOrders = await Order.countDocuments({ user: user });
+        const totalPages = Math.ceil(totalOrders / limit);
+
         const orders = await Order.find({ user: user })
-            .populate(['orderedItems.product', 'address'])
-            .sort({ createdAt: -1 });
+        .populate('orderedItems.product') 
+        .populate('address')              
+        .populate('user', 'name email phone')  
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
         res.render('order-details', {
             orders,
+            currentPage: page,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            nextPage: page + 1,
+            prevPage: page - 1
         });
     } catch (error) {
+        console.log(error);
         handleError(res, error, 'Error fetching order history');
     }
 };
@@ -725,9 +921,9 @@ const retryPayment = async (req, res) => {
             amount: razorpayOrder.amount,
             orderId: razorpayOrder.id,
             customer: {
-                name: order.customerName,
-                email: order.customerEmail,
-                phone: order.customerPhone
+                name: order.user.name,  
+                email: order.user.email,  
+                phone: order.user.phone
             }
         });
     } catch (error) {
@@ -840,6 +1036,65 @@ const verifyPayment = async (req, res) => {
 };
 
 
+const paymentFailed = async (req, res) => {
+    try {
+        const orderId = req.query.id;
+        const error = req.query.error || 'An error occurred during payment';
+
+        // Input validation
+        if (!orderId) {
+            console.error("Missing orderId in query parameters.");
+            return res.redirect('/cart');
+        }
+
+        // Fetch the order details safely
+        const order = await Order.findById(orderId).populate('orderedItems.product').lean();
+
+
+        if (!order) {
+            console.error(`Order not found for ID: ${orderId}`);
+            return res.status(404).render('error', {
+                message: 'Order not found',
+                error: 'The requested order could not be found'
+            });
+        }
+
+        // Only update if necessary
+        if (order.paymentStatus !== 'Failed') {
+            await Order.findByIdAndUpdate(orderId, {
+                paymentStatus: 'Failed',
+                status: 'Payment Failed',
+                lastError: decodeURIComponent(error)
+            });
+        }
+
+        // Format order data for display
+        const formattedOrder = {
+            _id: order._id,
+            totalAmount: order.finalAmount || 0, // Ensure valid amount
+            orderedItems: order.orderedItems || [],
+            createdAt: order.createdAt || new Date(),
+            paymentMethod: order.paymentMethod || 'Unknown'
+        };
+
+        // Render the payment failed page
+        return res.render('paymentFail', {
+            error: decodeURIComponent(error),
+            order: formattedOrder,
+            orderId: orderId,
+            title: 'Payment Failed',
+            user: req.session?.user || null
+        });
+
+    } catch (err) {
+        console.error('Error in payment failed page:', err);
+        return res.status(500).render('page-404', {
+            message: 'Something went wrong. Please try again later.',
+            error: err.message
+        });
+    }
+};
+
 
 
 const handleOrderRefund = async (userId, orderId, amount) => {
@@ -930,6 +1185,7 @@ const returnOrder = async (req, res) => {
     }
 };
 
+
 module.exports = {
     productDetails,
     loadCheckout,
@@ -944,7 +1200,10 @@ module.exports = {
     updateFailedOrder,
     createOrder,
     verifyPayment,
+    paymentFailed,
+    decrementStock,
     placeOrder,
     retryPayment,
     returnOrder
 }
+

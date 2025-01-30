@@ -5,231 +5,182 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
 
+
 <style>
     :root {
-        --primary-color: #800000;
-        --secondary-color: #400000;
-        --accent-color: #ff8c00;
+        --primary-color: #8B0000;
+        --secondary-color: #4B0082;
+        --accent-color: #FF4500;
     }
 
     body {
-        background-color: #f8f8f8;
-        font-family: 'Inter', sans-serif;
-        color: #333;
+        background-color: #f4f6f9;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    .content-main {
-        padding-top: 2rem;
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
     }
 
     .card {
-        border-radius: 15px;
-        transition: all 0.3s ease;
         border: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
     }
 
     .card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     }
 
     .card-header {
         background-color: var(--primary-color);
         color: white;
-        border-top-left-radius: 15px;
-        border-top-right-radius: 15px;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
     }
 
-    .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-
-    .btn-primary:hover {
-        background-color: var(--secondary-color);
-        border-color: var(--secondary-color);
-    }
-
-    .stats-icon {
-        font-size: 2.5rem;
-        background-color: var(--primary-color);
-        color: white;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
+    .stat-card {
         display: flex;
         align-items: center;
-        justify-content: center;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .stat-icon {
+        background-color: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        padding: 1rem;
         margin-right: 1rem;
     }
-    .mywebsite {
-    color: #800000;
-    text-decoration: none;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    padding: 8px 12px;
-    border-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
-}
 
-.mywebsite:hover {
-    color: #990000;
-}
-
-    .stats-card {
-        transition: all 0.3s ease;
-    }
-
-    .stats-card:hover {
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-    .stats-card:hover .stats-icon {
-        background-color: white;
-        color: var(--primary-color);
-    }
-
-    #mainChart, #productsChart, #categoriesChart {
-        animation: fadeIn 1s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    .chart-container {
+        height: 350px;
     }
 </style>
-    <section class="content-main">
-<div class="container-fluid p-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="mywebsite h2 mb-0">Fiorea Dashboard</h1>
+
+<body>
+    <div class="dashboard-container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-dark mb-3">Fiorea Dashboard</h1>
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="/admin">Home</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
                         </ol>
                     </nav>
-                </div>
-                <div>
-                    <button id="generateLedgerBtn" class="btn btn-ledger">
-                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book
+                    <button id="generateLedgerBtn" class="btn btn-primary">
+                        <i class="bi bi-file-spreadsheet me-2"></i>Generate Ledger
                     </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Quick Stats -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm overflow-hidden">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-primary text-white p-3 rounded me-3">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">
                         <i class="bi bi-cash-stack fs-3"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted mb-1">Total Revenue</h6>
-                        <h4 class="mywebsite mb-0">₹<%= salesData.totalSalesAmount.toLocaleString() %></h4>
+                        <h6 class="text-white-50">Total Revenue</h6>
+                        <h3 id="totalRevenue">₹<%= salesData.totalSalesAmount.toLocaleString() %></h3>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm overflow-hidden">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-success text-white p-3 rounded me-3">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">
                         <i class="bi bi-cart-check fs-3"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted mb-1">Total Orders</h6>
-                        <h4 class="mywebsite mb-0"><%= count %></h4>
+                        <h6 class="text-white-50">Total Orders</h6>
+                        <h3 id="totalOrders"><%= count %></h3>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm overflow-hidden">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-warning text-white p-3 rounded me-3">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">
                         <i class="bi bi-graph-up fs-3"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted mb-1">Average Order Value</h6>
-                        <h4 class="mywebsite mb-0">₹<%= (salesData.totalSalesAmount / count || 0).toFixed(2) %></h4>
+                        <h6 class="text-white-50">Avg Order Value</h6>
+                        <h3 id="avgOrderValue">₹<%= (salesData.totalSalesAmount / count || 0).toFixed(2) %></h3>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Sales Charts -->
-    <div class="row g-4 mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mywebsite mb-0">Sales Overview</h5>
-                        <select class="form-select form-select-sm w-auto" id="timeFilter">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Sales Overview</h5>
+                        <select id="timeFilter" class="form-select form-select-sm w-auto">
                             <option value="weekly">Weekly</option>
                             <option value="monthly" selected>Monthly</option>
                             <option value="yearly">Yearly</option>
                         </select>
                     </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="mainChart" height="400"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product & Category Analysis -->
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mywebsite mb-0">Top Selling Products</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="productsChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mywebsite mb-0">Category Distribution</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <canvas id="categoriesChart" height="300"></canvas>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="mainChart"></canvas>
                         </div>
-                        <div class="col-md-6 d-flex align-items-center">
-                            <ul class="list-unstyled" id="categoryLegend"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Top Selling Products</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="productsChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Category Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <canvas id="categoriesChart" height="300"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <ul id="categoryLegend" class="list-unstyled"></ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Configuration object for chart styling
+            
             const chartConfig = {
                 colors: {
-                    primary: 'rgba(128, 0, 0, 1)',
-                    secondary: 'rgba(220, 20, 60, 1)',
-                    accent: 'rgba(255, 140, 0, 1)',
+                    primary: 'rgba(139, 0, 0, 1)',
+                    secondary: 'rgba(75, 0, 130, 1)',
+                    accent: 'rgba(255, 69, 0, 1)',
                     background: {
                         primary: 'rgba(128, 0, 0, 0.2)',
                         secondary: 'rgba(220, 20, 60, 0.2)',
@@ -241,14 +192,14 @@
                     maintainAspectRatio: true,
                     layout: {
                         padding: {
-                            top: 10,
-                            bottom: 10
+                            top: 5,
+                            bottom: 5
                         }
                     }
                 }
             };
         
-            // Utility function to safely parse JSON
+           
             const safeJSONParse = (jsonString, defaultValue = []) => {
                 try {
                     return JSON.parse(jsonString) || defaultValue;
@@ -258,13 +209,12 @@
                 }
             };
         
-            // Parse data safely
             const productsData = JSON.parse(`<%- JSON.stringify(products || []) %>`);
             const categoriesData = JSON.parse('<%- JSON.stringify(categories) %>');
             const salesData = JSON.parse('<%-JSON.stringify(salesData)%>');
             console.log(productsData,categoriesData,salesData);
         
-            // Main Sales Chart Initialization
+            
             const initMainSalesChart = () => {
                 const mainChartCtx = document.getElementById('mainChart');
                 if (!mainChartCtx) return null;
@@ -328,7 +278,6 @@
                 });
             };
         
-            // Time Filter Event Listener
             const setupTimeFilterListener = (mainChart) => {
                 const timeFilter = document.getElementById('timeFilter');
                 if (!timeFilter || !mainChart) return;
@@ -359,7 +308,7 @@
                 });
             };
         
-            // Products Chart Initialization
+           
             const initProductsChart = () => {
                 const productsChartCtx = document.getElementById("productsChart");
                 
@@ -390,7 +339,7 @@
                 });
             };
         
-            // Categories Chart with Dynamic Legend
+            
             const initCategoriesChart = () => {
                 const categoriesChartCtx = document.getElementById("categoriesChart");
                 const categoryLegendContainer = document.getElementById("categoryLegend");
@@ -417,8 +366,8 @@
                     }
                 });
         
-                // Custom Legend
-                categoryLegendContainer.innerHTML = ''; // Clear existing legend
+                
+                categoryLegendContainer.innerHTML = ''; 
                 categoriesChart.data.labels.forEach((label, index) => {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -433,7 +382,7 @@
                 return categoriesChart;
             };
         
-            // Ledger Book Generation
+           
             
             const setupLedgerBookGeneration = () => {
                 const generateLedgerBtn = document.getElementById('generateLedgerBtn');
@@ -441,11 +390,10 @@
         
                 generateLedgerBtn.addEventListener('click', async function() {
                     try {
-                        // Show loading state
+                        
                         this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Generating...';
                         this.disabled = true;
         
-                        // Fetch ledger data
                         const response = await fetch('/admin/generate-ledger', {
                             method: 'GET',
                             headers: {
@@ -459,25 +407,25 @@
         
                         const ledgerData = await response.json();
         
-                        // Create workbook
+                        
                         const workbook = XLSX.utils.book_new();
                         
-                        // Sales Data Sheet
+                        
                         const salesSheet = XLSX.utils.json_to_sheet(ledgerData.sales);
                         XLSX.utils.book_append_sheet(workbook, salesSheet, 'Sales');
         
-                        // Products Sheet
+                        
                         const productsSheet = XLSX.utils.json_to_sheet(ledgerData.products);
                         XLSX.utils.book_append_sheet(workbook, productsSheet, 'Products');
         
-                        // Categories Sheet
+                        
                         const categoriesSheet = XLSX.utils.json_to_sheet(ledgerData.categories);
                         XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Categories');
         
-                        // Write and download the file
+                        
                         XLSX.writeFile(workbook, `Fiorea_Ledger_${new Date().toISOString().split('T')[0]}.xlsx`);
         
-                        // Reset button
+                        
                         this.innerHTML = '<i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book';
                         this.disabled = false;
                     } catch (error) {
@@ -489,7 +437,6 @@
                 });
             };
         
-            // Initialize all charts and features
             const mainChart = initMainSalesChart();
             setupTimeFilterListener(mainChart);
             initProductsChart();

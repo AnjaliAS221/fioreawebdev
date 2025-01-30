@@ -1,6 +1,6 @@
 const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
-const moment = require('moment');
+const moment = require('moment-timezone');
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 
@@ -13,65 +13,75 @@ const loadSalesReport = async (req, res) => {
         const { startDate, endDate, dateRange } = req.query;
         let filter = {};
 
+
       
         if (startDate && endDate) {
-            filter.createdOn = {
+            const endDateTime = new Date(endDate);
+            endDateTime.setHours(23, 59, 59, 999);
+            
+            filter.createdAt = {
                 $gte: new Date(startDate),
-                $lte: new Date(endDate + 'T23:59:59.999Z')
+                $lte: endDateTime
             };
+            
         } else if (dateRange) {
-            const today = moment();
+            
+            const today = moment().tz('Asia/Kolkata');
+            
             switch (dateRange) {
                 case 'today':
-                    filter.createdOn = {
+                    filter.createdAt = {
                         $gte: today.startOf('day').toDate(),
                         $lte: today.endOf('day').toDate()
                     };
                     break;
                 case 'week':
-                    filter.createdOn = {
-                        $gte: today.startOf('week').toDate(),
-                        $lte: today.endOf('week').toDate()
+                    filter.createdAt = {
+                        $gte: today.clone().startOf('week').toDate(),
+                        $lte: today.clone().endOf('week').toDate()
                     };
                     break;
                 case 'month':
-                    filter.createdOn = {
-                        $gte: today.startOf('month').toDate(),
-                        $lte: today.endOf('month').toDate()
+                    filter.createdAt = {
+                        $gte: today.clone().startOf('month').toDate(),
+                        $lte: today.clone().endOf('month').toDate()
                     };
                     break;
                 case 'year':
-                    filter.createdOn = {
-                        $gte: today.startOf('year').toDate(),
-                        $lte: today.endOf('year').toDate()
+                    filter.createdAt = {
+                        $gte: today.clone().startOf('year').toDate(),
+                        $lte: today.clone().endOf('year').toDate()
                     };
                     break;
-                default:
-                    break;
             }
+           
         }
-
+        
     
         const serialNumberOffset = (page - 1) * limit;
 
-        
+     
+
         const orderData = await Order.find(filter)
             .populate({
                 path: 'user',
-                select: 'username email'
+                select: 'name email'
             })
             .populate({
                 path: 'orderedItems.product',
                 select: 'productName price'
             })
-            .sort({ createdOn: -1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        const totalOrders = await Order.countDocuments(filter);
-        const totalPages = Math.ceil(totalOrders / limit);
+           
 
-       
+        const totalOrders = await Order.countDocuments(filter);
+
+        const totalPages = Math.ceil(totalOrders / limit);
+           
+
         const aggregateResults = await Order.aggregate([
             { $match: filter },
             {
@@ -85,6 +95,8 @@ const loadSalesReport = async (req, res) => {
 
         const stats = aggregateResults[0] || { totalSales: 0, totalDiscount: 0 };
         const uniqueUsers = await Order.distinct('user', filter);
+
+        
 
         res.render("salesReports", {
             orders: orderData,
@@ -103,6 +115,7 @@ const loadSalesReport = async (req, res) => {
 
     } catch (error) {
         console.error("Error loading sales report:", error);
+        console.error("Error stack:", error.stack);
         res.status(500).render("error", { error: error.message });
     }
 };
@@ -112,36 +125,40 @@ const exportSalesToPDF = async (req, res) => {
         let filter = {};
         const { startDate, endDate, dateRange } = req.query;
 
-        if (startDate && endDate) {
-            filter.createdOn = {
+      if (startDate && endDate) {
+            const endDateTime = new Date(endDate);
+            endDateTime.setHours(23, 59, 59, 999);
+            
+            filter.createdAt = {
                 $gte: new Date(startDate),
-                $lte: new Date(endDate + 'T23:59:59.999Z')
+                $lte: endDateTime
             };
         } else if (dateRange) {
-            const today = moment();
+            const today = moment().tz('Asia/Kolkata');
+            
             switch (dateRange) {
                 case 'today':
-                    filter.createdOn = {
+                    filter.createdAt = {
                         $gte: today.startOf('day').toDate(),
                         $lte: today.endOf('day').toDate()
                     };
                     break;
                 case 'week':
-                    filter.createdOn = {
-                        $gte: today.startOf('week').toDate(),
-                        $lte: today.endOf('week').toDate()
+                    filter.createdAt = {
+                        $gte: today.clone().startOf('week').toDate(),
+                        $lte: today.clone().endOf('week').toDate()
                     };
                     break;
                 case 'month':
-                    filter.createdOn = {
-                        $gte: today.startOf('month').toDate(),
-                        $lte: today.endOf('month').toDate()
+                    filter.createdAt = {
+                        $gte: today.clone().startOf('month').toDate(),
+                        $lte: today.clone().endOf('month').toDate()
                     };
                     break;
                 case 'year':
-                    filter.createdOn = {
-                        $gte: today.startOf('year').toDate(),
-                        $lte: today.endOf('year').toDate()
+                    filter.createdAt = {
+                        $gte: today.clone().startOf('year').toDate(),
+                        $lte: today.clone().endOf('year').toDate()
                     };
                     break;
             }
@@ -150,7 +167,7 @@ const exportSalesToPDF = async (req, res) => {
         const orders = await Order.find(filter)
             .populate('user')
             .populate('orderedItems.product')
-            .sort({ createdOn: -1 });
+            .sort({ createdAt: -1 });
 
         const doc = new PDFDocument({ 
             margin: 50,
@@ -233,7 +250,7 @@ const exportSalesToPDF = async (req, res) => {
             });
             x += columns[2].width + columnSpacing;
 
-            doc.text(moment(order.createdOn).format('DD/MM/YYYY'), x, y);
+            doc.text(moment(order.createdAt).format('DD/MM/YYYY'), x, y);
             x += columns[3].width + columnSpacing;
 
             doc.text(`₹${Math.round(order.totalPrice).toLocaleString()}`, x, y);
@@ -275,7 +292,7 @@ const exportSalesToExcel = async (req, res) => {
         const { startDate, endDate, dateRange } = req.query;
 
         if (startDate && endDate) {
-            filter.createdOn = {
+            filter.createdAt = {
                 $gte: new Date(startDate),
                 $lte: new Date(endDate + 'T23:59:59.999Z')
             };
@@ -283,25 +300,25 @@ const exportSalesToExcel = async (req, res) => {
             const today = moment();
             switch (dateRange) {
                 case 'today':
-                    filter.createdOn = {
+                    filter.createdAt = {
                         $gte: today.startOf('day').toDate(),
                         $lte: today.endOf('day').toDate()
                     };
                     break;
                 case 'week':
-                    filter.createdOn = {
+                    filter.createdAt = {
                         $gte: today.startOf('week').toDate(),
                         $lte: today.endOf('week').toDate()
                     };
                     break;
                 case 'month':
-                    filter.createdOn = {
+                    filter.createdAt = {
                         $gte: today.startOf('month').toDate(),
                         $lte: today.endOf('month').toDate()
                     };
                     break;
                 case 'year':
-                    filter.createdOn = {
+                    filter.createdAt = {
                         $gte: today.startOf('year').toDate(),
                         $lte: today.endOf('year').toDate()
                     };
@@ -312,7 +329,7 @@ const exportSalesToExcel = async (req, res) => {
         const orders = await Order.find(filter)
             .populate('user')
             .populate('orderedItems.product')
-            .sort({ createdOn: -1 });
+            .sort({ createdAt: -1 });
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
@@ -334,7 +351,7 @@ const exportSalesToExcel = async (req, res) => {
                 products: order.orderedItems
                     .map(item => `${item.product ? item.product.productName : 'N/A'} (${item.quantity})`)
                     .join(', '),
-                date: moment(order.createdOn).format('DD/MM/YYYY'),
+                date: moment(order.createdAt).format('DD/MM/YYYY'),
                 totalPrice: `₹${Math.round(order.totalPrice).toLocaleString()}`,
                 discount: `₹${Math.round(order.discount).toLocaleString()}`,
                 finalAmount: `₹${Math.round(order.finalAmount).toLocaleString()}`

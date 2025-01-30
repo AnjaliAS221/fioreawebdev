@@ -48,9 +48,9 @@ const userSchema = new Schema({
         default:0,
         min: 0 ,
     },
-    wishlist:[{
-        type:Schema.Types.ObjectId,
-        ref:"Wishlist"
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
     }],
     orderHistory:[{
         type:Schema.Types.ObjectId,

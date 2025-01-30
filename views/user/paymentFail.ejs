@@ -1,190 +1,186 @@
 <%- include("../../views/partials/user/header") %>
-    <style>
-        .payment-failed-container {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            text-align: center;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
 
-        .error-icon {
-            width: 80px;
-            height: 80px;
-            margin: 20px auto;
-            color: #dc3545;
-        }
+<style>
+    .payment-failed {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 32px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
 
-        .error-title {
-            color: #dc3545;
-            font-size: 24px;
-            margin-bottom: 16px;
-        }
+    .payment-status {
+        text-align: center;
+        margin-bottom: 36px;
+    }
 
-        .error-message {
-            color: #666;
-            margin-bottom: 24px;
-        }
+    .error-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 24px;
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #dc2626;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+        animation: pulse 2s infinite;
+    }
 
-        .order-details {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 6px;
-            margin: 20px 0;
-            text-align: left;
-        }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
 
-        .order-details h3 {
-            color: #333;
-            margin-bottom: 16px;
-        }
+    .error-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 12px;
+    }
 
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-        }
+    .error-message {
+        color: #6b7280;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
 
-        .detail-label {
-            color: #666;
-            font-weight: 500;
-        }
+    .order-details {
+        background: #f8fafc;
+        padding: 24px;
+        border-radius: 12px;
+        margin-bottom: 36px;
+        border: 1px solid #e2e8f0;
+    }
 
-        .detail-value {
-            color: #333;
-            font-weight: 600;
-        }
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
 
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-top: 24px;
-        }
+    .detail-row:last-child {
+        border-bottom: none;
+    }
 
-        .btn-retry {
-            background-color: #28a745;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-        }
+    .detail-label {
+        color: #64748b;
+        font-weight: 500;
+        font-size: 15px;
+    }
 
-        .btn-retry:hover {
-            background-color: #218838;
-        }
+    .detail-value {
+        color: #0f172a;
+        font-weight: 600;
+        font-size: 15px;
+    }
 
-        .btn-cart {
-            background-color: #6c757d;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-        }
+    .actions {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 36px;
+    }
 
-        .btn-cart:hover {
-            background-color: #5a6268;
-        }
+    .btn {
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 15px;
+    }
 
-        .support-info {
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid #eee;
-            color: #666;
-        }
+    .btn-home {
+        background: #1f2937;
+        color: white;
+    }
 
-        .support-link {
-            color: #007bff;
-            text-decoration: none;
-        }
+    .btn-home:hover {
+        background: #374151;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-        .support-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    .support {
+        text-align: center;
+        padding-top: 24px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .support-title {
+        color: #4b5563;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+
+    .support-email {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .support-email:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+
+    .support p {
+        color: #6b7280;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+</style>
 </head>
 <body>
-   
 
-    <div class="payment-failed-container">
-        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="15" y1="9" x2="9" y2="15"></line>
-            <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-
+<div class="payment-failed">
+    <div class="payment-status">
+        <div class="error-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+        </div>
         <h1 class="error-title">Payment Failed</h1>
         <p class="error-message"><%= error %></p>
-
-        <% if (order) { %>
-            <div class="order-details">
-                <h3>Order Details</h3>
-                <div class="detail-row">
-                    <span class="detail-label">Order ID:</span>
-                    <span class="detail-value">#<%= order._id %></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Amount:</span>
-                    <span class="detail-value">₹<%= order.totalAmount.toLocaleString() %></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Items:</span>
-                    <span class="detail-value"><%= order.items.length %></span>
-                </div>
-            </div>
-        <% } %>
-
-        <div class="action-buttons">
-            <% if (orderId) { %>
-                <a href="/retry-payment?orderId=<%= orderId %>" class="btn-retry">
-                    Try Payment Again
-                </a>
-            <% } %>
-            <a href="/cart" class="btn-cart">
-                Return to Cart
-            </a>
-        </div>
-
-        <div class="support-info">
-            <p>Having trouble? <a href="/contact" class="support-link">Contact our support team</a></p>
-            <p>Our support team is available 24/7 to assist you.</p>
-        </div>
     </div>
 
-    
+    <% if (order) { %>
+    <div class="order-details">
+        <div class="detail-row">
+            <span class="detail-label">Order ID</span>
+            <span class="detail-value">#<%= order._id.toString().slice(-8).toUpperCase() %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Amount</span>
+            <span class="detail-value">₹<%= order.totalAmount.toLocaleString() %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Items</span>
+            <span class="detail-value"><%= order.orderedItems.length %></span>
+        </div>
+    </div>
+    <% } %>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
-        
-        const sendFailureMetrics = async () => {
-            try {
-                await fetch('/api/metrics/payment-failure', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        orderId: '<%= orderId %>',
-                        timestamp: new Date().toISOString(),
-                        error: '<%= error %>'
-                    })
-                });
-            } catch (error) {
-                console.error('Failed to send metrics:', error);
-            }
-        };
+    <div class="actions">
+        <a href="/" class="btn btn-home">Return to Home</a>
+    </div>
 
-        
-        document.addEventListener('DOMContentLoaded', sendFailureMetrics);
-    </script>
+    <div class="support">
+        <p class="support-title">Need assistance?</p>
+        <p>Our support team is here to help you</p>
+        <p>Email us at <a href="mailto:support@fiorea.com" class="support-email">support@fiorea.com</a></p>
+        <p>Available 24/7 for your support</p>
+    </div>
+</div>
+
 </body>
 <%- include("../../views/partials/user/footer") %>

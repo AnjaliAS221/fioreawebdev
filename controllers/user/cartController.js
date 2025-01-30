@@ -27,7 +27,7 @@ const loadCart = async (req, res) => {
 
 const addCart = async (req, res) => {
     try {
-        const productId = req.body.productId;
+        const { productId, size, color } = req.body;  
         const userId = req.session.user;
 
         if (!userId) {
@@ -39,13 +39,29 @@ const addCart = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
+        // 🔥 Find the correct variant based on color and size
+        const variant = product.variants.find(v => v.color === color);
+        if (!variant) {
+            return res.status(400).json({ success: false, message: "Variant color not found" });
+        }
+
+        const sizeVariant = variant.sizes.find(s => s.size === size);
+        if (!sizeVariant) {
+            return res.status(400).json({ success: false, message: "Size not found for selected variant" });
+        }
+
+        const variantId = sizeVariant._id;  // ✅ Extracted variant ID
+
         const quantity = parseInt(req.body.quantity, 10) || 1;
         const totalPrice = product.salePrice * quantity;
 
         let cartDoc = await Cart.findOne({ userId });
 
         if (cartDoc) {
-            const existingItemIndex = cartDoc.items.findIndex(item => item.productId.toString() === productId);
+            const existingItemIndex = cartDoc.items.findIndex(
+                item => item.productId.toString() === productId && 
+                        item.variantId.toString() === variantId
+            );
 
             if (existingItemIndex >= 0) {
                 cartDoc.items[existingItemIndex].quantity += quantity;
@@ -53,9 +69,12 @@ const addCart = async (req, res) => {
             } else {
                 cartDoc.items.push({
                     productId,
+                    variantId,  // ✅ Now storing the variantId
                     quantity,
                     price: product.salePrice,
-                    totalPrice
+                    totalPrice,
+                    color,  
+                    size    
                 });
             }
 
@@ -65,9 +84,12 @@ const addCart = async (req, res) => {
                 userId,
                 items: [{
                     productId,
+                    variantId,  // ✅ Now storing the variantId
                     quantity,
                     price: product.salePrice,
-                    totalPrice
+                    totalPrice,
+                    color,  
+                    size    
                 }]
             });
             await cartDoc.save();
@@ -79,6 +101,7 @@ const addCart = async (req, res) => {
         res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
+
 
 const removeCartItem = async (req, res) => {
     try {
@@ -113,10 +136,6 @@ const removeCartItem = async (req, res) => {
 };
 
 
-
-
-
-
 const updateCart = async (req, res) => {
     try {
         const { productId, newQuantity } = req.body;
@@ -129,7 +148,7 @@ const updateCart = async (req, res) => {
             });
         }
 
-        // Find the cart and validate
+  
         const cart = await Cart.findOne({ userId }).populate('items.productId');
         if (!cart) {
             return res.status(404).json({ 
@@ -138,42 +157,57 @@ const updateCart = async (req, res) => {
             });
         }
 
-        // Find the specific cart item
-        const cartItemIndex = cart.items.findIndex(
+        const cartItem = cart.items.find(
             item => item.productId._id.toString() === productId
         );
 
-        if (cartItemIndex === -1) {
+        if (!cartItem) {
             return res.status(404).json({ 
                 success: false, 
                 message: 'Product not found in cart' 
             });
         }
 
-        // Additional stock validation
-        const product = cart.items[cartItemIndex].productId;
-        if (newQuantity < 1 || newQuantity > product.quantity) {
+  
+        const product = await Product.findById(productId);
+        const variant = product.variants.find(v => 
+            v.color === cartItem.color && 
+            v.sizes.some(s => s.size === cartItem.size)
+        );
+
+        const sizeInfo = variant.sizes.find(s => s.size === cartItem.size);
+        
+        if (newQuantity < 1) {
             return res.status(400).json({ 
                 success: false, 
-                message: `Invalid quantity. Must be between 1 and ${product.quantity}` 
+                message: "Minimum quantity is 1"
+            });
+        }
+        
+        if (newQuantity > sizeInfo.stock) {
+            return res.status(400).json({ 
+                success: false, 
+                message: sizeInfo.stock === 1 
+                    ? "Sorry, only one item left in stock!" 
+                    : sizeInfo.stock < 5 
+                        ? `Only a few items left (${sizeInfo.stock} remaining)` 
+                        : "Maximum quantity reached for this item"
             });
         }
 
-        // Update quantity and total price
-        cart.items[cartItemIndex].quantity = newQuantity;
-        cart.items[cartItemIndex].totalPrice = 
-            cart.items[cartItemIndex].price * newQuantity;
+       
+        cartItem.quantity = newQuantity;
+        cartItem.totalPrice = cartItem.price * newQuantity;
 
-        // Save updated cart
         await cart.save();
 
-        // Recalculate total amount
+        
         const totalAmount = cart.items.reduce((total, item) => total + item.totalPrice, 0);
 
         res.json({ 
             success: true,
             newQuantity: newQuantity,
-            newSubtotal: cart.items[cartItemIndex].totalPrice,
+            newSubtotal: cartItem.totalPrice,
             totalAmount: totalAmount
         });
 
@@ -186,10 +220,92 @@ const updateCart = async (req, res) => {
     }
 };
 
+const updateCartItem = async (req, res) => {
+    console.log('Received update request:', {
+        productId: req.body.productId,
+        size: req.body.size,
+        color: req.body.color
+    });
 
+    
+    try {
+        const { productId, size, color } = req.body;
+        const userId = req.session.user;
+
+        if (!userId) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'User not authenticated' 
+            });
+        }
+
+        // Find the cart
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        if (!cart) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Cart not found' 
+            });
+        }
+
+        // Find the product
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Product not found' 
+            });
+        }
+
+        // Validate the new size and color combination
+        const variant = product.variants.find(v => 
+            v.color === color && 
+            v.sizes.some(s => s.size === size)
+        );
+
+        if (!variant) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid size or color combination' 
+            });
+        }
+
+        // Find the specific cart item to update
+        const cartItemIndex = cart.items.findIndex(
+            item => item.productId._id.toString() === productId && 
+                    item.color === color
+        );
+
+        if (cartItemIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Item not found in cart' 
+            });
+        }
+
+        // Update the cart item
+        cart.items[cartItemIndex].size = size;
+
+        // Save the updated cart
+        await cart.save();
+
+        res.json({ 
+            success: true,
+            message: 'Cart item updated successfully' 
+        });
+
+    } catch (error) {
+        console.error('Cart item update error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error during cart item update' 
+        });
+    }
+};
 module.exports = {
     loadCart,
     addCart,
     removeCartItem,
-    updateCart
+    updateCart,
+    updateCartItem
 };

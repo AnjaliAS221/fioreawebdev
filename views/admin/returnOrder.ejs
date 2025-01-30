@@ -3,194 +3,162 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
     :root {
-        --primary-color: #800000;
-        --primary-color-light: #a04040;
-        --primary-color-dark: #600000;
+        --primary-color: #3498db;
+        --secondary-color: #2ecc71;
+        --danger-color: #e74c3c;
+        --bg-light: #f4f6f7;
     }
 
     body {
-        background-color: #f4f4f4;
-        font-family: 'Arial', sans-serif;
-        transition: background-color 0.3s ease;
+        background-color: var(--bg-light);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .container {
-        animation: fadeIn 0.5s ease-out;
+    .return-card {
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
     }
 
-    .card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(128, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
+    .return-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(128, 0, 0, 0.15);
     }
 
-    .table {
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .table thead {
+    .return-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         background-color: var(--primary-color);
         color: white;
+        padding: 10px 15px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
     }
 
-    .table-hover tbody tr:hover {
-        background-color: rgba(128, 0, 0, 0.05);
-        transition: background-color 0.2s ease;
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
     }
 
-    .badge {
-        transition: all 0.3s ease;
-    }
-
-    .btn-success, .btn-danger {
-        transition: all 0.3s ease;
+    .action-buttons {
         display: flex;
-        align-items: center;
+        gap: 10px;
+    }
+
+    .pagination {
         justify-content: center;
-    }
-
-    .btn-success:hover, .btn-danger:hover {
-        transform: scale(1.05);
-    }
-
-    .pagination .page-link {
-        color: var(--primary-color);
-        border-color: var(--primary-color-light);
-    }
-
-    .pagination .page-item.active .page-link {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    .btn-sm:hover {
-        animation: pulse 0.5s infinite;
+        margin-top: 20px;
     }
 
     @media (max-width: 768px) {
-        .table-responsive {
-            font-size: 0.9rem;
+        .return-card {
+            flex-direction: column;
         }
-        
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
+        .return-card-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
 </style>
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="mb-4">
-        <h1 class="display-4 fw-bold text-dark mb-2" style="color: var(--primary-color) !important;">Return Data Requests</h1>
-        <p class="lead text-muted">Manage and process customer return requests</p>
-    </div>
+
+<body>
+    <div class="container py-4">
+        <h1 class="mb-4 text-center">Return Request Tracker</h1>
         
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" class="text-uppercase text-muted small fw-bold">Order ID</th>
-                                <th scope="col" class="text-uppercase text-muted small fw-bold">User</th>
-                                <th scope="col" class="text-uppercase text-muted small fw-bold">Reason</th>
-                                <th scope="col" class="text-uppercase text-muted small fw-bold">Refund Amount</th>
-                                <th scope="col" class="text-uppercase text-muted small fw-bold">Status</th>
-                                <th scope="col" class="text-uppercase text-muted small fw-bold">Date</th>
-                                <th scope="col" class="text-uppercase text-muted small fw-bold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% returns.forEach(returnData => { %>
-                                <tr>
-                                    <td class="align-middle"><%= returnData.orderId?.orderId || 'N/A' %></td>
-                                    <td class="align-middle"><%= returnData.userId?.name || 'N/A' %></td>
-                                    <td class="align-middle">
-                                        <div class="text-truncate" style="max-width: 200px;">
-                                            <%= returnData.reason || 'No reason provided' %>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle fw-bold">₹<%= (returnData.refundAmount || 0).toFixed(2) %></td>
-                                    <td class="align-middle">
-                                        <% 
-                                        let badgeClass;
-                                        if(returnData.returnDataStatus === 'approved') {
-                                            badgeClass = 'bg-success';
-                                        } else if(returnData.returnDataStatus === 'rejected') {
-                                            badgeClass = 'bg-danger';
-                                        } else {
-                                            badgeClass = 'bg-warning text-dark';
-                                        }
-                                        %>
-                                        <span class="badge <%= badgeClass %>">
-                                            <%= returnData.returnStatus || 'pending' %>
-                                        </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <%= new Date(returnData.createdAt || Date.now()).toLocaleDateString('en-US', { 
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric'
-                                        }) %>
-                                    </td>
-                                    <td class="align-middle">
-                                        <% if(returnData.status === 'Pending') { %> 
-                                            <form action="/admin/returnDataUpdate?id=<%= returnData._id %>" method="POST" class="d-flex gap-2">
-                                                <button type="submit" name="status" value="Approved" 
-                                                    class="btn btn-sm btn-success">
-                                                    Approve
-                                                </button>
-                                                <button type="submit" name="status" value="Rejected"
-                                                    class="btn btn-sm btn-danger">
-                                                    Reject
-                                                </button>
-                                            </form>
-                                        <% } else { %>
-                                            <span class="text-muted small">No actions available</span>
-                                        <% } %>
-                                    </td>
-                                    
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
+        <div class="row">
+            <% returns.forEach(returnData => { %>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="card return-card">
+                        <div class="return-card-header">
+                            <div>
+                                <strong>Order #<%= returnData.orderId?.orderId.toString().slice(-8).toUpperCase() || 'N/A' %></strong>
+                            </div>
+                            <% 
+                            let badgeClass;
+                            if(returnData.returnDataStatus === 'approved') {
+                                badgeClass = 'bg-success';
+                            } else if(returnData.returnDataStatus === 'rejected') {
+                                badgeClass = 'bg-danger';
+                            } else {
+                                badgeClass = 'bg-warning text-dark';
+                            }
+                            %>
+                            <span class="badge <%= badgeClass %> status-badge">
+                                <%= returnData.returnStatus || 'pending' %>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">User</small>
+                                    <p class="fw-bold"><%= returnData.userId?.name || 'N/A' %></p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Refund Amount</small>
+                                    <p class="fw-bold">₹<%= (returnData.refundAmount || 0).toFixed(2) %></p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Return Reason</small>
+                                <p class="text-truncate">
+                                    <%= returnData.reason || 'No reason provided' %>
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <%= new Date(returnData.createdAt || Date.now()).toLocaleDateString('en-US', { 
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                    }) %>
+                                </small>
+                                <% if(returnData.status === 'Pending') { %> 
+                                    <div class="action-buttons">
+                                        <form action="/admin/returnDataUpdate?id=<%= returnData._id %>" method="POST">
+                                            <button type="submit" name="status" value="Approved" 
+                                                class="btn btn-sm btn-success">
+                                                Approve
+                                            </button>
+                                            <button type="submit" name="status" value="Rejected"
+                                                class="btn btn-sm btn-danger">
+                                                Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                <% } else { %>
+                                    <span class="text-muted small">Processed</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            <% }) %>
         </div>
+    
+        <nav aria-label="Return requests pagination">
+            <ul class="pagination">
+                <% if(hasPrevPage) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                    </li>
+                <% } %>
+    
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+    
+                <% if(hasNextPage) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
     </div>
-    <div class="pagination-area mt-15 mb-50 container">
-      
-    </div><br>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <%- include("../../views/partials/admin/footer") %>

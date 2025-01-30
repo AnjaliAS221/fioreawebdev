@@ -37,6 +37,7 @@ const customerInfo = async(req,res)=>{
             totalPages: Math.ceil(count / limit), 
             currentPage: parseInt(page), 
             search, 
+            messages: req.flash()
         });
 
     } catch (error) {
@@ -45,25 +46,36 @@ const customerInfo = async(req,res)=>{
     }
 }
 
-const customerBlocked = async(req,res)=>{
+const customerBlocked = async(req, res) => {
     try {
         let id = req.query.id;
         await User.updateOne({_id: id}, {$set: {isBlocked: true}});
-        res.redirect("/admin/users")
+        
+        // Set a success message
+        req.flash('success', 'Customer has been blocked successfully.');
+        
+        res.redirect("/admin/users");
     } catch (error) {
+        req.flash('error', 'An error occurred while blocking the customer.');
         res.redirect("/admin/pageerror");
     }
-}
+};
 
-const customerUnblocked = async(req,res)=>{
+const customerUnblocked = async(req, res) => {
     try {
         let id = req.query.id;
         await User.updateOne({_id: id}, {$set: {isBlocked: false}});
-        res.redirect("/admin/users")
+        
+        // Set a success message
+        req.flash('success', 'Customer has been unblocked successfully.');
+        
+        res.redirect("/admin/users");
     } catch (error) {
+        req.flash('error', 'An error occurred while unblocking the customer.');
         res.redirect("/admin/pageerror");
     }
-}
+};
+
 
 module.exports = {
     customerInfo,

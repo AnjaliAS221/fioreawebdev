@@ -17,7 +17,7 @@ async (accessToken, refreshToken, profile, done) => {
       } else {
         user = new User({
           name: profile.displayName,
-          email: profile.emails ? profile.emails[0].value : null, // Safeguard check
+          email: profile.emails ? profile.emails[0].value : null, 
           googleId: profile.id,
         });
         await user.save();

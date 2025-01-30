@@ -2,6 +2,61 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
+    :root {
+        --primary-color: #4a4a4a;
+        --secondary-color: #6c757d;
+        --hover-color: #f8f9fa;
+    }
+
+    body {
+        background-color: #f4f6f8;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .dashboard-container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    .table > tbody > tr > td {
+        vertical-align: middle;
+        padding: 1rem 0.75rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--hover-color);
+        transition: background-color 0.3s ease;
+    }
+
+    .pagination {
+        --bs-pagination-active-bg: var(--primary-color);
+        --bs-pagination-active-border-color: var(--primary-color);
+    }
+
+    .order-status-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='currentColor' d='M12 16l-6-6 1.5-1.5L12 13l4.5-4.5L18 10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        padding-right: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .table-responsive {
+            font-size: 0.9rem;
+        }
+    }
+
     .status-pending { background-color: #f0ad4e; color: white; }
     .status-processing { background-color: #5bc0de; color: white; }
     .status-shipped { background-color: #0275d8; color: white; }
@@ -9,209 +64,142 @@
     .status-cancelled { background-color: #d9534f; color: white; }
     .status-return-request { background-color: #f7a35c; color: white; }
     .status-returned { background-color: #8e8e8e; color: white; }
-    .product-image {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
-        border-radius: 5px;
-    }
-    .order-details-modal .modal-dialog {
-        max-width: 800px;
-    }
-    .order-details-modal .product-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .order-details-modal .product-image {
-        width: 80px;
-        height: 80px;
-        margin-right: 15px;
-        object-fit: cover;
-        border-radius: 5px;
-    }
-
-    #pagination .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    #pagination .page-item.active .page-link {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: white;
-    }
-    
-    #pagination .page-link {
-        color: #007bff;
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        padding: 0.5rem 0.75rem;
-        margin: 0 0.25rem;
-        border-radius: 0.25rem;
-        transition: all 0.3s ease;
-    }
-    
-    #pagination .page-link:hover {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-    }
-    
-    #pagination .page-item.disabled .page-link {
-        color: #6c757d;
-        pointer-events: none;
-        background-color: #fff;
-        border-color: #dee2e6;
-    }
 </style>
 
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Order Management </h2>
-        </div>
-    </div>
-    <div class="card mb-4">
-        <header class="card-header">
-            <div class="row gx-3">
-                <div class="col-lg-2 col-6 col-md-3">
-                    <select class="form-select" onchange="filterByStatus(this.value)">
-                        <option value="All" <%= currentStatus === 'All' ? 'selected' : '' %>>All</option>
-                        <option value="Pending" <%= currentStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
-                        <option value="Processing" <%= currentStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
-                        <option value="Shipped" <%= currentStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                        <option value="Cancelled" <%= currentStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                        <option value="Delivered" <%= currentStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                        <option value="Return Request" <%= currentStatus === 'Return Request' ? 'selected' : '' %>>Return request</option>
-                        <option value="Returned" <%= currentStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
-                        <option value="Failed" <%= currentStatus === 'Failed' ? 'selected' : '' %>>Failed</option>
-                    </select>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-container p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">Order Management</h2>
+                        <div class="col-lg-3">
+                            <select class="form-select" onchange="filterByStatus(this.value)">
+                                <option value="All" <%= currentStatus === 'All' ? 'selected' : '' %>>All Orders</option>
+                                <option value="Pending" <%= currentStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="Processing" <%= currentStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                <option value="Shipped" <%= currentStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                <option value="Cancelled" <%= currentStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                <option value="Delivered" <%= currentStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                <option value="Return Request" <%= currentStatus === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                                <option value="Returned" <%= currentStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
+                            </select>
+                        </div>
+                    </div>
+    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Total</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orders.forEach(order => { %>
+                                    <tr>
+                                        <td><%= order.orderId.toString().slice(-8).toUpperCase() %></td>
+                                        <td><%= order.createdAt.toLocaleDateString() %></td>
+                                        <td><%= order.user ? order.user.name : 'Unknown' %></td>
+                                        <td>₹<%= order.finalAmount.toLocaleString() %></td>
+                                        <td><%= order.paymentMethod %></td>
+                                        <td>
+                                            <select 
+                                                class="form-select status-badge <%= `status-${order.status.toLowerCase().replace(/ /g, '-')}` %>"
+                                                onchange="updateOrderStatus('<%= order._id %>', this.value)"
+                                            >
+                                                <% 
+                                                    const statuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned"];
+                                                    const currentIndex = statuses.indexOf(order.status);
+                                                %>
+                                                
+                                                <% statuses.forEach((statusOption, index) => { %>
+                                                    <option 
+                                                        value="<%= statusOption %>" 
+                                                        <%= order.status === statusOption ? 'selected' : '' %>
+                                                        <%= index < currentIndex ? 'disabled' : '' %>
+                                                    >
+                                                        <%= statusOption %>
+                                                    </option>
+                                                <% }) %>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button 
+                                                class="btn btn-sm btn-outline-primary" 
+                                                onclick="showOrderDetails('<%= JSON.stringify(order) %>')"
+                                            >
+                                                <i class="ri-eye-line"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+    
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav>
+                            <ul class="pagination">
+                                <% if (currentPage > 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="/admin/orders?page=<%= currentPage - 1 %>&status=<%= currentStatus %>">
+                                            <i class="ri-arrow-left-line"></i>
+                                        </a>
+                                    </li>
+                                <% } %>
+    
+                                <% 
+                                const maxPages = 5;
+                                let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+                                let endPage = Math.min(totalPages, startPage + maxPages - 1);
+    
+                                if (endPage - startPage + 1 < maxPages) {
+                                    startPage = Math.max(1, endPage - maxPages + 1);
+                                }
+                                %>
+    
+                                <% for (let i = startPage; i <= endPage; i++) { %>
+                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                        <a class="page-link" href="/admin/orders?page=<%= i %>&status=<%= currentStatus %>">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                <% } %>
+    
+                                <% if (currentPage < totalPages) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="/admin/orders?page=<%= currentPage + 1 %>&status=<%= currentStatus %>">
+                                            <i class="ri-arrow-right-line"></i>
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
-        </header>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>#ID</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Payment Method</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <%for(let i=orders.length-1;i>=0;i--){%>
-                            <tr>
-                                <td><%=orders[i].orderId%></td>
-                                <td><%=orders[i].createdAt.toLocaleDateString()%></td>
-                                <td><b><%= orders[i].user ? orders[i].user.name : 'User not found' %></b></td>
-                                <td>₹<%=orders[i].finalAmount.toLocaleString()%></td>
-                                <td><%=orders[i].paymentMethod%></td>
-                                <td>
-                                    <select
-                                        class="badge rounded-pill <%= `status-${orders[i].status.toLowerCase().replace(/ /g, '-')}` %>"
-                                        onchange="updateOrderStatus('<%= orders[i]._id %>', this.value)"
-                                    >
-                                        <% 
-                                            const statuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned"];
-                                            const currentIndex = statuses.indexOf(orders[i].status);
-                                        %>
-                                        
-                                        <% statuses.forEach((statusOption, index) => { %>
-                                            <option 
-                                                value="<%= statusOption %>" 
-                                                <%= orders[i].status === statusOption ? 'selected' : '' %>
-                                                <%= index < currentIndex ? 'disabled' : '' %>
-                                            >
-                                                <%= statusOption %>
-                                            </option>
-                                        <% }) %>
-                                    </select>
-                                </td>
-                                <td>
-                                    <button 
-                                        class="btn btn-sm btn-info" 
-                                        onclick="showOrderDetails('<%= JSON.stringify(orders[i]) %>')"
-                                    >
-                                        View
-                                    </button>
-                                </td>
-                            </tr>
-                        <%}%>
-                    </tbody>
-                </table>
+        </div>
+    </div>
+    
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsModalBody"></div>
             </div>
         </div>
     </div>
-
-    <div id="pagination" class="d-flex justify-content-center align-items-center mt-4">
-        <nav aria-label="Order pagination">
-            <ul class="pagination">
-                <% if (currentPage > 1) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="/admin/orders?page=<%= currentPage - 1 %>&status=<%= currentStatus %>" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                <% } else { %>
-                    <li class="page-item disabled">
-                        <span class="page-link">&laquo;</span>
-                    </li>
-                <% } %>
-    
-                <% 
-               
-                const maxPages = 5; 
-                let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
-                let endPage = Math.min(totalPages, startPage + maxPages - 1);
-    
-                
-                if (endPage - startPage + 1 < maxPages) {
-                    startPage = Math.max(1, endPage - maxPages + 1);
-                }
-                %>
-    
-                <% for (let i = startPage; i <= endPage; i++) { %>
-                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                        <a class="page-link" href="/admin/orders?page=<%= i %>&status=<%= currentStatus %>"><%= i %></a>
-                    </li>
-                <% } %>
-    
-                <% if (currentPage < totalPages) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="/admin/orders?page=<%= currentPage + 1 %>&status=<%= currentStatus %>" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                <% } else { %>
-                    <li class="page-item disabled">
-                        <span class="page-link">&raquo;</span>
-                    </li>
-                <% } %>
-            </ul>
-        </nav>
-    </div>
-    
-</section>
-
-<!-- Order Details Modal -->
-<div class="modal fade order-details-modal" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="orderDetailsModalBody">
-            </div>
-        </div>
-    </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -267,8 +255,6 @@
     try {
         const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
         
-    
-        
         const modalBody = document.getElementById('orderDetailsModalBody');
         
         const orderDetails = {
@@ -281,8 +267,6 @@
             shippingAddress: order.shippingAddress || null,
             items: order.orderedItems || []
         };
-        
-
         
         let detailsHTML = `
             <div class="row">
@@ -315,23 +299,23 @@
             <div class="row">
                 ${orderDetails.items.length > 0 ? 
                     orderDetails.items.map(item => `
-                        <div class="col-md-12 product-row">
-                            <div>
+                        <div class="col-md-12 d-flex align-items-center product-row mb-3 pb-3 border-bottom">
+                            <div class="me-3" style="width: 100px; height: 100px; flex-shrink: 0;">
                                 <img src="${
                                     (item.product && item.product.productImage) ? 
                                     '/uploads/re-image/'+item.product.productImage[0] : 
                                     '/default-product-image.png'
                                 }" 
                                      alt="${(item.product && item.product.productName) ? item.product.productName : 'Product'}" 
-                                     class="product-image">
+                                     class="img-fluid rounded object-fit-cover w-100 h-100">
                             </div>
                             <div>
-                                <p><strong>${(item.product && item.product.productName) ? item.product.productName : 'Product Name Unavailable'}</strong></p>
-                                <p>Quantity: ${item.quantity || 'N/A'}</p>
-                                <p>Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
+                                <p class="mb-1"><strong>${(item.product && item.product.productName) ? item.product.productName : 'Product Name Unavailable'}</strong></p>
+                                <p class="mb-1">Quantity: ${item.quantity || 'N/A'}</p>
+                                <p class="mb-0">Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
                             </div>
                         </div>
-                    `).join('<hr>') : 
+                    `).join('') : 
                     '<p>No items found in this order.</p>'
                 }
             </div>

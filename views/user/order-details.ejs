@@ -229,26 +229,83 @@
             }
         }
        
-.btn-edit i {
-    margin-right: 5px;
+            .btn-edit i {
+                margin-right: 5px;
+            }
+
+            .btn-edit {
+                background: #2196f3;
+                color: #fff;
+                padding: 8px 15px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin: 0 5px;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .btn-edit:hover {
+                background: #1976d2;
+                transform: scale(1.05);
+            }
+            .pagination-area {
+                margin-top: 30px;
+            }
+            .pagination {
+                display: flex;
+                justify-content: center;
+                gap: 5px;
+            }
+            .page-item.active .page-link {
+                background-color: #3BB77E;
+                border-color: #3BB77E;
+                color: #fff;
+            }
+            .page-link {
+                padding: 8px 15px;
+                color: #253D4E;
+                background-color: #fff;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                text-decoration: none;
+            }
+            .page-link:hover {
+                background-color: #f8f9fa;
+                color: #3BB77E;
+            }
+
+            .product-details {
+    flex-grow: 1;
+    padding-right: 15px;
 }
 
-.btn-edit {
-    background: #2196f3;
-    color: #fff;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin: 0 5px;
-    display: inline-flex;
+.product-item {
+    display: flex;
     align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
 }
 
-.btn-edit:hover {
-    background: #1976d2;
-    transform: scale(1.05);
+.product-item:hover {
+    background-color: #f8f9fa;
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+
+.modal .product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
 }
     </style>
 <div class="container order-container">
@@ -277,13 +334,25 @@
                             <img src="/uploads/re-image/<%= item.product.productImage[0] %>" 
                                 alt="<%= item.product.productName %>" class="product-image">
                             <div class="flex-grow-1">
-                                <%= item.product.productName %>
-                                <small>(Qty: <%= item.quantity %>)</small>
+                                <div class="product-details">
+                                    <h6 class="mb-1"><%= item.product.productName %></h6>
+                                    <p class="mb-0 text-muted">
+                                        <% if (item.size) { %>
+                                            <span class="me-2">Size: <%= item.size %></span>
+                                        <% } %>
+                                        <% if (item.color) { %>
+                                            <span class="me-2">Color: <%= item.color %></span>
+                                        <% } %>
+                                        <span>Qty: <%= item.quantity %></span>
+                                    </p>
+                                    
+                                </div>
                             </div>
                             <strong>₹<%= (item.price).toFixed(2) %></strong>
                         </div>
                     <% }); %>
                 </div>
+                
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div>
@@ -300,7 +369,7 @@
                             <button class="btn-edit" onclick="retryPayment('<%= order._id %>')">Retry Payment</button>
                         <% } %>
 
-                        <% if (order.status !== 'Cancelled' && order.paymentStatus !== 'Failed') { %>
+                        <% if (order.status == 'Delivered' ) { %>
                             <a href="/download-invoice/<%= order._id %>" class="btn-edit" style="text-decoration: none; margin-left: 5px;">
                                 <i class="fas fa-file-invoice"></i> Download Invoice
                             </a>
@@ -327,7 +396,37 @@
     <% } %>
 </div>
 
-<!-- Modal -->
+<% if (orders && orders.length > 0) { %>
+    <div class="pagination-area mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% if (hasPrevPage) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/order-history?page=<%= prevPage %>">
+                            <i class="fi-rs-arrow-small-left"></i>
+                        </a>
+                    </li>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/order-history?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+
+                <% if (hasNextPage) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/order-history?page=<%= nextPage %>">
+                            <i class="fi-rs-arrow-small-right"></i>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+<% } %>
+
+
 <div class="modal fade order-details-modal" id="orderDetailsModal" tabindex="-1" 
     aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -427,34 +526,26 @@
         const sanitizedOrderData = typeof orderData === 'string' ? sanitizeString(orderData) : orderData;
         const order = typeof sanitizedOrderData === 'string' ? JSON.parse(sanitizedOrderData) : sanitizedOrderData;
 
-        console.log('Raw order data:', orderData);
-        console.log('Parsed order:', order);
-
         const modalBody = document.getElementById('orderDetailsModalBody');
-
-        // Properly access the address data
-        // First check if address exists and has the nested address array
         const shippingAddress = order.address && order.address.address ? order.address.address[0] : null;
 
         const orderDetails = {
-            id: order._id,
+            id:  order._id.toString().slice(-8).toUpperCase() ,
             orderId: order.orderId || 'N/A',
             date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
             paymentMethod: order.paymentMethod || 'N/A',
             paymentStatus: order.paymentStatus || (order.status === 'Failed' ? 'Failed' : 'N/A'),
             finalAmount: order.finalAmount || 0,
             status: order.status || 'N/A',
-            shippingAddress: shippingAddress,  // Use the properly accessed shipping address
+            shippingAddress: shippingAddress,
             items: order.orderedItems || []
         };
-
-        console.log('Shipping Address:', orderDetails.shippingAddress); // Debug log
 
         let detailsHTML = `
             <div class="row">
                 <div class="col-md-6">
                     <h6><strong>Order Information</strong></h6>
-                    <p><strong>Order ID:</strong> Order # ${orderDetails.id}</p>
+                    <p><strong>Order ID:</strong> Order #${orderDetails.id}</p>
                     <p><strong>Date:</strong> ${orderDetails.date}</p>
                     <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
                     <p><strong>Payment Status:</strong> ${orderDetails.paymentStatus}</p>
@@ -472,8 +563,8 @@
                             ${orderDetails.shippingAddress.state || 'State not provided'} 
                             ${orderDetails.shippingAddress.pincode || 'Pincode not provided'}<br>
                             Phone: ${orderDetails.shippingAddress.phone || 'Not provided'}<br>
-                            ${orderDetails.shippingAddress.altPhone ? `Alt Phone: ${orderDetails.shippingAddress.altPhone}` : ''}
-                        ` : 'No shipping address available'}
+                            ${orderDetails.shippingAddress.altPhone ? `Alt Phone: ${orderDetails.shippingAddress.altPhone}` : ''}`
+                        : 'No shipping address available'}
                     </p>
                 </div>
             </div>
@@ -482,16 +573,22 @@
             <div class="row">
                 ${orderDetails.items.length > 0 ?
                     orderDetails.items.map(item => `
-                        <div class="col-md-12 product-row">
-                            <div>
-                                <img src="/uploads/re-image/${item.product.productImage[0]}" 
-                                     alt="${item.product.productName}" 
-                                     class="product-image">
-                            </div>
-                            <div>
-                                <p><strong>${item.product.productName}</strong></p>
-                                <p>Quantity: ${item.quantity}</p>
-                                <p>Price: ₹${item.price.toLocaleString()}</p>
+                        <div class="col-md-12 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <img src="/uploads/re-image/${item.product.productImage[0]}" 
+                                         alt="${item.product.productName}" 
+                                         class="product-image" style="width: 80px; height: 80px; object-fit: cover;">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">${item.product.productName}</h6>
+                                    <div class="d-flex flex-wrap">
+                                        ${item.size ? `<p class="mb-0 me-3"><strong>Size:</strong> ${item.size}</p>` : ''}
+                                        ${item.color ? `<p class="mb-0 me-3"><strong>Color:</strong> ${item.color}</p>` : ''}
+                                        <p class="mb-0 me-3"><strong>Quantity:</strong> ${item.quantity}</p>
+                                        <p class="mb-0"><strong>Price:</strong> ₹${item.price.toLocaleString()}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `).join('<hr>') :
@@ -510,6 +607,7 @@
         alert('Failed to load order details. Please check the console for more information.');
     }
 }
+
 
         function viewOrderDetails(orderId) {
             window.location.href = `/order-details/${orderId}`;

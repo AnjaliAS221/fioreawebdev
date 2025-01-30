@@ -1,137 +1,101 @@
 <%- include("../../views/partials/admin/header") %>
 
-    <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    </head>
-    <style>
-        .error-message {
-            color: red;
-        }
-
-
-        .thumbnails-container {
-            display: flex;
-            overflow-x: auto;
-        }
-
-
-        .thumbnail {
-            margin-right: 10px;
-
-
-        }
-    </style>
-    <section class="content-main">
-        <div class="row">
-            <div class="col-9">
-                <div class="content-header">
-                    <h2 class="content-title">Add New Product</h2>
-                </div>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    .error-message { color: red; }
+    .thumbnails-container { 
+        display: flex;
+        overflow-x: auto;
+    }
+    .thumbnail { margin-right: 10px; }
+    .variant-container {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    .remove-variant {
+        float: right;
+        color: red;
+        cursor: pointer;
+    }
+</style>
+<section class="content-main">
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Add New Product</h2>
             </div>
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-
-                       
-                        
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-body">
 
                         <form method="post" action="/admin/addProducts" enctype="multipart/form-data"
                             onsubmit="return validateForm()">
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Product Name</label>
-                                <input type="text" placeholder="Type here" name="productName"
-                                    class="form-control border" id="product_name">
+                                <input type="text" placeholder="Type here" name="productName" class="form-control border" id="product_name">
                                 <div id="productName-error" class="error-message"></div>
                             </div>
-                            
                             <div class="mb-4">
                                 <label class="form-label">Description</label>
-                                <textarea placeholder="Type here" id="descriptionid" name="description"
-                                    class="form-control border" rows="4"></textarea>
+                                <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border" rows="4"></textarea>
                                 <div id="description-error" class="error-message"></div>
                             </div>
                             <div class="row">
-                                <div class="col-lg-4">
+                                <div class="col-lg-6">
                                     <div class="mb-4">
                                         <label class="form-label">Regular price</label>
-                                        <input placeholder="$" name="regularPrice" type="text"
-                                            class="form-control border">
+                                        <input placeholder="$" name="regularPrice" type="text" class="form-control border">
                                         <div id="regularPrice-error" class="error-message"></div>
                                     </div>
                                 </div>
-                                <div class="col-lg-4">
+                                <div class="col-lg-6">
                                     <div class="mb-4">
                                         <label class="form-label">Sale price</label>
                                         <input placeholder="$" name="salePrice" type="text" class="form-control border">
-
-                                    </div>
-                                    <div id="salePrice-error" class="error-message"></div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label">Quantity</label>
-                                        <input placeholder="" name="quantity" type="text" class="form-control border">
-                                        <div id="quantity-error" class="error-message"></div>
+                                        <div id="salePrice-error" class="error-message"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label" for="colors">Colors</label>
-                                        <!-- Wrapper for color inputs -->
-                                        <div id="colorInputs">
-                                            <input name="colors[]" type="text" class="form-control border mb-2"
-                                                placeholder="Enter color">
-                                        </div>
-                                        <button type="button" class="btn btn-primary" onclick="addColorInput()">Add
-                                            Another Color</button>
-                                    </div>
-                                    <div id="color-error" class="error-message"></div>
+                            <div class="mb-4">
+                                <label class="form-label">Product Variants</label>
+                                <div id="variants-container">
+                                    <!-- Variants will be added here dynamically -->
                                 </div>
-
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label" for="sizes">Sizes</label>
-                                        <!-- Wrapper for size inputs -->
-                                        <div id="sizeInputs">
-                                            <input type="text" name="sizes[]" class="form-control border mb-2"
-                                                placeholder="Enter size (e.g., S, M, L)">
-                                        </div>
-                                        <button type="button" class="btn btn-primary" onclick="addSizeInput()">Add
-                                            Another Size</button>
-                                    </div>
-                                    <div id="size-error" class="error-message"></div>
-                                </div>
-
+                                <button type="button" class="btn btn-secondary" onclick="addVariant()">Add Variant</button>
+                                <div id="variants-error" class="error-message"></div>
                             </div>
+
                             <div class="card mb-4">
                                 <div class="card-body">
-                                    <div class="row gx-2">
-
-                                       
-
-                                        <div class="col-sm-6 mb-3">
-                                            <label class="form-label">Category</label>
-                                            <select class="form-select border" style="width: 150px;" name="category">
-
-                                                <%for(let i=0; i<cat.length; i++){%>
-                                                    <option value="<%=cat[i].name%>">
-                                                        <%=cat[i].name%>
+                                    <div class="mb-4">
+                                        <label class="form-label">Category</label>
+                                        <select class="form-select border" name="category">
+                                            <% if (cat && cat.length > 0) { %>
+                                                <option value="">Select a category</option>
+                                                <% for(let i=0; i<cat.length; i++) { %>
+                                                    <option value="<%=cat[i]._id%>">
+                                                        <%= cat[i].name || 'Unnamed Category' %>
                                                     </option>
-                                                    <%}%>
-                                            </select>
-                                            <div id="category-error" class="error-message"></div>
-                                        </div>
+                                                <% } %>
+                                            <% } else { %>
+                                                <option value="">No categories available</option>
+                                            <% } %>
+                                        </select>
+                                        <div id="category-error" class="error-message"></div>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="card mb-2">
-                                <div class="card-header">
-                                    <h4>Choose images</h4>
-                                </div>
+                            <div class="card-header">
+                                <h4>Product Images</h4>
+                            </div>
                                 <div class="border row">
                                     <div id="addedImagesContainer" class="thumbnails-container"></div>
                                 </div>
@@ -214,13 +178,102 @@
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 
     <script>
-        function validateAndSubmit() {
-            if (validateForm()) {
-                document.forms[0].submit();
-            }
+
+        function addVariant() {
+            const container = document.getElementById('variants-container');
+            const variantDiv = document.createElement('div');
+            const variantId = Date.now(); 
+            variantDiv.className = 'variant-container';
+            variantDiv.dataset.variantId = variantId;
+            
+            variantDiv.innerHTML = `
+                <span class="remove-variant" onclick="removeVariant(this)">×</span>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Color</label>
+                            <input type="text" class="form-control variant-color" required>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="sizes-container">
+                            <!-- Size entries will be added here -->
+                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addSize(${variantId})">
+                            Add Size
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(variantDiv);
+            addSize(variantId); 
         }
 
+        function addSize(variantId) {
+            const variantDiv = document.querySelector(`[data-variant-id="${variantId}"]`);
+            const sizesContainer = variantDiv.querySelector('.sizes-container');
+            const sizeDiv = document.createElement('div');
+            sizeDiv.className = 'size-entry row mt-2';
+            
+            sizeDiv.innerHTML = `
+                <div class="col-md-6">
+                    <input type="text" class="form-control variant-size" placeholder="Size" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" class="form-control variant-stock" placeholder="Stock" min="0" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeSize(this)">×</button>
+                </div>
+            `;
+            sizesContainer.appendChild(sizeDiv);
+        }
+
+        function removeSize(button) {
+            button.closest('.size-entry').remove();
+        }
+
+        function removeVariant(element) {
+            element.closest('.variant-container').remove();
+        }
+
+        function collectVariantsData() {
+            const variants = [];
+            const variantContainers = document.querySelectorAll('.variant-container');
+            
+            variantContainers.forEach(container => {
+                const color = container.querySelector('.variant-color').value;
+                const sizes = [];
+                
+                container.querySelectorAll('.size-entry').forEach(sizeEntry => {
+                    sizes.push({
+                        size: sizeEntry.querySelector('.variant-size').value,
+                        stock: parseInt(sizeEntry.querySelector('.variant-stock').value)
+                    });
+                });
+                
+                variants.push({
+                    color: color,
+                    sizes: sizes
+                });
+            });
+            
+            return variants;
+        }
+
+        
+
+function validateAndSubmit() {
+    if (validateForm()) {
+        const submitButton = document.querySelector('button[type="button"][onclick="validateAndSubmit()"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Publishing...';
+        document.forms[0].submit();
+    }
+}
+
         function viewImage1(event) {
+
             document.getElementById("imgView1").src = URL.createObjectURL(event.target.files[0]);
         }
 
@@ -238,48 +291,97 @@
 
 
         function viewImage(event, index) {
-            let input = event.target;
-            let reader = new FileReader();
-            reader.onload = function () {
+    try {
+        let input = event.target;
+        let reader = new FileReader();
+        
+        reader.onerror = function() {
+            throw new Error('Error reading file');
+        };
+        
+        reader.onload = function() {
+            try {
                 let dataURL = reader.result;
                 let image = document.getElementById("imgView" + index);
                 image.src = dataURL;
+                
+                
                 let cropper = new Cropper(image, {
                     aspectRatio: 1,
                     viewMode: 1,
                     guides: true,
                     background: false,
                     autoCropArea: 1,
-                    zoomable: true
+                    zoomable: true,
+                    cropBoxResizable: true,
+                    dragMode: 'move'
                 });
 
                 let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
                 cropperContainer.style.display = 'block';
 
                 let saveButton = document.querySelector("#saveButton" + index);
-                saveButton.addEventListener('click', async function () {
-                    let croppedCanvas = cropper.getCroppedCanvas();
-                    let croppedImage = document.getElementById("croppedImg" + index);
-                    croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
+                saveButton.addEventListener('click', async function() {
+                    try {
+                        let croppedCanvas = cropper.getCroppedCanvas();
+                        if (!croppedCanvas) {
+                            throw new Error('Failed to crop image');
+                        }
 
-                    let timeStamp = new Date().getTime();
-                    let fileName = `cropped-img-${timeStamp}-${index}.png`;
+                        let croppedImage = document.getElementById("croppedImg" + index);
+                        croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
 
-                    await croppedCanvas.toBlob(blob => {
-                        let input = document.getElementById('input' + index);
-                        let imgFile = new File([blob], fileName, blob);
-                        const fileList = new DataTransfer();
-                        fileList.items.add(imgFile);
-                        input.files = fileList.files;
-                    });
+                        let timeStamp = new Date().getTime();
+                        let fileName = `cropped-img-${timeStamp}-${index}.png`;
 
-                    croppedContainer.style.display = 'none';
-                    cropper.destroy();
+                        await croppedCanvas.toBlob(blob => {
+                            if (!blob) {
+                                throw new Error('Failed to create image blob');
+                            }
+                            
+                            let input = document.getElementById('input' + index);
+                            let imgFile = new File([blob], fileName, { type: 'image/png' });
+                            const fileList = new DataTransfer();
+                            fileList.items.add(imgFile);
+                            input.files = fileList.files;
+                        }, 'image/png', 0.9);
+
+                        cropperContainer.style.display = 'none';
+                        cropper.destroy();
+                    } catch (cropError) {
+                        console.error('Error saving cropped image:', cropError);
+                        displayErrorMessage('images-error', 'Failed to save cropped image. Please try again.');
+                    }
                 });
-            };
+            } catch (cropperError) {
+                console.error('Error initializing cropper:', cropperError);
+                displayErrorMessage('images-error', 'Failed to initialize image cropper. Please try again.');
+            }
+        };
 
-            reader.readAsDataURL(input.files[0]);
+        
+        if (!input.files[0].type.match('image.*')) {
+            throw new Error('Invalid file type');
         }
+
+        reader.readAsDataURL(input.files[0]);
+        
+    } catch (error) {
+        console.error('Error processing image:', error);
+        displayErrorMessage('images-error', 'Error processing image. Please try again.');
+        
+        
+        let input = document.getElementById('input' + index);
+        input.value = '';
+        
+        
+        let image = document.getElementById("imgView" + index);
+        image.src = '';
+       
+        let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
+        cropperContainer.style.display = 'none';
+    }
+}
 
 
         const selectedImages = [];
@@ -318,89 +420,123 @@
             }
         }
 
+
+
         function validateForm() {
             clearErrorMessages();
+            let isValid = true;
             const name = document.getElementsByName('productName')[0].value;
             const description = document.getElementById('descriptionid').value;
             const price = document.getElementsByName('regularPrice')[0].value;
             const saleprice = document.getElementsByName('salePrice')[0].value;
 
-            const colorInputs = document.getElementsByName('colors[]');
-            const colors = Array.from(colorInputs).map(input => input.value.trim()).filter(color => color !== '');
-
-            const sizeInputs = document.getElementsByName('sizes[]');
-            const sizes = Array.from(sizeInputs).map(input => input.value.trim()).filter(size => size !== '');
-
-            const category = document.getElementsByName('category')[0].value;
-            const images = document.getElementById('input1');
-            const quantity = document.getElementsByName('quantity')[0].value; 
-            let isValid = true;
-
-            console.log('Selected Colors (Dropdown):', colors);
-            console.log('Selected Sizes (Dropdown):', sizes);
-
-            // Product Name Validation
-            if (name.trim() === "") {
-             displayErrorMessage('productName-error', 'Please enter a product name.');
-             isValid = false;
-            } else if (!/^[a-zA-Z\s\-\&\@\$\%\!\#]+$/.test(name.trim())) { // Add symbols here
-             displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters and allowed symbols.');
-              isValid = false;
-            }
-
-            
-
-             // Product Description Validation
-             if (description.trim() === "") {
-                displayErrorMessage('description-error', 'Please enter a product description.');
-                isValid = false;
-            } 
-
-
-
-            // Quantity Validation
-            if (quantity.trim() === "" || isNaN(quantity) || parseInt(quantity) < 0) {
-                displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-                isValid = false;
-            }
-
-            // Regular Price Validation
-            if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-                displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-                isValid = false;
-            }
-
-            // Sale Price Validation
-            if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-                displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
-                isValid = false;
-            }
-
-            if (parseFloat(price) <= parseFloat(saleprice)) {
-                displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
-                isValid = false;
-            }
-
-            // Color Validation
-            if (colors.length === 0) {
-                displayErrorMessage('color-error', 'Please enter at least one color.');
-                isValid = false;
-            }
-
-            // size validation
-            if (sizes.length === 0) {
-            displayErrorMessage('size-error', 'Please enter at least one size.');
+            const variantContainers = document.querySelectorAll('.variant-container');
+        if (variantContainers.length === 0) {
+            displayErrorMessage('variants-error', 'Please add at least one product variant');
             isValid = false;
-        }
-            // Image Validation
-            if (images.files.length === 0) {
-                displayErrorMessage('images-error', 'Please select an image.');
+        } else {
+        for (let container of variantContainers) {
+            const color = container.querySelector('.variant-color').value.trim();
+            const sizes = container.querySelectorAll('.size-entry');
+            
+            if (!color) {
+                displayErrorMessage('variants-error', 'Color is required for all variants');
                 isValid = false;
+                break;
             }
 
-            return isValid;
-        }
+            if (sizes.length === 0) {
+                displayErrorMessage('variants-error', 'Each variant must have at least one size');
+                isValid = false;
+                break;
+            }
 
+            for (let sizeEntry of sizes) {
+                const sizeValue = sizeEntry.querySelector('.variant-size').value.trim();
+                const stockValue = sizeEntry.querySelector('.variant-stock').value.trim();
+                
+                if (!sizeValue || !stockValue) {
+                    displayErrorMessage('variants-error', 'Size and stock are required for all variants');
+                    isValid = false;
+                    break;
+                }
+
+                if (isNaN(stockValue) || parseInt(stockValue) < 0) {
+                    displayErrorMessage('variants-error', 'Stock must be a non-negative number');
+                    isValid = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (isValid) {
+        const variantsData = collectVariantsData();
+        const variantsInput = document.createElement('input');
+        variantsInput.type = 'hidden';
+        variantsInput.name = 'variantsData';
+        variantsInput.value = JSON.stringify(variantsData);
+        document.querySelector('form').appendChild(variantsInput);
+    }
+
+    // Product Name Validation
+    if (name.trim() === "") {
+        displayErrorMessage('productName-error', 'Please enter a product name.');
+        isValid = false;
+    } else if (!/^[a-zA-Z\s\-\&\@\$\%\!\#]+$/.test(name.trim())) {
+        displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters and allowed symbols.');
+        isValid = false;
+    }
+
+    if (name.length > 100) { // Adjust number as needed
+    displayErrorMessage('productName-error', 'Product name cannot exceed 100 characters.');
+    isValid = false;
+}
+
+    // Product Description Validation
+    if (description.trim() === "") {
+        displayErrorMessage('description-error', 'Please enter a product description.');
+        isValid = false;
+    }
+
+    const category = document.querySelector('select[name="category"]').value;
+    if (!category) {
+        displayErrorMessage('category-error', 'Please select a category');
+        isValid = false;
+    }
+
+        const MIN_PRICE = 0.01;
+    if (parseFloat(price) < MIN_PRICE) {
+        displayErrorMessage('regularPrice-error', `Price must be at least ${MIN_PRICE}`);
+        isValid = false;
+    }
+
+    // Regular Price Validation
+    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+
+    // Sale Price Validation
+    if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
+        isValid = false;
+    }
+
+    if (parseFloat(price) <= parseFloat(saleprice)) {
+        displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
+        isValid = false;
+    }
+
+    // Image Validation
+    const images = document.getElementById('input1');
+    if (images.files.length === 0) {
+        displayErrorMessage('images-error', 'Please select an image.');
+        isValid = false;
+    }
+
+    return isValid;
+}
         function displayErrorMessage(elementId, message) {
             const errorElement = document.getElementById(elementId);
             errorElement.innerText = message;
@@ -415,25 +551,6 @@
             });
         }
 
-        function addColorInput() {
-            const colorInputs = document.getElementById('colorInputs');
-            const newInput = document.createElement('input');
-            newInput.type = 'text';
-            newInput.name = 'colors[]';
-            newInput.className = 'form-control border mb-2';
-            newInput.placeholder = 'Enter color';
-            colorInputs.appendChild(newInput);
-        }
-
-        function addSizeInput() {
-            const sizeInputs = document.getElementById('sizeInputs');
-            const newInput = document.createElement('input');
-            newInput.type = 'text';
-            newInput.name = 'sizes[]';
-            newInput.className = 'form-control border mb-2';
-            newInput.placeholder = 'Enter size (e.g., S, M, L)';
-            sizeInputs.appendChild(newInput);
-        }
 
     </script>
 

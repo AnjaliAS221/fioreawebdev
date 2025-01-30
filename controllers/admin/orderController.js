@@ -6,6 +6,7 @@ const PDFDocument = require('pdfkit');
 const Return = require('../../models/returnSchema');
 const Wallet = require('../../models/walletSchema');
 const ExcelJS = require('exceljs');
+const Product = require('../../models/productSchema');
 
 
 
@@ -50,35 +51,71 @@ const loadOrders = async(req,res)=>{
 }
 
 
+const restockOnOrderCancellation = async (order) => {
+    const { orderedItems, status, cancellation } = order;
 
-const updateOrderStatus = async (req, res) => {
-    try {
-        const { orderId, newStatus } = req.body;
+    if (status === "Cancelled" && cancellation.isCancelled) {
+        for (const item of orderedItems) {
+            const product = await Product.findById(item.product);
+            if (!product) continue;
 
-        if (!mongoose.Types.ObjectId.isValid(orderId)) {
-            return res.status(400).json({ success: false, message: 'Invalid order ID' });
+            const variant = product.variants.id(item.variantId);
+            if (variant) {
+                variant.stock += item.quantity; 
+                await product.save();
+            }
         }
-
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
-
-        order.status = newStatus;
-        await order.save();
-
-        res.json({ success: true, message: 'Order status updated successfully' });
-    } catch (error) {
-        console.error('Error updating order status:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to update order status', 
-            error: error.message 
-        });
     }
 };
 
 
+const manageStockOnOrder = async (order) => {
+    const { orderedItems, status } = order;
+
+    if (status === "Pending" || status === "Processing") {
+        for (const item of orderedItems) {
+            const product = await Product.findById(item.product);
+            if (!product) continue;
+
+            const variant = product.variants.id(item.variantId);
+            if (variant && variant.stock >= item.quantity) {
+                variant.stock -= item.quantity; 
+                await product.save();
+            } else {
+                throw new Error(`Insufficient stock for product: ${product.productName}`);
+            }
+        }
+    }
+};
+
+
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId, newStatus, cancellation} = req.body;
+        console.log(newStatus);
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        order.status = newStatus;
+        if (cancellation) {
+            order.cancellation = cancellation;
+        }
+        await order.save();
+
+        if (newStatus === "Cancelled") {
+            await restockOnOrderCancellation(order);
+        } else if (newStatus === "Pending" || newStatus === "Processing") {
+            await manageStockOnOrder(order);
+        }
+
+        res.status(200).json({success:true, message: "Order updated successfully" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+};
 
 
 const getReturnPage= async (req,res)=>{
