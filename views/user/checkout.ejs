@@ -406,10 +406,12 @@
             await syncData()
 
             const form = document.getElementById('orderForm');
+            console.log("form",form);
             const formData = new FormData(form);
-            console.log(JSON.stringify(formData));
+            console.log("form data",JSON.stringify(formData));
 
             const cartItems = JSON.parse(formData.get('cart') || '[]');
+            console.log("ffjhjh",cartItems);
             const validCartItems = cartItems.every(item => item.variantId);
             
             if (!validCartItems) {

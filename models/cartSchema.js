@@ -13,7 +13,7 @@ const cartSchema = new Schema({
             ref: "Product",
             required: true
         },
-        variantId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        variantId: { type: mongoose.Schema.Types.ObjectId, },
         color: {
             type: String,
         },

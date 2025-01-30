@@ -41,6 +41,7 @@ const addCart = async (req, res) => {
 
         // 🔥 Find the correct variant based on color and size
         const variant = product.variants.find(v => v.color === color);
+        
         if (!variant) {
             return res.status(400).json({ success: false, message: "Variant color not found" });
         }
@@ -51,13 +52,14 @@ const addCart = async (req, res) => {
         }
 
         const variantId = sizeVariant._id;  // ✅ Extracted variant ID
-
+        
         const quantity = parseInt(req.body.quantity, 10) || 1;
         const totalPrice = product.salePrice * quantity;
 
         let cartDoc = await Cart.findOne({ userId });
 
         if (cartDoc) {
+            
             const existingItemIndex = cartDoc.items.findIndex(
                 item => item.productId.toString() === productId && 
                         item.variantId.toString() === variantId
@@ -67,6 +69,7 @@ const addCart = async (req, res) => {
                 cartDoc.items[existingItemIndex].quantity += quantity;
                 cartDoc.items[existingItemIndex].totalPrice += totalPrice;
             } else {
+                console.log("variants",variantId);
                 cartDoc.items.push({
                     productId,
                     variantId,  // ✅ Now storing the variantId
