@@ -876,7 +876,8 @@
                         document.getElementById('coupon').value = '';
                         document.getElementById('discountapp').value = '0';
                         document.getElementById('finalPrice').value = data.totalPrice;
-                        document.getElementById('discount').value = '0';
+                        document.getElementById("discount").remove();
+
 
                         const priceSummary = document.querySelector('.price-summary');
                         const discountRows = priceSummary.querySelectorAll('.d-flex.justify-content-between');
@@ -891,7 +892,7 @@
                         if (totalPriceElement) {
                             totalPriceElement.textContent = `₹${data.totalPrice.toLocaleString()}`;
                         }
-
+                
                         document.getElementById('applyCouponBtn').style.display = 'block';
                         document.getElementById('removeCouponBtn').style.display = 'none';
                     }

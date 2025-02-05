@@ -72,39 +72,9 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRouter);
 app.use("/", userRouter);
-
-
-app.use((req, res, next) => {
-  res.status(404);
-  
-  
-  if (req.accepts('json')) {
-    res.json({ error: 'Not found' });
-    return;
-  }
-
-
-  res.render('user/page-404', { url: req.url });
-});
-
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500);
-  
-
-  if (req.accepts('json')) {
-    res.json({ 
-      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
-    });
-    return;
-  }
-
-  res.render('user/page-404', {
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
-  });
-});
-
+app.use((req,res)=>{
+  res.render("page-404")
+})
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
