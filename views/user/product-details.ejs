@@ -431,7 +431,7 @@
 
                                         <div class="product-stock mb-3">
                                             <span id="stock-info" class="text-muted">Select a color and size to view
-                                                stock.</span>
+                                                stock availability</span>
                                         </div>
 
 
@@ -452,9 +452,6 @@
                                             </div>
                                         </div>
 
-
-
-                                        <!-- Size Guide Modal -->
                                         <div id="size-guide-modal" class="modal">
                                             <div class="modal-content">
                                                 <span class="close"
@@ -463,7 +460,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Color Guide Modal -->
                                         <div id="color-guide-modal" class="modal">
                                             <div class="modal-content">
                                                 <span class="close"
@@ -500,7 +496,7 @@
                                                 <i class="fas fa-shopping-cart mr-2"></i>Add to cart
                                             </button>
                                             <button type="button" class="button buy-now-btn"
-                                                onclick="handleBuyNow('<%= product._id %>')">
+                                                onclick="buyNow('<%= product._id %>')">
                                                 Buy Now
                                             </button>
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"
@@ -515,30 +511,8 @@
                                                     <%= category.name %>
                                                 </a>
                                             </li>
-
-                                            <li>
-                                                Available:
-                                                <% let selectedColor=product.colors[0]; let
-                                                    selectedSize=product.colorSizeMap[selectedColor][0].size; let
-                                                    stock=product.variants.find(v=> v.color === selectedColor)
-                                                    .sizes.find(s => s.size === selectedSize).stock;
-                                                    if (stock <= 0) { %>
-                                                        <span class="out-of-stock text-danger ml-5">
-                                                            <i class="fas fa-times-circle"></i> Out of Stock
-                                                        </span>
-                                                        <% } else if (stock> 0 && stock <= 10) { %>
-                                                                <span class="few-left text-warning ml-5">
-                                                                    <i class="fas fa-exclamation-circle"></i> Only a few
-                                                                    left!
-                                                                </span>
-                                                                <% } else { %>
-                                                                    <span class="in-stock text-success ml-5">
-                                                                        <i class="fas fa-check-circle"></i> In Stock
-                                                                    </span>
-                                                                    <% } %>
-                                            </li>
-
                                         </ul>
+
                                     </div>
                                 </div>
                             </div>
@@ -551,357 +525,431 @@
 
 
     <script>
-    const isInWishlist = <%- JSON.stringify(isInWishlist || false) %>;
-    let currentWishlistState = isInWishlist;
+        const isInWishlist = '<%- JSON.stringify(isInWishlist || false) %>';
+        let currentWishlistState = isInWishlist;
 
-    const colorSizeMap = JSON.parse('<%- JSON.stringify(product.colorSizeMap) %>');
-    const variants = JSON.parse('<%- JSON.stringify(product.variants) %>');
-    const colorSelect = document.getElementById("color-select");
-    const sizeBoxesContainer = document.getElementById("size-boxes");
-    const stockInfo = document.getElementById("stock-info");
-    let quantity = 1;
-    const maxCartQuantity = 5;
-    let currentStock = 0;
+        const colorSizeMap = JSON.parse('<%- JSON.stringify(product.colorSizeMap) %>');
+        const variants = JSON.parse('<%- JSON.stringify(product.variants) %>');
+        const colorSelect = document.getElementById("color-select");
+        const sizeBoxesContainer = document.getElementById("size-boxes");
+        const stockInfo = document.getElementById("stock-info");
+        let quantity = 1;
+        const maxCartQuantity = 5;
+        let currentStock = 0;
 
-    document.addEventListener('DOMContentLoaded', function () {
-        setupQuantityControls();
-        setupModals();
-        initializeWishlistState();
-    });
 
-    function setupQuantityControls() {
-    const qtyUpBtn = document.querySelector('.qty-up');
-    const qtyDownBtn = document.querySelector('.qty-down');
-    const qtyVal = document.getElementById('quantity');
-
-    quantity = 1;
-    qtyVal.textContent = quantity;
-
-    qtyUpBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const newQuantity = quantity + 1;
-
-        if (newQuantity > currentStock && currentStock > 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Stock Limit',
-                text: `Only ${currentStock} items available in stock.`,
-                confirmButtonColor: '#800000'
-            });
-            return;
-        }
-
-        quantity = newQuantity;
-        qtyVal.textContent = quantity;
-    });
-
-    qtyDownBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (quantity > 1) {
-            quantity -= 1;
-            qtyVal.textContent = quantity;
-        }
-    });
-}
-    function updateStockLimit(selectedColor, selectedSize) {
-        if (!selectedColor || !selectedSize) return;
-
-        const variant = variants.find(v => v.color === selectedColor);
-        const sizeInfo = variant?.sizes.find(s => s.size === selectedSize);
-
-        if (sizeInfo) {
-            currentStock = sizeInfo.stock;
-            if (quantity > currentStock) {
-                quantity = currentStock;
+        function updateStockInfo(selectedColor, selectedSize) {
+            if (!selectedColor || !selectedSize) {
+                stockInfo.textContent = 'Select a color and size to view stock';
+                stockInfo.className = 'text-muted';
+                currentStock = 0;
+                quantity = 1;
+                document.getElementById('quantity').textContent = quantity;
+                return;
             }
-            document.getElementById('quantity').textContent = quantity;
-        }
-    }
 
-    function handleColorChange(e) {
-        quantity = 1;
-        document.getElementById('quantity').textContent = quantity;
-        updateSizeOptions(e.target.value);
-    }
+            const variant = variants.find(v => v.color === selectedColor);
+            const sizeInfo = variant?.sizes.find(s => s.size === selectedSize);
 
-    function updateSizeOptions(selectedColor) {
-        sizeBoxesContainer.innerHTML = '';
-        currentStock = 0;
+            if (sizeInfo) {
+                currentStock = sizeInfo.stock;
 
-        if (!selectedColor) {
-            const message = document.createElement('div');
-            message.className = 'text-muted';
-            message.textContent = 'Please select a color first';
-            sizeBoxesContainer.appendChild(message);
-            return;
-        }
-
-        if (colorSizeMap[selectedColor]) {
-            colorSizeMap[selectedColor].forEach(sizeObj => {
-                const sizeBox = document.createElement('div');
-                sizeBox.className = 'size-box';
-
-                const sizeText = document.createElement('span');
-                sizeText.textContent = sizeObj.size;
-                sizeBox.appendChild(sizeText);
-
-                if (sizeObj.stock <= 0) {
-                    sizeBox.classList.add('disabled');
-                } else {
-                    const stockIndicator = document.createElement('span');
-                    stockIndicator.className = `stock-indicator ${sizeObj.stock > 10 ? 'in-stock' : 'low-stock'}`;
-                    sizeBox.appendChild(stockIndicator);
-
-                    sizeBox.addEventListener('click', () => {
-                        document.querySelectorAll('.size-box').forEach(box =>
-                            box.classList.remove('selected'));
-                        sizeBox.classList.add('selected');
-                        updateStockInfo(selectedColor, sizeObj.size);
-                    });
+                if (quantity > currentStock) {
+                    quantity = currentStock;
+                    document.getElementById('quantity').textContent = quantity;
                 }
 
-                sizeBoxesContainer.appendChild(sizeBox);
-            });
-        }
-        setupQuantityControls();
-    }
 
-    function updateStockInfo(selectedColor, selectedSize) {
-        if (!selectedColor || !selectedSize) {
-            stockInfo.textContent = 'Select a color and size to view stock';
-            stockInfo.className = 'text-muted';
-            currentStock = 0;
-
-            quantity = 1;
-            document.getElementById('quantity').textContent = quantity;
-            return;
-        }
-
-        const variant = variants.find(v => v.color === selectedColor);
-        const sizeInfo = variant?.sizes.find(s => s.size === selectedSize);
-
-        if (sizeInfo) {
-            currentStock = sizeInfo.stock;
-
-            if (quantity > currentStock) {
-                quantity = currentStock;
-                document.getElementById('quantity').textContent = quantity;
-            }
-
-            if (currentStock > 10) {
-                stockInfo.className = 'text-success';
-                stockInfo.textContent = `Stock: ${currentStock}`;
-            } else if (currentStock > 0) {
-                stockInfo.className = 'text-warning';
-                stockInfo.textContent = `Stock: ${currentStock} (Low Stock)`;
-            } else {
-                stockInfo.className = 'text-danger';
-                stockInfo.textContent = 'Out of Stock';
-                quantity = 0;
-                document.getElementById('quantity').textContent = quantity;
+                if (currentStock <= 0) {
+                    stockInfo.innerHTML = `<i class="fas fa-times-circle"></i> Out of Stock`;
+                    stockInfo.className = 'text-danger';
+                } else if (currentStock > 0 && currentStock <= 10) {
+                    stockInfo.innerHTML = `<i class="fas fa-exclamation-circle"></i> Only a few left!`;
+                    stockInfo.className = 'text-warning';
+                } else {
+                    stockInfo.innerHTML = `<i class="fas fa-check-circle"></i> In Stock`;
+                    stockInfo.className = 'text-success';
+                }
             }
         }
-    }
 
-    function addToCart(productId) {
-    const selectedColor = colorSelect.value;
-    const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
 
-    if (!selectedColor || !selectedSize) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Please Select Options',
-            text: 'Please select both color and size before adding to cart.',
-            confirmButtonColor: '#800000'
-        });
-        return;
-    }
+        function setupQuantityControls() {
+            const qtyUpBtn = document.querySelector('.qty-up');
+            const qtyDownBtn = document.querySelector('.qty-down');
+            const qtyVal = document.getElementById('quantity');
 
-    if (quantity > currentStock) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Stock Limit Exceeded',
-            text: `Only ${currentStock} items available in stock.`,
-            confirmButtonColor: '#800000'
-        });
-        return;
-    }
+            qtyUpBtn.addEventListener('click', (e) => {
+                e.preventDefault();
 
-    fetch('/add-to-cart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            productId,
-            quantity: quantity,
-            color: selectedColor,
-            size: selectedSize
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added to Cart',
-                    text: 'Product added to cart successfully!',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'Go to Cart',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/cart';
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.message || 'Error adding product to cart',
-                    confirmButtonColor: '#d33',
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Something went wrong. Please try again later.',
-                confirmButtonColor: '#d33',
-            });
-        });
-}
 
-    function handleBuyNow(productId) {
-        const selectedColor = colorSelect.value;
-        const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
-
-        if (!selectedColor || !selectedSize) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Please Select Options',
-                text: 'Please select both color and size before proceeding to buy.',
-                confirmButtonColor: '#800000'
-            });
-            return;
-        }
-
-        if (quantity > currentStock) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Stock Limit Exceeded',
-                text: `Only ${currentStock} items are available in stock.`,
-                confirmButtonColor: '#800000'
-            });
-            return;
-        }
-
-        window.location.href = `/checkout?id=${productId}&color=${selectedColor}&size=${selectedSize}&quantity=${quantity}`;
-    }
-
-    function initializeWishlistState() {
-        const wishlistBtn = document.querySelector('.action-btn.hover-up');
-        const wishlistIcon = wishlistBtn.querySelector('i');
-
-        if (currentWishlistState) {
-            wishlistBtn.classList.add('in-wishlist');
-            if (wishlistIcon.nextSibling) {
-                wishlistIcon.nextSibling.textContent = ' Wishlisted';
-            } else {
-                wishlistIcon.after(document.createTextNode(' Wishlisted'));
-            }
-        }
-    }
-
-    function addToWishlist(productId) {
-        const wishlistBtn = document.querySelector('.action-btn.hover-up');
-        const wishlistIcon = wishlistBtn.querySelector('i');
-        const wishlistText = document.createTextNode(currentWishlistState ? ' Wishlist' : ' Wishlisted');
-
-        $.ajax({
-            url: '/toggleWishlist',
-            method: 'POST',
-            data: { productId: productId },
-            success: (response) => {
-                if (response.status) {
-                    currentWishlistState = !currentWishlistState;
-
-                    wishlistBtn.classList.toggle('in-wishlist');
-
-                    if (wishlistIcon.nextSibling) {
-                        wishlistIcon.nextSibling.textContent = currentWishlistState ? ' Wishlisted' : ' Wishlist';
-                    } else {
-                        wishlistIcon.after(wishlistText);
-                    }
-
+                if (quantity < currentStock) {
+                    quantity += 1;
+                } else {
                     Swal.fire({
-                        title: currentWishlistState ? "Added to wishlist" : "Removed from wishlist",
-                        text: response.message,
-                        icon: currentWishlistState ? 'success' : 'info',
-                        timer: 2000,
-                        showConfirmButton: false,
+                        icon: 'warning',
+                        title: 'Stock Limit',
+                        text: 'Stock Limit Exceeded',
                         confirmButtonColor: '#800000'
                     });
-
-                    const wishlistCount = document.querySelector('.pro-count.blue');
-                    if (wishlistCount) {
-                        const currentCount = parseInt(wishlistCount.textContent);
-                        wishlistCount.textContent = currentWishlistState ? currentCount + 1 : currentCount - 1;
-                    }
                 }
-            },
-            error: (error) => {
-                console.error('Wishlist error:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'There was an error updating your wishlist',
-                    icon: 'error',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    confirmButtonColor: '#800000'
+
+                qtyVal.textContent = quantity;
+            });
+
+            qtyDownBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (quantity > 1) {
+                    quantity -= 1;
+                    qtyVal.textContent = quantity;
+                }
+            });
+        }
+
+
+        function handleColorChange(e) {
+            quantity = 1;
+            document.getElementById('quantity').textContent = quantity;
+            updateSizeOptions(e.target.value);
+        }
+
+
+        function updateSizeOptions(selectedColor) {
+            sizeBoxesContainer.innerHTML = '';
+            currentStock = 0;
+
+            if (!selectedColor) {
+                const message = document.createElement('div');
+                message.className = 'text-muted';
+                message.textContent = 'Please select a color first';
+                sizeBoxesContainer.appendChild(message);
+                return;
+            }
+
+            if (colorSizeMap[selectedColor]) {
+                colorSizeMap[selectedColor].forEach(sizeObj => {
+                    const sizeBox = document.createElement('div');
+                    sizeBox.className = 'size-box';
+
+                    const sizeText = document.createElement('span');
+                    sizeText.textContent = sizeObj.size;
+                    sizeBox.appendChild(sizeText);
+
+                    if (sizeObj.stock <= 0) {
+                        sizeBox.classList.add('disabled');
+                    } else {
+                        const stockIndicator = document.createElement('span');
+                        stockIndicator.className = `stock-indicator ${sizeObj.stock > 10 ? 'in-stock' : 'low-stock'}`;
+                        sizeBox.appendChild(stockIndicator);
+
+                        sizeBox.addEventListener('click', () => {
+                            document.querySelectorAll('.size-box').forEach(box =>
+                                box.classList.remove('selected'));
+                            sizeBox.classList.add('selected');
+                            updateStockInfo(selectedColor, sizeObj.size);
+                        });
+                    }
+
+                    sizeBoxesContainer.appendChild(sizeBox);
                 });
             }
+        }
+
+
+        function updateStockLimit(selectedColor, selectedSize) {
+            if (!selectedColor || !selectedSize) return;
+
+            const variant = variants.find(v => v.color === selectedColor);
+            const sizeInfo = variant?.sizes.find(s => s.size === selectedSize);
+
+            if (sizeInfo) {
+                currentStock = sizeInfo.stock;
+
+                if (quantity > currentStock) {
+                    quantity = currentStock;
+                }
+
+                document.getElementById('quantity').textContent = quantity;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setupQuantityControls();
+            setupModals();
+            initializeWishlistState();
         });
-    }
 
-    function setupModals() {
-        const sizeGuideModal = document.getElementById('size-guide-modal');
-        const colorGuideModal = document.getElementById('color-guide-modal');
-        const sizeGuideLink = document.getElementById('size-guide-link');
-        const colorGuideLink = document.getElementById('color-guide-link');
 
-        sizeGuideLink.onclick = function (e) {
-            e.preventDefault();
-            sizeGuideModal.style.display = 'block';
-        };
+        function buyNow(productId) {
+            console.log("buyNow function called with productId:", productId);
 
-        colorGuideLink.onclick = function (e) {
-            e.preventDefault();
-            colorGuideModal.style.display = 'block';
-        };
+            const selectedColor = colorSelect.value;
+            console.log("Selected Color:", selectedColor);
 
-        document.querySelectorAll('.close').forEach(function (closeBtn) {
-            closeBtn.onclick = function () {
-                sizeGuideModal.style.display = 'none';
-                colorGuideModal.style.display = 'none';
+            const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
+            console.log("Selected Size:", selectedSize);
+
+
+            if (!selectedColor || !selectedSize) {
+                console.warn("Validation failed: Missing color or size selection");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please Select Options',
+                    text: 'Please select both color and size before proceeding.',
+                    confirmButtonColor: '#800000'
+                });
+                return;
+            }
+
+            if (quantity > currentStock) {
+                console.warn("Stock validation failed: Quantity exceeds available stock");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Stock Limit Exceeded',
+                    text: 'Insufficient Stock',
+                    confirmButtonColor: '#800000'
+                });
+                return;
+            }
+
+            const variant = variants.find(v => v.color === selectedColor);
+            console.log("Found Variant:", variant);
+
+            if (!variant) {
+                console.error("Error: No variant found for selected color");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Invalid color variant selected.',
+                    confirmButtonColor: '#800000'
+                });
+                return;
+            }
+
+
+            const sizeVariant = variant.sizes.find(s => s.size === selectedSize);
+            console.log("Found Size Variant:", sizeVariant);
+
+            if (!sizeVariant) {
+                console.error("Error: No size variant found for selected size");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Invalid size variant selected.',
+                    confirmButtonColor: '#800000'
+                });
+                return;
+            }
+
+            if (sizeVariant.stock < quantity) {
+                console.warn("Stock validation failed: Quantity exceeds available stock for size variant");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Stock Limit Exceeded',
+                    text: `Sorry, you cannot select more than what's available in stock.`,
+                    confirmButtonColor: '#800000'
+                });
+                return;
+            }
+
+
+            const queryParams = new URLSearchParams({
+                id: productId,
+                color: selectedColor,
+                size: selectedSize,
+                quantity: quantity,
+                variantId: variant._id
+            }).toString();
+            
+
+            window.location.href = `/checkout?${queryParams}`;
+        }
+
+
+
+        function addToCart(productId) {
+            const selectedColor = colorSelect.value;
+            const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
+
+            if (!selectedColor || !selectedSize) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please Select Options',
+                    text: 'Please select both color and size before adding to cart.',
+                    confirmButtonColor: '#800000'
+                });
+                return;
+            }
+
+            if (quantity > currentStock) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Stock Limit Exceeded',
+                    text: `Sorry, we don't have enough stock for your requested quantity.`,
+                    confirmButtonColor: '#800000'
+                });
+                return;
+            }
+
+            fetch('/add-to-cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId,
+                    quantity: quantity,
+                    color: selectedColor,
+                    size: selectedSize
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Added to Cart',
+                            text: 'Product added to cart successfully!',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Go to Cart',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/cart';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Error adding product to cart',
+                            confirmButtonColor: '#d33',
+                        });
+                    }
+                })
+                .catch(error => {
+                    if (error.message === "Unauthorized: Please log in first.") {
+                        window.location.href = "/login";
+                    } else {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Something went wrong. Please try again later.',
+                            confirmButtonColor: '#d33',
+                        });
+                    }
+                });
+        }
+
+
+        function initializeWishlistState() {
+            const wishlistBtn = document.querySelector('.action-btn.hover-up');
+            const wishlistIcon = wishlistBtn.querySelector('i');
+
+            if (currentWishlistState) {
+                wishlistBtn.classList.add('in-wishlist');
+                if (wishlistIcon.nextSibling) {
+                    wishlistIcon.nextSibling.textContent = ' Wishlisted';
+                } else {
+                    wishlistIcon.after(document.createTextNode(' Wishlisted'));
+                }
+            }
+        }
+
+        function addToWishlist(productId) {
+            const wishlistBtn = document.querySelector('.action-btn.hover-up');
+            const wishlistIcon = wishlistBtn.querySelector('i');
+            const wishlistText = document.createTextNode(currentWishlistState ? ' Wishlist' : ' Wishlisted');
+
+            $.ajax({
+                url: '/toggleWishlist',
+                method: 'POST',
+                data: { productId: productId },
+                success: (response) => {
+                    if (response.status) {
+                        currentWishlistState = !currentWishlistState;
+
+                        wishlistBtn.classList.toggle('in-wishlist');
+
+                        if (wishlistIcon.nextSibling) {
+                            wishlistIcon.nextSibling.textContent = currentWishlistState ? ' Wishlisted' : ' Wishlist';
+                        } else {
+                            wishlistIcon.after(wishlistText);
+                        }
+
+                        Swal.fire({
+                            title: currentWishlistState ? "Added to wishlist" : "Removed from wishlist",
+                            text: response.message,
+                            icon: currentWishlistState ? 'success' : 'info',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            confirmButtonColor: '#800000'
+                        });
+
+                        const wishlistCount = document.querySelector('.pro-count.blue');
+                        if (wishlistCount) {
+                            const currentCount = parseInt(wishlistCount.textContent);
+                            wishlistCount.textContent = currentWishlistState ? currentCount + 1 : currentCount - 1;
+                        }
+                    }
+                },
+                error: (xhr) => {
+                    if (xhr.status === 401) {
+                        window.location.href = "/login";
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'There was an error while updating your wishlist',
+                            icon: 'error',
+                            timer: 2000
+                        });
+                    }
+                }
+            });
+        }
+
+        function setupModals() {
+            const sizeGuideModal = document.getElementById('size-guide-modal');
+            const colorGuideModal = document.getElementById('color-guide-modal');
+            const sizeGuideLink = document.getElementById('size-guide-link');
+            const colorGuideLink = document.getElementById('color-guide-link');
+
+            sizeGuideLink.onclick = function (e) {
+                e.preventDefault();
+                sizeGuideModal.style.display = 'block';
             };
+
+            colorGuideLink.onclick = function (e) {
+                e.preventDefault();
+                colorGuideModal.style.display = 'block';
+            };
+
+            document.querySelectorAll('.close').forEach(function (closeBtn) {
+                closeBtn.onclick = function () {
+                    sizeGuideModal.style.display = 'none';
+                    colorGuideModal.style.display = 'none';
+                };
+            });
+
+            window.onclick = function (event) {
+                if (event.target == sizeGuideModal) {
+                    sizeGuideModal.style.display = 'none';
+                }
+                if (event.target == colorGuideModal) {
+                    colorGuideModal.style.display = 'none';
+                }
+            };
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        document.querySelector('.buy-now-btn').addEventListener('click', () => {
+            console.log("Buy Now clicked!");
         });
 
-        window.onclick = function (event) {
-            if (event.target == sizeGuideModal) {
-                sizeGuideModal.style.display = 'none';
-            }
-            if (event.target == colorGuideModal) {
-                colorGuideModal.style.display = 'none';
-            }
-        };
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-</script>
+    </script>
 
 
 

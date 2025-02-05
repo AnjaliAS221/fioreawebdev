@@ -1,72 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error Page</title>
+    <title>Page Not Found</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
             color: #333;
             text-align: center;
-            padding: 20px;
+            padding: 30px;
+            margin: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
         }
 
         h1 {
             color: #e74c3c;
-            margin-bottom: 10px;
+            font-size: 3em;
+            margin-bottom: 15px;
         }
 
         p {
-            color: #666;
-            margin-bottom: 20px;
-            font-size: 1.1em;
+            color: #555;
+            font-size: 1.2em;
+            margin-bottom: 25px;
+        }
+
+        .error-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
         }
 
         button {
-            background-color: #007bff;
+            background-color: #3498db;
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 30px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 1em;
+            font-size: 1.1em;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #2980b9;
+            transform: scale(1.05);
         }
 
         button:focus {
             outline: none;
-            box-shadow: 0 0 3px 2px rgba(0, 123, 255, 0.5);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.8);
         }
 
         @media (max-width: 600px) {
-            body {
-                padding: 10px;
+            h1 {
+                font-size: 2.5em;
+            }
+
+            p {
+                font-size: 1em;
             }
 
             button {
                 width: 100%;
                 padding: 15px;
-                font-size: 1.2em;
             }
         }
     </style>
 </head>
+
 <body>
-    <h1>Error Page</h1>
-    <p>An error occurred. Please try again later.</p>
-    <button onclick="goToHomePage()">Go to Home Page</button>
+    <div class="error-container">
+        <h1>Oops! Page Not Found</h1>
+        <p>Sorry, the page you're looking for doesn't exist. Please check the URL or return to the homepage.</p>
+        <button onclick="goToHomePage()">Back to Home</button>
+    </div>
 
     <script>
         function goToHomePage() {
@@ -74,4 +92,5 @@
         }
     </script>
 </body>
+
 </html>

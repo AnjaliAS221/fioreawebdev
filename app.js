@@ -14,7 +14,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MIME type middleware
 app.use((req, res, next) => {
   if (req.url.endsWith('.js')) {
     res.type('application/javascript');
@@ -26,7 +25,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static file serving
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/user-assets', express.static(path.join(__dirname, "user-assets")));
 app.use('/uploads', express.static(path.join(__dirname, "uploads")));
@@ -41,6 +40,7 @@ app.use(session({
     maxAge: 72 * 60 * 60 * 1000
   }
 }));
+
 
 app.use((req, res, next) => {
   res.set({
@@ -62,30 +62,52 @@ app.set("views", [
 ]);
 app.set("view engine", "ejs");
 
-// Flash middleware
+
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   next();
 });
 
-// Routes
 
 app.use('/admin', adminRouter);
 app.use("/", userRouter);
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
 
 app.use((req, res, next) => {
-  res.status(404).send('Sorry, we cannot find that!');
+  res.status(404);
+  
+  
+  if (req.accepts('json')) {
+    res.json({ error: 'Not found' });
+    return;
+  }
+
+
+  res.render('user/page-404', { url: req.url });
 });
 
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500);
+  
+
+  if (req.accepts('json')) {
+    res.json({ 
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
+    });
+    return;
+  }
+
+  res.render('user/page-404', {
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
+  });
+});
+
+
 app.listen(process.env.PORT, () => {
-  console.log("Server is running");
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
 
 module.exports = app;

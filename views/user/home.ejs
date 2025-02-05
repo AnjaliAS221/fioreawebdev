@@ -1,425 +1,364 @@
 <%- include("../../views/partials/user/header") %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.4s ease;
+        }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f7f6;
-    color: #333;
-}
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            background-color: #fff;
+            color: #333;
+        }
 
-.container {
-    width: 90%;
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 0 15px;
-}
+        .container {
+            width: 92%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
 
-/* Hero Section */
-.hero {
-    position: relative;
-    overflow: hidden;
-}
+        .hero {
+            position: relative;
+            height: 85vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
+            overflow: hidden;
+        }
 
-.hero__items {
-    position: relative;
-    height: 70vh;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    text-align: center;
-    
-}
+        .hero__items {
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
 
-.hero__text {
-    animation: fadeIn 1s ease-out;
-    
-}
+        .hero__text {
+            text-align: center;
+            animation: fadeInUp 1.2s ease-out;
+            z-index: 2;
+        }
 
-.hero__text h2 {
-    font-size: 4rem;
-    margin-bottom: 15px;
-    letter-spacing: 2px;
-    color: white; /* Make heading white */
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
-}
+        .hero__text h2 {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: 8px;
+        }
 
-.hero__text p {
-    font-size: 1.5rem;
-    margin-bottom: 30px;
-    font-style: italic;
-    color: white; /* Make paragraph white */
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
+        .hero__text p {
+            font-size: 1.8rem;
+            margin-bottom: 35px;
+            color: white;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 3px;
+        }
 
-/* Primary Button */
-.primary-btn {
-    display: inline-block;
-    padding: 12px 25px;
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 50px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
 
-.primary-btn:hover {
-    background-color: #0056b3;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
-}
+        .primary-btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
 
-/* Explore Style Section */
-.explore-style {
-    padding: 40px 0;
-    background-color: #fff;
-}
+        .primary-btn:hover {
+            color: #fff;
+            background-color: #333;
+            transform: translateY(-3px);
+        }
 
-.explore-title {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 30px;
-    font-weight: 400;
-    letter-spacing: 1px;
-}
+        .explore-style {
+            padding: 80px 0;
+            background-color: #f9f9f9;
+        }
 
-.category-grid {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-    overflow-x: auto;
-}
+        .explore-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #333;
+            position: relative;
+        }
 
-.category-item {
-    flex: 0 0 180px;
-    text-align: center;
-    transition: transform 0.3s ease;
-}
+        .explore-title:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background-color: #333;
+        }
 
-.category-item:hover {
-    transform: translateY(-5px);
-}
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
 
-.category-item a {
-    text-decoration: none;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+        .category-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
 
-.category-item img {
-    width: 180px;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
+        .category-item a {
+            text-decoration: none;
+            color: #333;
+        }
 
-.category-name {
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
+        .category-item img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
 
-/* Best Sellers Section */
-.best-sellers {
-    padding: 60px 0;
-    background-color: #fff;
-}
+        .category-item:hover img {
+            transform: scale(1.1);
+        }
 
-.section-title {
-    text-align: center;
-    font-size: 28px;
-    margin-bottom: 40px;
-    font-weight: 400;
-    color: #333;
-    position: relative;
-}
+        .category-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
 
-.section-title:after {
-    content: '';
-    display: block;
-    width: 50px;
-    height: 2px;
-    background: #333;
-    margin: 10px auto;
-}
+        .category-item:hover .category-name {
+            transform: translateY(-5px);
+        }
 
-.products-slider {
-    display: flex;
-    gap: 20px;
-    overflow-x: auto;
-    padding: 20px 0;
-    scroll-behavior: smooth;
-}
+        .collections-showcase {
+            padding: 80px 20px;
+            background-color: #fff;
+        }
 
-.product-card {
-    flex: 0 0 300px;
-    min-width: 300px;
-    position: relative;
-}
+        .collections-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 50px;
+            align-items: center;
+        }
 
-.product-card a {
-    text-decoration: none;
-    color: inherit;
-}
+        .collection-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
 
-.product-image {
-    width: 100%;
-    height: 400px;
-    overflow: hidden;
-    position: relative;
-}
+        .collection-image {
+            position: relative;
+            overflow: hidden;
+        }
 
-.product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
+        .collection-image img {
+            width: 100%;
+            height: 600px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
 
-.product-info {
-    padding: 15px 0;
-    text-align: center;
-}
+        .collection-item:hover .collection-image img {
+            transform: scale(1.05);
+        }
 
-.product-name {
-    font-size: 16px;
-    margin-bottom: 8px;
-    font-weight: 400;
-    color: #333;
-}
+        .collection-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: #fff;
+            text-align: center;
+        }
 
-.product-price {
-    font-size: 14px;
-    color: #666;
-}
+        .collection-content h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+            letter-spacing: 2px;
+        }
 
-/* Collections Showcase */
-.collections-showcase {
-    padding: 40px 20px;
-    background-color: #fff;
-    margin-top: 40px;
-}
+        .shop-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 5px;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
 
-.collections-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: center;
-}
+        .shop-btn:hover {
+            background-color: #333;
+            color: #fff;
+            transform: translateY(-3px);
+        }
 
-.collection-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 20px;
-}
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-.collection-image img {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    border-radius: 8px;
-}
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.collection-content h2 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    color: #333;
-}
+        @media (max-width: 1024px) {
+            .hero__text h2 {
+                font-size: 4rem;
+            }
 
-.shop-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #7B2C2C;
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
+            .collection-image img {
+                height: 500px;
+            }
+        }
 
-.shop-btn:hover {
-    background-color: #5A1F1F;
-}
+        @media (max-width: 768px) {
+            .hero__text h2 {
+                font-size: 3rem;
+            }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .collections-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .category-grid {
-        justify-content: flex-start;
-    }
-    
-    .category-item {
-        flex: 0 0 150px;
-    }
-    
-    .category-item img {
-        width: 150px;
-        height: 150px;
-    }
-    
-    .hero__items {
-        height: 50vh;
-    }
-    
-    .hero__text h2 {
-        font-size: 2rem;
-    }
-    
-    .product-card {
-        flex: 0 0 250px;
-        min-width: 250px;
-    }
-    
-    .product-image {
-        height: 350px;
-    }
-}
-</style>
+            .collections-container {
+                grid-template-columns: 1fr;
+            }
 
-<section class="hero">
-    <div class="hero__slider owl-carousel">
-        <div class="hero__items set-bg" data-setbg="img/hero/hero-1.webp">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-5 col-lg-12 col-md-8">
-                        <div class="hero__text">
-                            <h2>FIOREA</h2>
-                            <p>Wear the art of flowers</p>
-                            <a href="/shop" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                        </div>
-                    </div>
+            .collection-image img {
+                height: 400px;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero__text h2 {
+                font-size: 2.5rem;
+            }
+
+            .hero__text p {
+                font-size: 1.2rem;
+            }
+
+            .explore-title {
+                font-size: 2rem;
+            }
+
+            .collection-content h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+
+    <section class="hero">
+        <div class="hero__items" style="background-image: url('img/hero/hero-1.webp')">
+            <div class="hero__text">
+                <h2>FIOREA</h2>
+                <p>Wear the art of flowers</p>
+                <a href="/shop" class="primary-btn">Explore Collection</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="explore-style">
+        <div class="container">
+            <h2 class="explore-title">Explore Your Style</h2>
+            <div class="category-grid">
+                <div class="category-item">
+                    <a href="/shop">
+                        <img src="/img/categories/print.webp" alt="Print Collection">
+                        <span class="category-name">PRINT</span>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/shop">
+                        <img src="/img/categories/occasional.webp" alt="Occasional Wear">
+                        <span class="category-name">OCCASIONAL WEAR</span>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/shop">
+                        <img src="/img/categories/embroidery.webp" alt="Embroidery Collection">
+                        <span class="category-name">EMBROIDERY</span>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/shop">
+                        <img src="/img/categories/sustain.webp" alt="Sustain Wear">
+                        <span class="category-name">SUSTAIN WEAR</span>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/shop">
+                        <img src="/img/categories/coords.webp" alt="Co-ords Sets">
+                        <span class="category-name">CO-ORDS SETS</span>
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="hero__items set-bg" data-setbg="img/hero/hero-3.webp">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-5 col-lg-7 col-md-8">
-                        <div class="hero__text">
-                            <h2>FIOREA</h2>
-                            <p>Wear the art of flowers</p>
-                            <a href="/shop" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                        </div>
-                    </div>
+    </section>
+
+    <section class="collections-showcase">
+        <div class="collections-container">
+            <div class="collection-item">
+                <div class="collection-image">
+                    <img src="/img/banner/banner-1.webp" alt="Women Ethnic Collection">
+                </div>
+                <div class="collection-content">
+                    <h2>Women - Ethnic</h2>
+                    <a href="/shop" class="shop-btn">SHOP THE COLLECTION</a>
+                </div>
+            </div>
+
+            <div class="collection-item">
+                <div class="collection-image">
+                    <img src="/img/banner/banner-2.webp" alt="Women Contemporary Collection">
+                </div>
+                <div class="collection-content">
+                    <h2>Women - Contemporary</h2>
+                    <a href="/shop" class="shop-btn">SHOP THE COLLECTION</a>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="explore-style">
-    <div class="container">
-        <h2 class="explore-title">Explore Your Style</h2>
-        <div class="category-grid">
-            <div class="category-item">
-                <a href="/shop/print">
-                    <img src="/img/categories/print.webp" alt="Print Collection">
-                    <span class="category-name">PRINT</span>
-                </a>
-            </div>
-            <div class="category-item">
-                <a href="/shop/occasional">
-                    <img src="/img/categories/occasional.webp" alt="Occasional Wear">
-                    <span class="category-name">OCCASIONAL WEAR</span>
-                </a>
-            </div>
-            <div class="category-item">
-                <a href="/shop/embroidery">
-                    <img src="/img/categories/embroidery.webp" alt="Embroidery Collection">
-                    <span class="category-name">EMBROIDERY</span>
-                </a>
-            </div>
-            <div class="category-item">
-                <a href="/shop/sustain">
-                    <img src="/img/categories/sustain.webp" alt="Sustain Wear">
-                    <span class="category-name">SUSTAIN WEAR</span>
-                </a>
-            </div>
-            <div class="category-item">
-                <a href="/shop/coords">
-                    <img src="/img/categories/coords.webp" alt="Co-ords Sets">
-                    <span class="category-name">CO-ORDS SETS</span>
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="best-sellers">
-    <div class="container">
-        <h2 class="section-title">Best Sellers</h2>
-        <div class="products-slider">
-            <% if(products && products.length > 0) { %>
-                <% console.log("Products:", products); %>
-                <% products.forEach(function(product) { %>
-                    <div class="product-card">
-                        <a href="/productDetails?id=<%= product._id %>">
-                            <div class="product-image">
-                                <img src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
-                            </div>
-                            <div class="product-info">
-                                <h3 class="product-name"><%= product.productName %></h3>
-                                <p class="product-price">Rs. <%= product.salePrice %></p>
-                            </div>
-                        </a>
-                    </div>
-                <% }); %>
-            <% } %>
-        </div>
-    </div>
-</section>
-
-<section class="collections-showcase">
-    <div class="collections-container">
-        <!-- Women Ethnic Collection -->
-        <div class="collection-item">
-            <div class="collection-image">
-                <img src="/img/banner/banner-1.webp" alt="Women Ethnic Collection">
-            </div>
-            <div class="collection-content">
-                <h2>Women - Ethnic</h2>
-                <a href="/shop/women-ethnic" class="shop-btn">SHOP THE COLLECTION</a>
-            </div>
-        </div>
-
-        <!-- Women Contemporary Collection -->
-        <div class="collection-item">
-            <div class="collection-image">
-                <img src="/img/banner/banner-2.webp" alt="Women Contemporary Collection">
-            </div>
-            <div class="collection-content">
-                <h2>Women - Contemporary</h2>
-                <a href="/shop/women-contemporary" class="shop-btn">SHOP THE COLLECTION</a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<%- include("../../views/partials/user/footer") %>
+    <%- include("../../views/partials/user/footer") %>

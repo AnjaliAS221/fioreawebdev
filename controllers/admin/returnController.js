@@ -2,8 +2,6 @@ const Return = require("../../models/returnSchema");
 const Wallet = require("../../models/walletSchema");
 const Order = require("../../models/orderSchema");
 const Notification = require("../../models/notificationSchema");
-const { Transaction } = require("mongodb");
-
 
 const getReturnApprovals = async (req, res) => {
     try {
@@ -38,117 +36,146 @@ const returnUpdate = async (req, res) => {
         const returnId = req.query.id;
         const { status } = req.body;
 
+        console.log('Return ID:', returnId);  
+        console.log('Status:', status);      
 
+        
+        if (!returnId) {
+            console.log('No return ID provided');  
+            return res.status(400).send('Return ID is required');
+        }
+
+        if (!status || !['Approved', 'Rejected'].includes(status)) {
+            console.log('Invalid status:', status);  
+            return res.status(400).send('Invalid status value');
+        }
+
+        
         const returnData = await Return.findById(returnId);
+        console.log('Return Data:', returnData);
         if (!returnData) {
-            return res.status(404).json({ message: "Return request not found" });
+            console.log('Return not found for ID:', returnId);  
+            return res.status(404).send('Return request not found');
+        }
+
+      
+        if (returnData.status !== 'Pending') {
+            console.log('Return already processed:', returnData.status);  
+            return res.status(400).send('Return request already processed');
         }
 
         const userId = returnData.userId;
         const orderId = returnData.orderId;
         const amount = returnData.refundAmount;
 
-        if (status === "Approved") {
+        if (status === 'Approved') {
             try {
+                
                 let wallet = await Wallet.findOne({ userId });
                 
                 if (!wallet) {
+                    
                     wallet = new Wallet({
                         userId,
-                        balance: 0,
-                        transactions: []
+                        balance: amount,
+                        transactions: [{
+                            type: 'credit',
+                            amount: amount,
+                            description: 'Refund for your returned product',
+                            orderId,
+                            date: new Date()
+                        }]
                     });
                     await wallet.save();
-                }
-       
-                await Wallet.findOneAndUpdate(
-                    { userId },
-                    { 
-                        $inc: { balance: amount },
-                        $push: {
-                            transactions: {
-                                type: 'credit',
-                                amount: amount,
-                                description: "Refund for your returned product",
-                                orderId,
-                                date: new Date()
+                } else {
+                    
+                    await Wallet.findOneAndUpdate(
+                        { userId },
+                        {
+                            $inc: { balance: amount },
+                            $push: {
+                                transactions: {
+                                    type: 'credit',
+                                    amount: amount,
+                                    description: 'Refund for your returned product',
+                                    orderId,
+                                    date: new Date()
+                                }
                             }
                         }
-                    }
+                    );
+                }
+
+                
+                returnData.status = status;
+                returnData.approvedAt = new Date();
+                console.log('Before Save:', returnData);
+                await returnData.save();
+                console.log('After Save:', returnData);
+
+                
+                await Notification.findOneAndUpdate(
+                    { userId },
+                    {
+                        userId,
+                        message: 'Your Return Request Has Been Approved, Amount Is Added To Your Wallet',
+                        status: 'unread',
+                        createdAt: new Date()
+                    },
+                    { upsert: true, new: true }
                 );
 
-                returnData.returnStatus = status;
-                await returnData.save();
-
-                let notification = await Notification.findOne({userId});
-
-                if(!notification){
-                    notification = new Notification({
-                        userId,
-                        message:"Your Return Request Has Been Approved, Amount Is Added To Your Wallet",
-                        status:"unread",
-                    })
-                    await notification.save()
-                }else{
-                    await Notification.findOneAndUpdate({userId},{
-                        message:"Your Return Request Has Been Approved, Amount Is Added To Your Wallet",
-                        status:"unread",
-                        createdAt:Date.now()
-                    })
-                }
-                await Order.findOneAndUpdate(
-                    { _id: orderId },
-                    { $set: { status: "Return Request Approved" } }
-                );
-            } catch (error) {
-                console.error("Error in updating wallet and return status:", error);
-                return res.status(500).json({ message: "Internal server error" });
-            }
-        } else if (status === "Rejected") {
-            try {
-                returnData.returnStatus = status;
-                await returnData.save();
-
-                let notifications = await Notification.findOne({userId});
-
-                if(!notifications){
-                    notification = new Notification({
-                        userId,
-                        message:"Your Return Order Is Rejected",
-                        status:"unread"
-                    })
-                    await notification.save()
-                }else{
-                    await Notification.findByIdAndUpdate({userId},{
-                        message:"Your Return Request Is Rejected",
-                        userId,
-                        status:"unread",
-                        createdAt:Date.now()
-                    })
-                }
-                await Order.findOneAndUpdate(
-                    { _id: orderId },
-                    { $set: { status: "Return Request Rejected" } }
+                
+                await Order.findByIdAndUpdate(
+                    orderId,
+                    { status: 'Return Request Approved' }
                 );
 
             } catch (error) {
-                console.error("Error in rejecting return status:", error);
-                return res.status(500).json({ message: "Internal server error" });
+                console.error('Error in approval process:', error);  
+                return res.status(500).send('Error processing approval');
             }
         } else {
-            return res.status(400).json({ message: "Invalid status value" });
+            try {
+                
+                returnData.status = status;
+                returnData.rejectedAt = new Date();
+                await returnData.save();
+
+                
+                await Notification.findOneAndUpdate(
+                    { userId },
+                    {
+                        userId,
+                        message: 'Your Return Request Is Rejected',
+                        status: 'unread',
+                        createdAt: new Date()
+                    },
+                    { upsert: true, new: true }
+                );
+
+                
+                await Order.findByIdAndUpdate(
+                    orderId,
+                    { status: 'Return Request Rejected' }
+                );
+
+            } catch (error) {
+                console.error('Error in rejection process:', error);  
+                return res.status(500).send('Error processing rejection');
+            }
         }
-        
-        return res.redirect(`/admin/return-approvals`);
-        
+
+        return res.redirect('/return-approvals');
+
     } catch (error) {
-        console.error("Error in Updating Return Status:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error('Error in return update:', error);  
+        return res.status(500).send('Internal server error');
     }
 };
 
 
-module.exports={
+module.exports = {
     getReturnApprovals,
     returnUpdate
-}
+};

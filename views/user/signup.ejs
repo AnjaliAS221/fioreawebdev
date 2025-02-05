@@ -1,214 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Signup</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        background: linear-gradient(to right, #6a11cb, #2575fc);
-        font-family: "Arial", sans-serif;
-        color: #fff;
-      }
 
-      .form-container {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 30px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      font-family: "Arial", sans-serif;
+      color: #fff;
+    }
 
-      .form-title {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #444;
-      }
+    .form-container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
 
-      .btn-primary {
-        background-color: #6a11cb;
-        border: none;
-      }
+    .form-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #444;
+    }
 
-      .btn-primary:hover {
-        background-color: #2575fc;
-      }
+    .btn-primary {
+      background-color: #6a11cb;
+      border: none;
+    }
 
-      .google-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #ffffff;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        color: #444;
-        font-weight: bold;
-        padding: 10px;
-        margin-top: 10px;
-        text-decoration: none;
-      }
+    .btn-primary:hover {
+      background-color: #2575fc;
+    }
 
-      .google-btn img {
-        width: 20px;
-        margin-right: 10px;
-      }
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #444;
+      font-weight: bold;
+      padding: 10px;
+      margin-top: 10px;
+      text-decoration: none;
+    }
 
-      .google-btn:hover {
-        background-color: #f8f9fa;
-      }
+    .google-btn img {
+      width: 20px;
+      margin-right: 10px;
+    }
 
-      .image-section {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-      }
+    .google-btn:hover {
+      background-color: #f8f9fa;
+    }
 
-      .image-section img {
-        max-width: 100%;
-        border-radius: 10px;
-      }
+    .image-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
 
-      .login-link {
-        color: #fff;
-        text-decoration: none;
-        font-weight: bold;
-      }
+    .image-section img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
 
-      .login-link:hover {
-        text-decoration: underline;
-      }
-    </style>
-  </head>
+    .login-link {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-  <body>
-    <div class="container my-5">
-      <div class="row g-4 align-items-center">
-        <!-- Signup Form Section -->
-        <div class="col-md-6">
-          <div class="form-container">
-            <h2 class="form-title">Create an Account</h2>
-            <form id="signupForm" action="/signup" method="POST" novalidate>
-              <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="name"
-                  name="name"
-                  placeholder="Enter your full name"
-                  required
-                />
-                <div class="invalid-feedback">
-                  Please enter a valid name without numbers.
-                </div>
+    .login-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container my-5">
+    <div class="row g-4 align-items-center">
+      <!-- Signup Form Section -->
+      <div class="col-md-6">
+        <div class="form-container">
+          <h2 class="form-title">Create an Account</h2>
+          <form id="signupForm" action="/signup" method="POST" novalidate>
+            <div class="mb-3">
+              <label for="name" class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name"
+                required />
+              <div class="invalid-feedback">
+                Please enter a valid name without numbers.
               </div>
-              <div class="mb-3">
-                <label for="email" class="form-label">Email Address</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  required
-                />
-                <div class="invalid-feedback">
-                  Please provide a valid email address.
-                </div>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"
+                required />
+              <div class="invalid-feedback">
+                Please provide a valid email address.
               </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password"
-                  name="password"
-                  placeholder="Create a password"
-                  required
-                  minlength="6"
-                />
-                <div class="invalid-feedback">
-                  Password must be at least 6 characters long.
-                </div>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" placeholder="Create a password"
+                required minlength="6" />
+              <div class="invalid-feedback">
+                Password must be at least 6 characters long.
               </div>
-              <div class="mb-3">
-                <label for="confirmPassword" class="form-label"
-                  >Confirm Password</label
-                >
-                <input
-                  type="password"
-                  class="form-control"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm your password"
-                  required
-                />
-                <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                placeholder="Confirm your password" required />
+              <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+            <% if (locals.message && message.length> 0) { %>
+              <div class="alert alert-danger text-center">
+                <%=locals.message %>
               </div>
-              <% if (locals.message && message.length> 0) { %>
-              <div class="alert alert-danger text-center"><%=locals.message %></div>
               <% } %>
-              <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <input
-                  type="tel"
-                  class="form-control"
-                  id="phone"
-                  name="phone"
-                  placeholder="Enter your phone number"
-                  required
-                  pattern="[0-9]{10}"
-                />
-                <div class="invalid-feedback">
-                  Please provide a valid 10-digit phone number.
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Phone Number</label>
+                  <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number"
+                    required pattern="[0-9]{10}" />
+                  <div class="invalid-feedback">
+                    Please provide a valid 10-digit phone number.
+                  </div>
                 </div>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">
-                Signup
-              </button>
-              <hr class="my-4" />
-              <a href="/auth/google" class="google-btn w-100">
-                <img
-                  src="https://developers.google.com/identity/images/g-logo.png"
-                  alt="Google Logo"
-                />
-                Signup with Google
-              </a>
-            </form>
-          </div>
+                <button type="submit" class="btn btn-primary w-100">
+                  Signup
+                </button>
+                <hr class="my-4" />
+                <a href="/auth/google" class="google-btn w-100">
+                  <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" />
+                  Signup with Google
+                </a>
+          </form>
         </div>
-        <!-- Image and Login Section -->
-        <div class="col-md-6">
-          <div class="image-section">
-            <img
-              src="/img/vertical-two-cheerful-girls-sweaters-with-packages-rejoices-white-wall_171337-2679.jpg?text=Welcome+to+Fiorea"
-              alt="Welcome Image"
-            />
-            <p class="mt-3">
-              Already have an account?
-              <a href="/login" class="login-link">Login</a>
-            </p>
-          </div>
+      </div>
+      <!-- Image and Login Section -->
+      <div class="col-md-6">
+        <div class="image-section">
+          <img
+            src="/img/vertical-two-cheerful-girls-sweaters-with-packages-rejoices-white-wall_171337-2679.jpg?text=Welcome+to+Fiorea"
+            alt="Welcome Image" />
+          <p class="mt-3">
+            Already have an account?
+            <a href="/login" class="login-link">Login</a>
+          </p>
         </div>
       </div>
     </div>
-    <script>
+  </div>
+  <script>
     document.getElementById("signupForm").addEventListener("submit", function (event) {
       const form = event.target;
-    
+
       const name = form.name.value.trim();
       const email = form.email.value.trim();
       const phone = form.phone.value.trim();
       const password = form.password.value;
       const confirmPassword = form.confirmPassword.value;
-    
+
       let isValid = true;
-    
+
       // Validate Name (No numbers allowed)
       if (!/^[a-zA-Z\s]+$/.test(name)) {
         form.name.setCustomValidity("Name must contain only letters and spaces.");
@@ -216,7 +178,7 @@
       } else {
         form.name.setCustomValidity("");
       }
-    
+
       // Validate Email (Basic email format)
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         form.email.setCustomValidity("Please enter a valid email address.");
@@ -224,7 +186,7 @@
       } else {
         form.email.setCustomValidity("");
       }
-    
+
       // Validate Phone (Only numbers allowed, length 10)
       if (!/^\d{10}$/.test(phone)) {
         form.phone.setCustomValidity("Phone number must be 10 digits.");
@@ -232,7 +194,7 @@
       } else {
         form.phone.setCustomValidity("");
       }
-    
+
       // Validate Password and Confirm Password
       if (password !== confirmPassword) {
         form.confirmPassword.setCustomValidity("Passwords do not match.");
@@ -240,16 +202,16 @@
       } else {
         form.confirmPassword.setCustomValidity("");
       }
-    
+
       // Check if form is valid
       if (!isValid || !form.checkValidity()) {
         event.preventDefault(); // Prevent submission if form is invalid
         event.stopPropagation();
       }
-    
+
       form.classList.add("was-validated");
     });
-    
+
     // Add dynamic validation for each field
     const fields = ["name", "email", "phone", "password", "confirmPassword"];
     fields.forEach((field) => {
@@ -260,5 +222,6 @@
       });
     });
   </script>
-  </body>
+</body>
+
 </html>

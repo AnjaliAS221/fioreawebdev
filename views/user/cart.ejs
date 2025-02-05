@@ -1,340 +1,346 @@
 <%- include('../partials/user/header') %>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<style>
-    body {
-        background-color: #f8f9fa;
-        font-family: 'Inter', sans-serif;
-    }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+        }
 
-    .breadcrumb-wrap {
-        background-color: transparent;
-        padding: 20px 0;
-        border-bottom: 1px solid #eee;
-    }
+        .breadcrumb-wrap {
+            background-color: transparent;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
 
-    .breadcrumb-item a {
-        color: #6c757d;
-        text-decoration: none;
-    }
+        .breadcrumb-item a {
+            color: #6c757d;
+            text-decoration: none;
+        }
 
-    .breadcrumb-item.active {
-        color: #212529;
-    }
+        .breadcrumb-item.active {
+            color: #212529;
+        }
 
-    .cart-card {
-        background: white;
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-        margin-bottom: 24px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+        .cart-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-    .cart-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
+        .cart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
 
-    .cart-card-img {
-        height: 240px;
-        object-fit: cover;
-        border-radius: 16px;
-        padding: 12px;
-    }
+        .cart-card-img {
+            height: 240px;
+            object-fit: cover;
+            border-radius: 16px;
+            padding: 12px;
+        }
 
-    .card-body {
-        padding: 24px;
-    }
+        .card-body {
+            padding: 24px;
+        }
 
-    .quantity-control {
-        display: flex;
-        align-items: center;
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 4px;
-        width: fit-content;
-    }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 4px;
+            width: fit-content;
+        }
 
-    .btn-quantity {
-        background: white;
-        border: 1px solid #dee2e6;
-        color: #212529;
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
+        .btn-quantity {
+            background: white;
+            border: 1px solid #dee2e6;
+            color: #212529;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
 
-    .btn-quantity:hover {
-        background: #f1f3f5;
-    }
+        .btn-quantity:hover {
+            background: #f1f3f5;
+        }
 
-    .quantity-display {
-        padding: 0 16px;
-        font-weight: 500;
-    }
+        .quantity-display {
+            padding: 0 16px;
+            font-weight: 500;
+        }
 
-    .size-select {
-        padding: 8px 16px;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        background: white;
-        min-width: 120px;
-        font-size: 14px;
-    }
+        .size-select {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            min-width: 120px;
+            font-size: 14px;
+        }
 
-    .cart-total {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-        position: sticky;
-        top: 24px;
-    }
+        .cart-total {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 24px;
+        }
 
-    .cart-total h4 {
-        margin-bottom: 20px;
-        font-weight: 600;
-    }
+        .cart-total h4 {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
 
-    .empty-cart-container {
-        padding: 120px 0;
-        text-align: center;
-    }
+        .empty-cart-container {
+            padding: 120px 0;
+            text-align: center;
+        }
 
-    .empty-cart-container h2 {
-        font-size: 2rem;
-        font-weight: 600;
-        margin-bottom: 24px;
-        color: #212529;
-    }
+        .empty-cart-container h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #212529;
+        }
 
-    .btn-shop {
-        background: #212529;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: background 0.2s ease;
-    }
+        .btn-shop {
+            background: #212529;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
 
-    .btn-shop:hover {
-        background: #343a40;
-        color: white;
-    }
+        .btn-shop:hover {
+            background: #343a40;
+            color: white;
+        }
 
-    .remove-btn {
-        background: none;
-        border: 1px solid #dee2e6;
-        color: #dc3545;
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-    }
+        .remove-btn {
+            background: none;
+            border: 1px solid #dee2e6;
+            color: #dc3545;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
 
-    .remove-btn:hover {
-        background: #dc3545;
-        color: white;
-        border-color: #dc3545;
-    }
-</style>
+        .remove-btn:hover {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+    </style>
 
-<div class="breadcrumb-wrap">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
-                <li class="breadcrumb-item active">Your Cart</li>
-            </ol>
-        </nav>
+    <div class="breadcrumb-wrap">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
+                    <li class="breadcrumb-item active">Your Cart</li>
+                </ol>
+            </nav>
+        </div>
     </div>
-</div>
 
-<div class="container my-5">
-    <% if(cart && cart.items.length > 0) { %>
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <% cart.items.forEach(function(item) { %>
-                    <div class="cart-card" data-product-id="<%= item.productId._id %>" data-color="<%= item.color %>">
-                        <div class="row g-0">
-                            <div class="col-md-4">
-                                <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" 
-                                     class="img-fluid cart-card-img" 
-                                     alt="<%= item.productId.productName %>"
-                                     onclick="window.location.href='/product/<%= item.productId._id %>'">
-                            </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="mb-3"><%= item.productId.productName %></h5>
-                                    <div class="d-flex flex-wrap gap-4 mb-4">
-                                        <div>
-                                            <p class="text-muted mb-1">Price</p>
-                                            <p class="fw-bold">₹ <%= item.price.toLocaleString() %></p>
-                                        </div>
-                                        <div>
-                                            <p class="text-muted mb-1">Color</p>
-                                            <p class="fw-bold"><%= item.color %></p>
-                                        </div>
-                                        <div>
-                                            <p class="text-muted mb-1">Size</p>
-                                            <select class="size-select" onchange="updateSize('<%= item.productId._id %>', this.value)">
-                                                <% const matchingVariant = item.productId.variants.find(v => v.color === item.color);
-                                                if (matchingVariant) {
-                                                    matchingVariant.sizes.forEach(function(sizeOption) { %>
-                                                        <option value="<%= sizeOption.size %>" 
-                                                                <%= sizeOption.size === item.size ? 'selected' : '' %>>
+    <div class="container my-5">
+        <% if(cart && cart.items.length> 0) { %>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <% cart.items.forEach(function(item) { %>
+                        <div class="cart-card" data-product-id="<%= item.productId._id %>"
+                            data-color="<%= item.color %>">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="/uploads/re-image/<%= item.productId.productImage[0] %>"
+                                        class="img-fluid cart-card-img" alt="<%= item.productId.productName %>"
+                                        onclick="window.location.href='/product/<%= item.productId._id %>'">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="mb-3">
+                                            <%= item.productId.productName %>
+                                        </h5>
+                                        <div class="d-flex flex-wrap gap-4 mb-4">
+                                            <div>
+                                                <p class="text-muted mb-1">Price</p>
+                                                <p class="fw-bold">₹ <%= item.price.toLocaleString() %>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="text-muted mb-1">Color</p>
+                                                <p class="fw-bold">
+                                                    <%= item.color %>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="text-muted mb-1">Size</p>
+                                                <select class="size-select"
+                                                    onchange="updateSize('<%= item.productId._id %>', this.value)">
+                                                    <% const matchingVariant=item.productId.variants.find(v=> v.color
+                                                        === item.color);
+                                                        if (matchingVariant) {
+                                                        matchingVariant.sizes.forEach(function(sizeOption) { %>
+                                                        <option value="<%= sizeOption.size %>"
+                                                            <%=sizeOption.size===item.size ? 'selected' : '' %>>
                                                             <%= sizeOption.size %>
                                                         </option>
-                                                    <% });
-                                                } else { %>
-                                                    <option>No sizes available</option>
-                                                <% } %>
-                                            </select>
+                                                        <% }); } else { %>
+                                                            <option>No sizes available</option>
+                                                            <% } %>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="quantity-control">
-                                            <button class="btn-quantity" 
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="quantity-control">
+                                                <button class="btn-quantity"
                                                     onclick="updateQuantity('<%= item.productId._id %>', -1, '<%= item.color %>', '<%= item.size %>')">-</button>
-                                            <span class="quantity-display" id="quantity-<%= item.productId._id %>">
-                                                <%= item.quantity %>
-                                            </span>
-                                            <button class="btn-quantity" 
+                                                <span class="quantity-display" id="quantity-<%= item.productId._id %>">
+                                                    <%= item.quantity %>
+                                                </span>
+                                                <button class="btn-quantity"
                                                     onclick="updateQuantity('<%= item.productId._id %>', 1, '<%= item.color %>', '<%= item.size %>')">+</button>
+                                            </div>
+                                            <button class="remove-btn"
+                                                onclick="removeItem('<%= item.productId._id %>')">
+                                                Remove Item
+                                            </button>
                                         </div>
-                                        <button class="remove-btn" onclick="removeItem('<%= item.productId._id %>')">
-                                            Remove Item
-                                        </button>
-                                    </div>
-                                    <div class="mt-3">
-                                        <p class="fw-bold" id="subtotal-<%= item.productId._id %>">
-                                            Subtotal: ₹ <%= item.totalPrice.toLocaleString() %>
-                                        </p>
+                                        <div class="mt-3">
+                                            <p class="fw-bold" id="subtotal-<%= item.productId._id %>">
+                                                Subtotal: ₹ <%= item.totalPrice.toLocaleString() %>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                <% }); %>
-            </div>
+                        <% }); %>
+                </div>
 
-            <div class="col-lg-4">
-                <div class="cart-total">
-                    <h4>Order Summary</h4>
-                    <div class="d-flex justify-content-between mb-4">
-                        <span class="text-muted">Subtotal</span>
-                        <span class="fw-bold cart_total_amount">₹ <%= totalAmount.toLocaleString() %></span>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <a href="/checkout" class="btn btn-dark btn-lg">Proceed to Checkout</a>
-                        <a href="/shop" class="btn btn-outline-dark">Continue Shopping</a>
+                <div class="col-lg-4">
+                    <div class="cart-total">
+                        <h4>Order Summary</h4>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-bold cart_total_amount">₹ <%= totalAmount.toLocaleString() %></span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="/checkout" class="btn btn-dark btn-lg">Proceed to Checkout</a>
+                            <a href="/shop" class="btn btn-outline-dark">Continue Shopping</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    <% } else { %>
-        <div class="empty-cart-container">
-            <h2>Your Cart is Empty</h2>
-            <a href="/shop" class="btn-shop">Start Shopping</a>
-        </div>
-    <% } %>
-</div>
+            <% } else { %>
+                <div class="empty-cart-container">
+                    <h2>Your Cart is Empty</h2>
+                    <a href="/shop" class="btn-shop">Start Shopping</a>
+                </div>
+                <% } %>
+    </div>
 
     <script>
 
         function updateQuantity(productId, change) {
-    const quantityElement = document.getElementById(`quantity-${productId}`);
-    const currentQuantity = parseInt(quantityElement.innerText);
-    const newQuantity = currentQuantity + change;
+            const quantityElement = document.getElementById(`quantity-${productId}`);
+            const currentQuantity = parseInt(quantityElement.innerText);
+            const newQuantity = currentQuantity + change;
 
-    // Check if new quantity is within valid range (1-5)
-    if (newQuantity < 1) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Minimum Quantity',
-            text: 'Quantity cannot be less than 1',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-        return;
-    }
-    
-    if (newQuantity > 5) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Maximum Quantity Limit',
-            text: 'You can only purchase up to 5 items of this product',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-        return;
-    }
 
-    fetch('/update-cart-quantity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            productId,
-            newQuantity
-        }),
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            quantityElement.innerText = data.newQuantity;
-
-            // Update product subtotal
-            const subtotalElement = document.getElementById(`subtotal-${productId}`);
-            if (subtotalElement) {
-                subtotalElement.innerHTML = `Subtotal: ₹ ${data.newSubtotal.toLocaleString()}`;
+            if (newQuantity < 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Minimum Quantity',
+                    text: 'Quantity cannot be less than 1',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                return;
             }
 
-            // Update cart total
-            const totalElement = document.querySelector('.cart_total_amount');
-            if (totalElement) {
-                totalElement.innerText = '₹ ' + data.totalAmount.toLocaleString();
+            if (newQuantity > 5) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Maximum Quantity Limit',
+                    text: 'You can only purchase up to 5 items of this product',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                return;
             }
-        } else {
-            Swal.fire({
-                icon: 'info',
-                title: 'Quantity Limit',
-                text: data.message,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-            });
+
+            fetch('/update-cart-quantity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productId,
+                    newQuantity
+                }),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        quantityElement.innerText = data.newQuantity;
+
+                        const subtotalElement = document.getElementById(`subtotal-${productId}`);
+                        if (subtotalElement) {
+                            subtotalElement.innerHTML = `Subtotal: ₹ ${data.newSubtotal.toLocaleString()}`;
+                        }
+
+
+                        const totalElement = document.querySelector('.cart_total_amount');
+                        if (totalElement) {
+                            totalElement.innerText = '₹ ' + data.totalAmount.toLocaleString();
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Quantity Limit',
+                            text: data.message,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Network Error',
+                        text: 'Unable to update quantity. Please try again.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Network Error',
-            text: 'Unable to update quantity. Please try again.',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-    });
-}
 
         function updateSize(productId, newSize) {
             const cartCard = document.querySelector(`.cart-card[data-product-id="${productId}"]`);

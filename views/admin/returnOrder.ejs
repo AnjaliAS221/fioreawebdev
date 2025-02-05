@@ -66,7 +66,7 @@
 <body>
     <div class="container py-4">
         <h1 class="mb-4 text-center">Return Request Tracker</h1>
-        
+    
         <div class="row">
             <% returns.forEach(returnData => { %>
                 <div class="col-12 col-md-6 col-lg-4 mb-3">
@@ -75,25 +75,25 @@
                             <div>
                                 <strong>Order #<%= returnData.orderId?.orderId.toString().slice(-8).toUpperCase() || 'N/A' %></strong>
                             </div>
-                            <% 
-                            let badgeClass;
-                            if(returnData.returnDataStatus === 'approved') {
+                            <% let badgeClass;
+                            if(returnData.status === 'Approved') {
                                 badgeClass = 'bg-success';
-                            } else if(returnData.returnDataStatus === 'rejected') {
+                            } else if(returnData.status === 'Rejected') {
                                 badgeClass = 'bg-danger';
                             } else {
                                 badgeClass = 'bg-warning text-dark';
-                            }
-                            %>
+                            } %>
                             <span class="badge <%= badgeClass %> status-badge">
-                                <%= returnData.returnStatus || 'pending' %>
+                                <%= returnData.status || 'Pending' %>
                             </span>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-6">
                                     <small class="text-muted">User</small>
-                                    <p class="fw-bold"><%= returnData.userId?.name || 'N/A' %></p>
+                                    <p class="fw-bold">
+                                        <%= returnData.userId?.name || 'N/A' %>
+                                    </p>
                                 </div>
                                 <div class="col-6">
                                     <small class="text-muted">Refund Amount</small>
@@ -108,21 +108,17 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted">
-                                    <%= new Date(returnData.createdAt || Date.now()).toLocaleDateString('en-US', { 
-                                        year: 'numeric',
-                                        month: 'short',
-                                        day: 'numeric'
+                                    <%= new Date(returnData.returnedAt || Date.now()).toLocaleDateString('en-US', {
+                                        year: 'numeric', month: 'short', day: 'numeric'
                                     }) %>
                                 </small>
-                                <% if(returnData.status === 'Pending') { %> 
+                                <% if(!returnData.status || returnData.status === 'Pending') { %>
                                     <div class="action-buttons">
                                         <form action="/admin/returnDataUpdate?id=<%= returnData._id %>" method="POST">
-                                            <button type="submit" name="status" value="Approved" 
-                                                class="btn btn-sm btn-success">
+                                            <button type="submit" name="status" value="Approved" class="btn btn-sm btn-success">
                                                 Approve
                                             </button>
-                                            <button type="submit" name="status" value="Rejected"
-                                                class="btn btn-sm btn-danger">
+                                            <button type="submit" name="status" value="Rejected" class="btn btn-sm btn-danger">
                                                 Reject
                                             </button>
                                         </form>
@@ -136,6 +132,7 @@
                 </div>
             <% }) %>
         </div>
+    </div>
     
         <nav aria-label="Return requests pagination">
             <ul class="pagination">

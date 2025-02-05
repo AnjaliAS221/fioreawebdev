@@ -93,7 +93,7 @@ router.get('/salesReport/excel', adminAuth, salesController.exportSalesToExcel);
 
 // return management
 router.get('/return-approvals', adminAuth, returnController.getReturnApprovals)
-router.post('/returnDataUpdate', adminAuth, returnController.returnUpdate);
+router.post('/returnDataUpdate', returnController.returnUpdate);
 
 
 module.exports = router;

@@ -1,5 +1,3 @@
-
-
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -8,6 +6,7 @@
         padding: 0;
         background-color: #f4f4f4;
     }
+
     .container {
         width: 90%;
         max-width: 800px;
@@ -15,13 +14,15 @@
         padding: 2rem;
         background-color: #fff;
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         text-align: center;
     }
+
     h1 {
         color: #800000;
         margin-bottom: 1rem;
     }
+
     .btn-order-details {
         background-color: #800000;
         color: white;
@@ -32,10 +33,12 @@
         margin-top: 20px;
         text-decoration: none;
     }
+
     .btn-order-details:hover {
         background-color: #5c0202;
         color: white;
     }
+
     .order-date {
         font-size: 1rem;
         color: #00ff44;
@@ -47,7 +50,8 @@
     <h1>Order Confirmation</h1>
     <p>Thank you for your order!</p>
     <br>
-    <p class="order-date">Delivery Date: <%= new Date(Date.now() + 7* 24 * 60 * 60 * 1000).toLocaleDateString() %></p>
+    <p class="order-date">Delivery Date: <%= new Date(Date.now() + 7* 24 * 60 * 60 * 1000).toLocaleDateString() %>
+    </p>
 
     <br>
     <a href='/order-history' class="btn-order-details">View Order Details</a>

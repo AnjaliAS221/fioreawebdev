@@ -1,323 +1,357 @@
 <%- include('../partials/admin/header') %>
-<style>
-    :root {
-        --primary-color: #800000;
-        --secondary-color: #4B0000;
-        --accent-color: #FF4500;
-        --bg-light: #F4F6F9;
-        --text-dark: #333333;
-        --text-muted: #666666;
-    }
-
-    body {
-        background-color: var(--bg-light);
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    .report-container {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        padding: 2rem;
-    }
-
-    .filter-section {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .stat-card {
-        background-color: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        transition: transform 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .stat-card h6 {
-        color: var(--text-muted);
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-card h3 {
-        font-weight: 600;
-    }
-
-    .table-responsive {
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .table {
-        margin-bottom: 0;
-    }
-
-    .table thead {
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-    .export-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .pagination {
-        justify-content: center;
-        margin-top: 1.5rem;
-    }
-
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+    <style>
+        :root {
+            --primary-color: #800000;
+            --secondary-color: #4B0000;
+            --accent-color: #FF4500;
+            --bg-light: #F4F6F9;
+            --text-dark: #333333;
+            --text-muted: #666666;
         }
-    }
-</style>
 
-<div class="container-fluid p-4">
-    <div class="report-container">
-        <div class="filter-section">
-            <form id="filterForm" method="get" action="/admin/salesReport">
-                <% if (currentPage) { %>
-                    <input type="hidden" name="page" value="<%= currentPage %>">
-                <% } %>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label text-white-50">Predefined Range</label>
-                        <select class="form-select" name="dateRange" id="dateRangeSelect">
-                            <option value="">Select Range</option>
-                            <option value="today" <%= dateRange === 'today' ? 'selected' : '' %>>Today</option>
-                            <option value="week" <%= dateRange === 'week' ? 'selected' : '' %>>This Week</option>
-                            <option value="month" <%= dateRange === 'month' ? 'selected' : '' %>>This Month</option>
-                            <option value="year" <%= dateRange === 'year' ? 'selected' : '' %>>This Year</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label text-white-50">Start Date</label>
-                        <input type="date" class="form-control" id="startDate" name="startDate" value="<%= startDate %>">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label text-white-50">End Date</label>
-                        <input type="date" class="form-control" id="endDate" name="endDate" value="<%= endDate %>">
-                    </div>
-                    <div class="col-12 d-flex justify-content-end gap-2 mt-3">
-                        <button type="submit" class="btn btn-light">Apply Filter</button>
-                        <button type="button" class="btn btn-outline-light" onclick="resetFilter()">Reset</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h6>Total Sales</h6>
-                <h3 class="text-primary">₹<%= totalSales %></h3>
-            </div>
-            <div class="stat-card">
-                <h6>Total Orders</h6>
-                <h3 class="text-success"><%= count %></h3>
-            </div>
-            <div class="stat-card">
-                <h6>Total Discount</h6>
-                <h3 class="text-warning">₹<%=totalDiscount %></h3>
-            </div>
-            <div class="stat-card">
-                <h6>Total Customers</h6>
-                <h3 class="text-info"><%= totalUsers %></h3>
-            </div>
-        </div>
+        .report-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
 
-        <div class="export-buttons">
-            <form id="exportForm" class="d-inline">
-                <% if (startDate) { %>
-                    <input type="hidden" name="startDate" value="<%= startDate %>">
-                <% } %>
-                <% if (endDate) { %>
-                    <input type="hidden" name="endDate" value="<%= endDate %>">
-                <% } %>
-                <% if (dateRange) { %>
-                    <input type="hidden" name="dateRange" value="<%= dateRange %>">
-                <% } %>
-                
-                <button type="button" class="btn btn-primary" onclick="exportToPDF()">
-                    <i class="bi bi-file-pdf me-2"></i>Export PDF
-                </button>
-                <button type="button" class="btn btn-success" onclick="exportToExcel()">
-                    <i class="bi bi-file-excel me-2"></i>Export Excel
-                </button>
-            </form>
-        </div>
+        .filter-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Sl No</th>
-                        <th>User Name</th>
-                        <th>Email</th>
-                        <th>Products (Quantity)</th>
-                        <th>Date</th>
-                        <th>Price</th>
-                        <th>Discount</th>
-                        <th>Final Amount</th>
-                        <th>Payment Method</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% orders.forEach((order, index) => { %>
-                        <tr>
-                            <td><%= serialNumberOffset + index + 1 %></td>
-                            <td><%= order.user ? order.user.name : 'N/A' %></td>
-                            <td><%= order.user ? order.user.email : 'N/A' %></td>
-                            <td>
-                                <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                    <%= order.orderedItems.map(item => 
-                                        `${item.product ? item.product.productName : 'N/A'} (${item.quantity})`
-                                    ).join(', ') %>
-                                <% } else { %>
-                                    No items
-                                <% } %>
-                            </td>
-                            <td><%= moment(order.createdAt).format('DD/MM/YYYY') %></td>
-                            <td>₹<%= Math.round(order.totalPrice).toLocaleString() %></td>
-                            <td>₹<%= Math.round(order.discount).toLocaleString() %></td>
-                            <td>₹<%= Math.round(order.finalAmount).toLocaleString() %></td>
-                            <td><%= order.paymentMethod || 'N/A' %></td>
-                            <td><%= order.status || 'N/A' %></td>
-                        </tr>
-                    <% }); %>
-                </tbody>
-            </table>
-        </div>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
 
-        <div class="pagination-area mt-4">
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    <% if (currentPage > 1) { %>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    <% } %>
-        
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <% if (i === currentPage) { %>
-                            <li class="page-item active">
-                                <span class="page-link"><%= i %></span>
-                            </li>
-                        <% } else if (i <= 3 || i > totalPages - 2 || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                            </li>
-                        <% } else if (i === 4 && currentPage > 4) { %>
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
+        .stat-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h6 {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card h3 {
+            font-weight: 600;
+        }
+
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .export-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+
+    <div class="container-fluid p-4">
+        <div class="report-container">
+            <div class="filter-section">
+                <form id="filterForm" method="get" action="/admin/salesReport">
+                    <% if (currentPage) { %>
+                        <input type="hidden" name="page" value="<%= currentPage %>">
                         <% } %>
-                    <% } %>
-        
-                    <% if (currentPage < totalPages) { %>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    <% } %>
-                </ul>
-            </nav>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label text-white-50">Predefined Range</label>
+                                    <select class="form-select" name="dateRange" id="dateRangeSelect">
+                                        <option value="">Select Range</option>
+                                        <option value="today" <%=dateRange==='today' ? 'selected' : '' %>>Today</option>
+                                        <option value="week" <%=dateRange==='week' ? 'selected' : '' %>>This Week
+                                        </option>
+                                        <option value="month" <%=dateRange==='month' ? 'selected' : '' %>>This Month
+                                        </option>
+                                        <option value="year" <%=dateRange==='year' ? 'selected' : '' %>>This Year
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-white-50">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate"
+                                        value="<%= startDate %>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-white-50">End Date</label>
+                                    <input type="date" class="form-control" id="endDate" name="endDate"
+                                        value="<%= endDate %>">
+                                </div>
+                                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                                    <button type="submit" class="btn btn-light">Apply Filter</button>
+                                    <button type="button" class="btn btn-outline-light"
+                                        onclick="resetFilter()">Reset</button>
+                                </div>
+                            </div>
+                </form>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h6>Total Sales</h6>
+                    <h3 class="text-primary">₹<%= totalSales %>
+                    </h3>
+                </div>
+                <div class="stat-card">
+                    <h6>Total Orders</h6>
+                    <h3 class="text-success">
+                        <%= count %>
+                    </h3>
+                </div>
+                <div class="stat-card">
+                    <h6>Total Discount</h6>
+                    <h3 class="text-warning">₹<%=totalDiscount %>
+                    </h3>
+                </div>
+                <div class="stat-card">
+                    <h6>Total Customers</h6>
+                    <h3 class="text-info">
+                        <%= totalUsers %>
+                    </h3>
+                </div>
+            </div>
+
+            <div class="export-buttons">
+                <form id="exportForm" class="d-inline">
+                    <% if (startDate) { %>
+                        <input type="hidden" name="startDate" value="<%= startDate %>">
+                        <% } %>
+                            <% if (endDate) { %>
+                                <input type="hidden" name="endDate" value="<%= endDate %>">
+                                <% } %>
+                                    <% if (dateRange) { %>
+                                        <input type="hidden" name="dateRange" value="<%= dateRange %>">
+                                        <% } %>
+
+                                            <button type="button" class="btn btn-primary" onclick="exportToPDF()">
+                                                <i class="bi bi-file-pdf me-2"></i>Export PDF
+                                            </button>
+                                            <button type="button" class="btn btn-success" onclick="exportToExcel()">
+                                                <i class="bi bi-file-excel me-2"></i>Export Excel
+                                            </button>
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Sl No</th>
+                            <th>User Name</th>
+                            <th>Email</th>
+                            <th>Products (Quantity)</th>
+                            <th>Date</th>
+                            <th>Price</th>
+                            <th>Discount</th>
+                            <th>Final Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% orders.forEach((order, index)=> { %>
+                            <tr>
+                                <td>
+                                    <%= serialNumberOffset + index + 1 %>
+                                </td>
+                                <td>
+                                    <%= order.user ? order.user.name : 'N/A' %>
+                                </td>
+                                <td>
+                                    <%= order.user ? order.user.email : 'N/A' %>
+                                </td>
+                                <td>
+                                    <% if (order.orderedItems && order.orderedItems.length> 0) { %>
+                                        <%= order.orderedItems.map(item=>
+                                            `${item.product ? item.product.productName : 'N/A'} (${item.quantity})`
+                                            ).join(', ') %>
+                                            <% } else { %>
+                                                No items
+                                                <% } %>
+                                </td>
+                                <td>
+                                    <%= moment(order.createdAt).format('DD/MM/YYYY') %>
+                                </td>
+                                <td>₹<%= Math.round(order.totalPrice).toLocaleString() %>
+                                </td>
+                                <td>₹<%= Math.round(order.discount).toLocaleString() %>
+                                </td>
+                                <td>₹<%= Math.round(order.finalAmount).toLocaleString() %>
+                                </td>
+                                <td>
+                                    <%= order.paymentMethod || 'N/A' %>
+                                </td>
+                                <td>
+                                    <%= order.status || 'N/A' %>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-area mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <% if (currentPage> 1) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <% } %>
+
+                                <% for (let i=1; i <=totalPages; i++) { %>
+                                    <% if (i===currentPage) { %>
+                                        <li class="page-item active">
+                                            <span class="page-link">
+                                                <%= i %>
+                                            </span>
+                                        </li>
+                                        <% } else if (i <=3 || i> totalPages - 2 || (i >= currentPage - 1 && i <=
+                                                currentPage + 1)) { %>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page=<%= i %>">
+                                                        <%= i %>
+                                                    </a>
+                                                </li>
+                                                <% } else if (i===4 && currentPage> 4) { %>
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link">...</span>
+                                                    </li>
+                                                    <% } %>
+                                                        <% } %>
+
+                                                            <% if (currentPage < totalPages) { %>
+                                                                <li class="page-item">
+                                                                    <a class="page-link"
+                                                                        href="?page=<%= currentPage + 1 %>"
+                                                                        aria-label="Next">
+                                                                        <span aria-hidden="true">&raquo;</span>
+                                                                    </a>
+                                                                </li>
+                                                                <% } %>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Keep existing scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
 
-<script>
-    // Keep the existing JavaScript from the original template
-    document.addEventListener('DOMContentLoaded', function() {
-        const dateRangeSelect = document.getElementById('dateRangeSelect');
-        const startDateInput = document.getElementById('startDate');
-        const endDateInput = document.getElementById('endDate');
-        const filterForm = document.getElementById('filterForm');
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
 
-        function submitForm() {
-            const currentUrl = new URL(window.location.href);
-            const existingParams = new URLSearchParams(currentUrl.search);
-            const formData = new FormData(filterForm);
+    <script>
 
-            const newParams = new URLSearchParams(formData);
-            existingParams.forEach((value, key) => {
-                if (!newParams.has(key)) {
-                    newParams.append(key, value);
-                }
-            });
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateRangeSelect = document.getElementById('dateRangeSelect');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const filterForm = document.getElementById('filterForm');
 
-            window.location.href = `/admin/salesReport?${newParams.toString()}`;
-        }
+            function submitForm() {
+                const currentUrl = new URL(window.location.href);
+                const existingParams = new URLSearchParams(currentUrl.search);
+                const formData = new FormData(filterForm);
 
-        dateRangeSelect.addEventListener('change', function() {
-            if (this.value) {
-                startDateInput.value = '';
-                endDateInput.value = '';
-                submitForm();
+                const newParams = new URLSearchParams(formData);
+                existingParams.forEach((value, key) => {
+                    if (!newParams.has(key)) {
+                        newParams.append(key, value);
+                    }
+                });
+
+                window.location.href = `/admin/salesReport?${newParams.toString()}`;
             }
-        });
 
-        [startDateInput, endDateInput].forEach(input => {
-            input.addEventListener('change', function() {
+            dateRangeSelect.addEventListener('change', function () {
                 if (this.value) {
-                    dateRangeSelect.value = '';
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                    submitForm();
                 }
             });
+
+            [startDateInput, endDateInput].forEach(input => {
+                input.addEventListener('change', function () {
+                    if (this.value) {
+                        dateRangeSelect.value = '';
+                    }
+                });
+            });
+
+            filterForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                submitForm();
+            });
+
+            window.exportToPDF = function () {
+                const currentUrl = new URL(window.location.href);
+                const params = new URLSearchParams(currentUrl.search);
+                window.location.href = `/admin/salesReport/pdf?${params.toString()}`;
+            };
+
+            window.exportToExcel = function () {
+                const currentUrl = new URL(window.location.href);
+                const params = new URLSearchParams(currentUrl.search);
+                window.location.href = `/admin/salesReport/excel?${params.toString()}`;
+            };
+
+            window.resetFilter = function () {
+                document.getElementById('dateRangeSelect').value = '';
+                document.getElementById('startDate').value = '';
+                document.getElementById('endDate').value = '';
+                filterForm.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
+                filterForm.submit();
+            };
         });
+    </script>
 
-        filterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitForm();
-        });
-
-        window.exportToPDF = function() {
-            const currentUrl = new URL(window.location.href);
-            const params = new URLSearchParams(currentUrl.search);
-            window.location.href = `/admin/salesReport/pdf?${params.toString()}`;
-        };
-
-        window.exportToExcel = function() {
-            const currentUrl = new URL(window.location.href);
-            const params = new URLSearchParams(currentUrl.search);
-            window.location.href = `/admin/salesReport/excel?${params.toString()}`;
-        };
-
-        window.resetFilter = function() {
-            document.getElementById('dateRangeSelect').value = '';
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
-            filterForm.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
-            filterForm.submit();
-        };
-    });
-</script>
-
-<%- include('../partials/admin/footer') %>
+    <%- include('../partials/admin/footer') %>

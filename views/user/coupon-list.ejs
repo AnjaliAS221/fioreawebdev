@@ -1,105 +1,225 @@
 <%- include("../../views/partials/user/header") %>
+    <style>
+        .coupon-section {
+            padding: 3rem 0;
+            background: #f8f9fa;
+        }
 
-<section class="container my-5">
-    <h2 class="mb-4">Available Coupons</h2>
-    
-    <div class="row">
-        <% if (typeof coupons !== 'undefined' && coupons.length > 0) { %>
-            <% coupons.forEach(coupon => { %>
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= coupon.name %></h5>
-                            <p class="card-text">
-                                <% if (typeof coupon.offerPrice !== 'undefined') { %>
-                                    Discount: ₹<%= coupon.offerPrice %><br>
-                                <% } %>
-                                <% if (typeof coupon.minimumPrice !== 'undefined') { %>
-                                    Minimum Purchase: ₹<%= coupon.minimumPrice %><br>
-                                <% } %>
-                                <% if (typeof coupon.expireOn !== 'undefined') { %>
-                                    Valid Till: <%= coupon.expireOn.toLocaleDateString() %><br>
-                                <% } %>
-                              
-                            </p>
-                            <button class="btn btn-primary" onclick="selectCoupon('<%= coupon.name %>')">
-                                Select Coupon
-                            </button>
+        .section-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: #3498db;
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        .coupon-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .coupon-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .coupon-header {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .coupon-body {
+            padding: 20px;
+        }
+
+        .discount-amount {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .coupon-details {
+            margin: 15px 0;
+            color: #7f8c8d;
+        }
+
+        .coupon-code-container {
+            background: #f1f2f6;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .coupon-code {
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            letter-spacing: 1px;
+        }
+
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .expiry-date {
+            text-align: center;
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(100px);
+            opacity: 0;
+        }
+
+        .toast-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .no-coupons {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-coupons i {
+            font-size: 3rem;
+            color: #95a5a6;
+            margin-bottom: 15px;
+        }
+    </style>
+
+
+    <section class="coupon-section">
+        <div class="container">
+            <h2 class="section-title">Exclusive Offers Just For You</h2>
+
+            <div class="row">
+                <% if (typeof coupons !=='undefined' && coupons.length> 0) { %>
+                    <% coupons.forEach(coupon=> { %>
+                        <div class="col-md-4">
+                            <div class="coupon-card">
+                                <div class="coupon-header">
+                                    <h3>
+                                        <%= coupon.name %>
+                                    </h3>
+                                </div>
+                                <div class="coupon-body">
+                                    <% if (typeof coupon.offerPrice !=='undefined' ) { %>
+                                        <div class="discount-amount">₹<%= coupon.offerPrice %> OFF</div>
+                                        <% } %>
+
+                                            <div class="coupon-details">
+                                                <% if (typeof coupon.minimumPrice !=='undefined' ) { %>
+                                                    <div>
+                                                        <i class="fas fa-tags"></i>
+                                                        Min. Purchase: ₹<%= coupon.minimumPrice %>
+                                                    </div>
+                                                    <% } %>
+                                            </div>
+
+                                            <div class="coupon-code-container">
+                                                <span class="coupon-code">
+                                                    <%= coupon.name %>
+                                                </span>
+                                                <button class="copy-btn" onclick="copyCoupon('<%= coupon.name %>')">
+                                                    <i class="fas fa-copy"></i> Copy
+                                                </button>
+                                            </div>
+
+                                            <% if (typeof coupon.expireOn !=='undefined' ) { %>
+                                                <div class="expiry-date">
+                                                    <i class="fas fa-clock"></i>
+                                                    Expires on <%= coupon.expireOn.toLocaleDateString() %>
+                                                </div>
+                                                <% } %>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            <% }); %>
-        <% } else { %>
-            <div class="col-12">
-                <div class="alert alert-info">No coupons available at this time.</div>
+                        <% }); %>
+                            <% } else { %>
+                                <div class="col-12">
+                                    <div class="no-coupons">
+                                        <i class="fas fa-ticket-alt"></i>
+                                        <h3>No Active Coupons</h3>
+                                        <p>Check back later for exciting offers!</p>
+                                    </div>
+                                </div>
+                                <% } %>
             </div>
-        <% } %>
-    </div>
-</section>
+        </div>
+    </section>
 
-<script>
-function selectCoupon(couponCode) {
-    const totalPriceElement = document.getElementById('totalPriceAmt');
-    
-    if (!totalPriceElement) {
-        console.error('Total price element not found');
-        alert('Error: Could not find total price');
-        return;
-    }
-    
-    fetch('/applyCoupon', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            couponCode, 
-            totalPriceAmt: totalPriceElement.value 
-        }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    <div id="toastMessage" class="toast-message"></div>
+
+
+
+    <script>
+        function copyCoupon(couponCode) {
+
+            const tempInput = document.createElement('input');
+            tempInput.value = couponCode;
+            document.body.appendChild(tempInput);
+
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = `Coupon code ${couponCode} copied!`;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            const elements = {
-                totalPrice: document.getElementById('totalPriceElement'),
-                finalPrice: document.getElementById('finalPrice'),
-                discountapp: document.getElementById('discountapp'),
-                coupon: document.getElementById('coupon'),
-                removeBtn: document.getElementById('removeCouponBtn'),
-                applyBtn: document.getElementById('applyCouponBtn')
-            };
+    </script>
 
-            // Check if all required elements exist
-            const missingElements = Object.entries(elements)
-                .filter(([key, element]) => !element)
-                .map(([key]) => key);
-
-            if (missingElements.length > 0) {
-                console.error('Missing elements:', missingElements);
-                alert('Some required elements are missing on the page');
-                return;
-            }
-
-            elements.totalPrice.textContent = `₹${data.discountedPrice.toLocaleString()}`;
-            elements.finalPrice.value = data.discountedPrice;
-            elements.discountapp.value = data.couponDiscount;
-            elements.coupon.value = couponCode;
-            elements.removeBtn.style.display = 'inline-block';
-            elements.applyBtn.style.display = 'none';
-        } else {
-            alert(data.message || 'Failed to apply coupon');
-        }
-    })
-    .catch(error => {
-        console.error('Error applying coupon:', error);
-        alert('Error applying coupon. Please try again.');
-    });
-}
-</script>
-
-<%- include("../../views/partials/user/footer") %>
+    <%- include("../../views/partials/user/footer") %>

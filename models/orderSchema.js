@@ -46,9 +46,9 @@ const orderSchema = new Schema({
     },
     address: {
         type: Schema.Types.ObjectId,
-        ref: "Address",
+        ref: "Address",  
         required: true
-    },
+      },
     invoiceDate: {
         type: Date
     },
@@ -61,6 +61,10 @@ const orderSchema = new Schema({
         type: Date,
         default: Date.now,
         required: true
+    },
+    couponCode: {   
+        type: String,
+        default: null
     },
     couponApplied: {
         type: Boolean,

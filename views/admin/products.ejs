@@ -1,292 +1,305 @@
 <%- include("../../views/partials/admin/header") %>
-<head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
-</head>
-<div class="content-header">
-  <div>
-    <h2 class="content-title card-title">Products</h2>
+
+  <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+  </head>
+  <div class="content-header">
+    <div>
+      <h2 class="content-title card-title">Products</h2>
+    </div>
   </div>
-</div>
-<header class="card-header text-center mb-20">
+  <header class="card-header text-center mb-20">
 
-  <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
-    <div class="alert alert-success">
+    <% if (typeof success_msg !=='undefined' && success_msg.length> 0) { %>
+      <div class="alert alert-success">
         <%= success_msg %>
-    </div>
-<% } %>
+      </div>
+      <% } %>
 
-<% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
-    <div class="alert alert-danger">
-        <%= error_msg %>
-    </div>
-<% } %>
+        <% if (typeof error_msg !=='undefined' && error_msg.length> 0) { %>
+          <div class="alert alert-danger">
+            <%= error_msg %>
+          </div>
+          <% } %>
 
 
-  <form action="" method="get" class="d-inline">
-    <div class="input-group input-group-sm d-flex justify-content-center">
-      <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products" name="search">
-      <button class="btn border-0" type="submit">Search</button>
-    </div>
-  </form>
-</header>
-<div class="right mt-5">
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col"><b>Product name</b></th>
-        <th scope="col"><b>Category</b></th>
-        <th scope="col"><b>Sale Price</b></th>
-        <th scope="col"><b>Offer Price</b></th>
-        <th scope="col"><b>Offer</b></th>
-        <th scope="col"><b>Action</b></th>
-        <th scope="col"><b>Edit</b></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% for (let i = data.length - 1; i >= 0; i--) { %>
+            <form action="" method="get" class="d-inline">
+              <div class="input-group input-group-sm d-flex justify-content-center">
+                <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products"
+                  name="search">
+                <button class="btn border-0" type="submit">Search</button>
+              </div>
+            </form>
+  </header>
+  <div class="right mt-5">
+    <table class="table table-striped">
+      <thead>
         <tr>
-          <td><%= data[i].productName %></td>
-          <td><%= data[i].category.name %></td>
-          <td><%= data[i].salePrice %></td>
-         
-          <td>
-            <% if (locals.data[i].productOffer) { %>
-              <%= data[i].productOffer %>
-            <% } else { %>
-              0%
-            <% } %>
-          </td> 
-          <td>
-                <%if(locals.data[i].productOffer ===0){%>
-            <button class="btn btn-info" onclick="addOffer('<%=data[i]._id%>')" style="width: 100px;">
-                <a href="#" class="text-white">Add Offer</a>
-            </button>
-            <%}else{%>
-            <button class="btn btn-info" onclick="removeOffer('<%=data[i]._id%>')" style="width: 100px;">
-                <a href="#" class="text-white">Remove</a>
-            </button>
-            <%}%>
-        </td>
-
-          
-          <td>
-            <% if (data[i].isBlocked ===false) { %>
-              <button class="btn btn-success" style="width: 80px;">
-                <a href="/admin/blockProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Block</a>
-              </button>
-            <% } else { %>
-              <button class="btn btn-danger" style="width: 80px;">
-                <a href="/admin/unblockProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
-              </button>
-            <% } %>
-          </td>
-          <td>
-            <button class="btn btn-info" style="width: 80px;">
-              <a href="/admin/editProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Edit</a>
-            </button>
-          </td>
+          <th scope="col"><b>Product name</b></th>
+          <th scope="col"><b>Category</b></th>
+          <th scope="col"><b>Sale Price</b></th>
+          <th scope="col"><b>Offer Price</b></th>
+          <th scope="col"><b>Offer</b></th>
+          <th scope="col"><b>Action</b></th>
+          <th scope="col"><b>Edit</b></th>
         </tr>
-      <% } %>
-    </tbody>
-  </table>
-</div>
-<div class="container mt-3">
-  <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mb-20">
-      <% for (let i = 1; i <= totalPages; i++) { %>
-        <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
-          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-        </li>
-      <% } %>
-    </ul>
-  </nav>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+      </thead>
+      <tbody>
+        <% for (let i=data.length - 1; i>= 0; i--) { %>
+          <tr>
+            <td>
+              <%= data[i].productName %>
+            </td>
+            <td>
+              <%= data[i].category.name %>
+            </td>
+            <td>
+              <%= data[i].salePrice %>
+            </td>
 
-<script>
-  async function addOffer(productId) {
-    try {
+            <td>
+              <% if (locals.data[i].productOffer) { %>
+                <%= data[i].productOffer %>
+                  <% } else { %>
+                    0%
+                    <% } %>
+            </td>
+            <td>
+              <%if(locals.data[i].productOffer===0){%>
+                <button class="btn btn-info" onclick="addOffer('<%=data[i]._id%>')" style="width: 100px;">
+                  <a href="#" class="text-white">Add Offer</a>
+                </button>
+                <%}else{%>
+                  <button class="btn btn-info" onclick="removeOffer('<%=data[i]._id%>')" style="width: 100px;">
+                    <a href="#" class="text-white">Remove</a>
+                  </button>
+                  <%}%>
+            </td>
+
+
+            <td>
+              <% if (data[i].isBlocked===false) { %>
+                <button class="btn btn-success" style="width: 80px;">
+                  <a href="/admin/blockProduct?id=<%=data[i]._id%>" class="text-white"
+                    style="text-decoration: none;">Block</a>
+                </button>
+                <% } else { %>
+                  <button class="btn btn-danger" style="width: 80px;">
+                    <a href="/admin/unblockProduct?id=<%=data[i]._id%>" class="text-white"
+                      style="text-decoration: none;">Unblock</a>
+                  </button>
+                  <% } %>
+            </td>
+            <td>
+              <button class="btn btn-info" style="width: 80px;">
+                <a href="/admin/editProduct?id=<%=data[i]._id%>" class="text-white"
+                  style="text-decoration: none;">Edit</a>
+              </button>
+            </td>
+          </tr>
+          <% } %>
+      </tbody>
+    </table>
+  </div>
+  <div class="container mt-3">
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center mb-20">
+        <% for (let i=1; i <=totalPages; i++) { %>
+          <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
+            <a class="page-link" href="?page=<%= i %>">
+              <%= i %>
+            </a>
+          </li>
+          <% } %>
+      </ul>
+    </nav>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <script>
+    async function addOffer(productId) {
+      try {
         const { value: amount, isConfirmed } = await Swal.fire({
-            title: "Offer in percentage",
-            input: 'number',
-            inputLabel: 'percentage',
-            inputPlaceholder: "%",
-            showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value) {
-                    return 'Please enter a percentage';
-                }
-                if (value < 1) {
-                    return 'Percentage must be at least 1%';
-                }
-                if (value > 100) {
-                    return 'Percentage cannot exceed 100%';
-                }
+          title: "Offer in percentage",
+          input: 'number',
+          inputLabel: 'percentage',
+          inputPlaceholder: "%",
+          showCancelButton: true,
+          inputValidator: (value) => {
+            if (!value) {
+              return 'Please enter a percentage';
             }
+            if (value < 1) {
+              return 'Percentage must be at least 1%';
+            }
+            if (value > 100) {
+              return 'Percentage cannot exceed 100%';
+            }
+          }
         });
 
         if (!isConfirmed || !amount) return;
 
         const response = await $.ajax({
-            url: "/admin/addProductOffer",
-            method: "post",
-            data: {
-                percentage: parseFloat(amount),
-                productId: productId
-            },
-            dataType: 'json'
+          url: "/admin/addProductOffer",
+          method: "post",
+          data: {
+            percentage: parseFloat(amount),
+            productId: productId
+          },
+          dataType: 'json'
         });
 
         console.log('Server Response:', response); // Debug log
 
         if (response.status === true) {
-            await Swal.fire('Success', 'The offer has been applied successfully', 'success');
-            location.reload();
+          await Swal.fire('Success', 'The offer has been applied successfully', 'success');
+          location.reload();
         } else {
-            throw new Error(response.message || 'Failed to add offer');
+          throw new Error(response.message || 'Failed to add offer');
         }
 
-    } catch (error) {
+      } catch (error) {
         console.error("Error details:", error);
         Swal.fire('Failed', error.message || 'Something went wrong', 'error');
+      }
     }
-}
 
 
-const addProductOffer = async (req, res) => {
-    try {
+    const addProductOffer = async (req, res) => {
+      try {
         const { productId, percentage } = req.body;
-        
+
         // Input validation
         if (!productId || !percentage) {
-            return res.json({ 
-                status: false, 
-                message: "Product ID and percentage are required" 
-            });
+          return res.json({
+            status: false,
+            message: "Product ID and percentage are required"
+          });
         }
 
-        
+
         const offerPercentage = parseFloat(percentage);
 
         if (isNaN(offerPercentage)) {
-            return res.json({ 
-                status: false, 
-                message: "Invalid percentage value" 
-            });
+          return res.json({
+            status: false,
+            message: "Invalid percentage value"
+          });
         }
 
         if (offerPercentage > 100) {
-            return res.json({ 
-                status: false, 
-                message: "Offer percentage cannot exceed 100%" 
-            });
+          return res.json({
+            status: false,
+            message: "Offer percentage cannot exceed 100%"
+          });
         }
 
         if (offerPercentage < 1) {
-            return res.json({ 
-                status: false, 
-                message: "Offer percentage must be at least 1%" 
-            });
+          return res.json({
+            status: false,
+            message: "Offer percentage must be at least 1%"
+          });
         }
 
         // Find product and validate
         const findProduct = await Product.findById(productId);
         if (!findProduct) {
-            return res.json({ 
-                status: false, 
-                message: "Product not found" 
-            });
+          return res.json({
+            status: false,
+            message: "Product not found"
+          });
         }
 
         // Find category and validate
         const findCategory = await Category.findById(findProduct.category);
         if (!findCategory) {
-            return res.json({ 
-                status: false, 
-                message: "Category not found" 
-            });
+          return res.json({
+            status: false,
+            message: "Category not found"
+          });
         }
 
         if (findCategory.categoryOffer > offerPercentage) {
-            return res.json({ 
-                status: false, 
-                message: "This product category already has a higher category offer" 
-            });
+          return res.json({
+            status: false,
+            message: "This product category already has a higher category offer"
+          });
         }
 
-        
+
         const newSalePrice = findProduct.regularPrice * (1 - offerPercentage / 100);
-        
-       
+
+
         await Product.findByIdAndUpdate(productId, {
-            salePrice: newSalePrice,
-            productOffer: offerPercentage
+          salePrice: newSalePrice,
+          productOffer: offerPercentage
         });
 
-        
+
         await Category.findByIdAndUpdate(findCategory._id, {
-            categoryOffer: 0
+          categoryOffer: 0
         });
 
-        return res.json({ 
-            status: true,
-            message: "Offer added successfully" 
+        return res.json({
+          status: true,
+          message: "Offer added successfully"
         });
 
-    } catch (error) {
+      } catch (error) {
         console.error("Error in addProductOffer:", error);
-        return res.status(500).json({ 
-            status: false, 
-            message: "Internal server error",
-            error: error.message 
+        return res.status(500).json({
+          status: false,
+          message: "Internal server error",
+          error: error.message
         });
-    }
-};
+      }
+    };
 
     async function removeOffer(productId) {
-    try {
+      try {
         Swal.fire({
-            title: "Remove Offer",
-            text: 'Are you sure you want to remove this offer?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: 'd33',
-            confirmButtonText: 'Yes, remove it!',
-            timer: 5000,
-            timerProgressBar: true
+          title: "Remove Offer",
+          text: 'Are you sure you want to remove this offer?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: 'd33',
+          confirmButtonText: 'Yes, remove it!',
+          timer: 5000,
+          timerProgressBar: true
         }).then(async (result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "/admin/removeProductOffer",
-                    method: 'POST',
-                    data: {
-                        productId: productId
-                    },
-                    success: (response) => {
-                        if (response.status === true) {
-                            Swal.fire('Removed!', "The offer has been removed", "success");
-                            location.reload();
-                        } else if (response.status === false) {
-                            Swal.fire('Failed', response.message || 'Something went wrong', 'error');
-                        } else {
-                            Swal.fire('Failed', 'An unknown error occurred', 'error');
-                        }
-                    },
-                    error: (err) => {
-                        console.log("AJAX Error:", err);
-                        Swal.fire('Failed', 'Internal server error', 'error');
-                    }
-                });
-            }
+          if (result.isConfirmed) {
+            $.ajax({
+              url: "/admin/removeProductOffer",
+              method: 'POST',
+              data: {
+                productId: productId
+              },
+              success: (response) => {
+                if (response.status === true) {
+                  Swal.fire('Removed!', "The offer has been removed", "success");
+                  location.reload();
+                } else if (response.status === false) {
+                  Swal.fire('Failed', response.message || 'Something went wrong', 'error');
+                } else {
+                  Swal.fire('Failed', 'An unknown error occurred', 'error');
+                }
+              },
+              error: (err) => {
+                console.log("AJAX Error:", err);
+                Swal.fire('Failed', 'Internal server error', 'error');
+              }
+            });
+          }
         });
-    } catch (error) {
+      } catch (error) {
         console.error("Error in removeOffer:", error);
         Swal.fire('Error', 'An unexpected error occurred', 'error');
+      }
     }
-}
 
-</script>
+  </script>
 
-<%- include("../../views/partials/admin/footer") %>
+  <%- include("../../views/partials/admin/footer") %>

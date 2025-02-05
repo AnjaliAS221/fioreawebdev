@@ -56,7 +56,7 @@
 
     .wishlist-card .product-image {
         position: relative;
-        padding-top: 100%; /* Changed from 125% to 100% for square aspect ratio */
+        padding-top: 100%;
         overflow: hidden;
     }
 
@@ -170,7 +170,6 @@
         grid-column: 1 / -1;
     }
 
-    /* Preserve existing modal and other styles */
     .modal-body {
         max-height: 70vh;
         overflow-y: auto;
@@ -198,7 +197,7 @@
         text-decoration: line-through;
     }
 
-    /* Responsive adjustments */
+  
     @media (max-width: 768px) {
         .wishlist-grid {
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -215,7 +214,7 @@
     }
 </style>
 
-<!-- Rest of the HTML remains the same -->
+
 <main class="main">
     <div class="wishlist-container">
         <div class="wishlist-header">
@@ -253,7 +252,7 @@
             <% } %>
         </div>
 
-        <!-- Pagination section remains the same -->
+      
         <% if (wishlist.length > 0 && totalPages > 1) { %>
             <div class="pagination">
                 <% if (hasPrevPage) { %>

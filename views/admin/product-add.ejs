@@ -1,56 +1,67 @@
 <%- include("../../views/partials/admin/header") %>
 
-<head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<style>
-    .error-message { color: red; }
-    .thumbnails-container { 
-        display: flex;
-        overflow-x: auto;
-    }
-    .thumbnail { margin-right: 10px; }
-    .variant-container {
-        border: 1px solid #ddd;
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-    }
-    .remove-variant {
-        float: right;
-        color: red;
-        cursor: pointer;
-    }
-</style>
-<section class="content-main">
-    <div class="row">
-        <div class="col-9">
-            <div class="content-header">
-                <h2 class="content-title">Add New Product</h2>
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <style>
+        .error-message {
+            color: red;
+        }
+
+        .thumbnails-container {
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .thumbnail {
+            margin-right: 10px;
+        }
+
+        .variant-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .remove-variant {
+            float: right;
+            color: red;
+            cursor: pointer;
+        }
+    </style>
+    <section class="content-main">
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Add New Product</h2>
+                </div>
             </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card mb-4">
-                <div class="card-body">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
 
                         <form method="post" action="/admin/addProducts" enctype="multipart/form-data"
                             onsubmit="return validateForm()">
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Product Name</label>
-                                <input type="text" placeholder="Type here" name="productName" class="form-control border" id="product_name">
+                                <input type="text" placeholder="Type here" name="productName"
+                                    class="form-control border" id="product_name">
                                 <div id="productName-error" class="error-message"></div>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">Description</label>
-                                <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border" rows="4"></textarea>
+                                <textarea placeholder="Type here" id="descriptionid" name="description"
+                                    class="form-control border" rows="4"></textarea>
                                 <div id="description-error" class="error-message"></div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="mb-4">
                                         <label class="form-label">Regular price</label>
-                                        <input placeholder="$" name="regularPrice" type="text" class="form-control border">
+                                        <input placeholder="$" name="regularPrice" type="text"
+                                            class="form-control border">
                                         <div id="regularPrice-error" class="error-message"></div>
                                     </div>
                                 </div>
@@ -65,9 +76,10 @@
                             <div class="mb-4">
                                 <label class="form-label">Product Variants</label>
                                 <div id="variants-container">
-                                    <!-- Variants will be added here dynamically -->
+
                                 </div>
-                                <button type="button" class="btn btn-secondary" onclick="addVariant()">Add Variant</button>
+                                <button type="button" class="btn btn-secondary" onclick="addVariant()">Add
+                                    Variant</button>
                                 <div id="variants-error" class="error-message"></div>
                             </div>
 
@@ -76,16 +88,16 @@
                                     <div class="mb-4">
                                         <label class="form-label">Category</label>
                                         <select class="form-select border" name="category">
-                                            <% if (cat && cat.length > 0) { %>
+                                            <% if (cat && cat.length> 0) { %>
                                                 <option value="">Select a category</option>
                                                 <% for(let i=0; i<cat.length; i++) { %>
                                                     <option value="<%=cat[i]._id%>">
                                                         <%= cat[i].name || 'Unnamed Category' %>
                                                     </option>
-                                                <% } %>
-                                            <% } else { %>
-                                                <option value="">No categories available</option>
-                                            <% } %>
+                                                    <% } %>
+                                                        <% } else { %>
+                                                            <option value="">No categories available</option>
+                                                            <% } %>
                                         </select>
                                         <div id="category-error" class="error-message"></div>
                                     </div>
@@ -93,9 +105,9 @@
                             </div>
 
                             <div class="card mb-2">
-                            <div class="card-header">
-                                <h4>Product Images</h4>
-                            </div>
+                                <div class="card-header">
+                                    <h4>Product Images</h4>
+                                </div>
                                 <div class="border row">
                                     <div id="addedImagesContainer" class="thumbnails-container"></div>
                                 </div>
@@ -182,10 +194,10 @@
         function addVariant() {
             const container = document.getElementById('variants-container');
             const variantDiv = document.createElement('div');
-            const variantId = Date.now(); 
+            const variantId = Date.now();
             variantDiv.className = 'variant-container';
             variantDiv.dataset.variantId = variantId;
-            
+
             variantDiv.innerHTML = `
                 <span class="remove-variant" onclick="removeVariant(this)">×</span>
                 <div class="row">
@@ -206,7 +218,7 @@
                 </div>
             `;
             container.appendChild(variantDiv);
-            addSize(variantId); 
+            addSize(variantId);
         }
 
         function addSize(variantId) {
@@ -214,7 +226,7 @@
             const sizesContainer = variantDiv.querySelector('.sizes-container');
             const sizeDiv = document.createElement('div');
             sizeDiv.className = 'size-entry row mt-2';
-            
+
             sizeDiv.innerHTML = `
                 <div class="col-md-6">
                     <input type="text" class="form-control variant-size" placeholder="Size" required>
@@ -240,37 +252,37 @@
         function collectVariantsData() {
             const variants = [];
             const variantContainers = document.querySelectorAll('.variant-container');
-            
+
             variantContainers.forEach(container => {
                 const color = container.querySelector('.variant-color').value;
                 const sizes = [];
-                
+
                 container.querySelectorAll('.size-entry').forEach(sizeEntry => {
                     sizes.push({
                         size: sizeEntry.querySelector('.variant-size').value,
                         stock: parseInt(sizeEntry.querySelector('.variant-stock').value)
                     });
                 });
-                
+
                 variants.push({
                     color: color,
                     sizes: sizes
                 });
             });
-            
+
             return variants;
         }
 
-        
 
-function validateAndSubmit() {
-    if (validateForm()) {
-        const submitButton = document.querySelector('button[type="button"][onclick="validateAndSubmit()"]');
-        submitButton.disabled = true;
-        submitButton.innerHTML = 'Publishing...';
-        document.forms[0].submit();
-    }
-}
+
+        function validateAndSubmit() {
+            if (validateForm()) {
+                const submitButton = document.querySelector('button[type="button"][onclick="validateAndSubmit()"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = 'Publishing...';
+                document.forms[0].submit();
+            }
+        }
 
         function viewImage1(event) {
 
@@ -291,97 +303,97 @@ function validateAndSubmit() {
 
 
         function viewImage(event, index) {
-    try {
-        let input = event.target;
-        let reader = new FileReader();
-        
-        reader.onerror = function() {
-            throw new Error('Error reading file');
-        };
-        
-        reader.onload = function() {
             try {
-                let dataURL = reader.result;
+                let input = event.target;
+                let reader = new FileReader();
+
+                reader.onerror = function () {
+                    throw new Error('Error reading file');
+                };
+
+                reader.onload = function () {
+                    try {
+                        let dataURL = reader.result;
+                        let image = document.getElementById("imgView" + index);
+                        image.src = dataURL;
+
+
+                        let cropper = new Cropper(image, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            guides: true,
+                            background: false,
+                            autoCropArea: 1,
+                            zoomable: true,
+                            cropBoxResizable: true,
+                            dragMode: 'move'
+                        });
+
+                        let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
+                        cropperContainer.style.display = 'block';
+
+                        let saveButton = document.querySelector("#saveButton" + index);
+                        saveButton.addEventListener('click', async function () {
+                            try {
+                                let croppedCanvas = cropper.getCroppedCanvas();
+                                if (!croppedCanvas) {
+                                    throw new Error('Failed to crop image');
+                                }
+
+                                let croppedImage = document.getElementById("croppedImg" + index);
+                                croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
+
+                                let timeStamp = new Date().getTime();
+                                let fileName = `cropped-img-${timeStamp}-${index}.png`;
+
+                                await croppedCanvas.toBlob(blob => {
+                                    if (!blob) {
+                                        throw new Error('Failed to create image blob');
+                                    }
+
+                                    let input = document.getElementById('input' + index);
+                                    let imgFile = new File([blob], fileName, { type: 'image/png' });
+                                    const fileList = new DataTransfer();
+                                    fileList.items.add(imgFile);
+                                    input.files = fileList.files;
+                                }, 'image/png', 0.9);
+
+                                cropperContainer.style.display = 'none';
+                                cropper.destroy();
+                            } catch (cropError) {
+                                console.error('Error saving cropped image:', cropError);
+                                displayErrorMessage('images-error', 'Failed to save cropped image. Please try again.');
+                            }
+                        });
+                    } catch (cropperError) {
+                        console.error('Error initializing cropper:', cropperError);
+                        displayErrorMessage('images-error', 'Failed to initialize image cropper. Please try again.');
+                    }
+                };
+
+
+                if (!input.files[0].type.match('image.*')) {
+                    throw new Error('Invalid file type');
+                }
+
+                reader.readAsDataURL(input.files[0]);
+
+            } catch (error) {
+                console.error('Error processing image:', error);
+                displayErrorMessage('images-error', 'Error processing image. Please try again.');
+
+
+                let input = document.getElementById('input' + index);
+                input.value = '';
+
+
                 let image = document.getElementById("imgView" + index);
-                image.src = dataURL;
-                
-                
-                let cropper = new Cropper(image, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    guides: true,
-                    background: false,
-                    autoCropArea: 1,
-                    zoomable: true,
-                    cropBoxResizable: true,
-                    dragMode: 'move'
-                });
+                image.src = '';
 
                 let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
-                cropperContainer.style.display = 'block';
-
-                let saveButton = document.querySelector("#saveButton" + index);
-                saveButton.addEventListener('click', async function() {
-                    try {
-                        let croppedCanvas = cropper.getCroppedCanvas();
-                        if (!croppedCanvas) {
-                            throw new Error('Failed to crop image');
-                        }
-
-                        let croppedImage = document.getElementById("croppedImg" + index);
-                        croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
-
-                        let timeStamp = new Date().getTime();
-                        let fileName = `cropped-img-${timeStamp}-${index}.png`;
-
-                        await croppedCanvas.toBlob(blob => {
-                            if (!blob) {
-                                throw new Error('Failed to create image blob');
-                            }
-                            
-                            let input = document.getElementById('input' + index);
-                            let imgFile = new File([blob], fileName, { type: 'image/png' });
-                            const fileList = new DataTransfer();
-                            fileList.items.add(imgFile);
-                            input.files = fileList.files;
-                        }, 'image/png', 0.9);
-
-                        cropperContainer.style.display = 'none';
-                        cropper.destroy();
-                    } catch (cropError) {
-                        console.error('Error saving cropped image:', cropError);
-                        displayErrorMessage('images-error', 'Failed to save cropped image. Please try again.');
-                    }
-                });
-            } catch (cropperError) {
-                console.error('Error initializing cropper:', cropperError);
-                displayErrorMessage('images-error', 'Failed to initialize image cropper. Please try again.');
+                cropperContainer.style.display = 'none';
             }
-        };
-
-        
-        if (!input.files[0].type.match('image.*')) {
-            throw new Error('Invalid file type');
         }
-
-        reader.readAsDataURL(input.files[0]);
-        
-    } catch (error) {
-        console.error('Error processing image:', error);
-        displayErrorMessage('images-error', 'Error processing image. Please try again.');
-        
-        
-        let input = document.getElementById('input' + index);
-        input.value = '';
-        
-        
-        let image = document.getElementById("imgView" + index);
-        image.src = '';
-       
-        let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
-        cropperContainer.style.display = 'none';
-    }
-}
 
 
         const selectedImages = [];
@@ -394,7 +406,7 @@ function validateAndSubmit() {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 selectedImages.push(file);
-                
+
                 const thumbnail = document.createElement("div");
                 thumbnail.classList.add("thumbnail");
 
@@ -431,112 +443,108 @@ function validateAndSubmit() {
             const saleprice = document.getElementsByName('salePrice')[0].value;
 
             const variantContainers = document.querySelectorAll('.variant-container');
-        if (variantContainers.length === 0) {
-            displayErrorMessage('variants-error', 'Please add at least one product variant');
-            isValid = false;
-        } else {
-        for (let container of variantContainers) {
-            const color = container.querySelector('.variant-color').value.trim();
-            const sizes = container.querySelectorAll('.size-entry');
-            
-            if (!color) {
-                displayErrorMessage('variants-error', 'Color is required for all variants');
+            if (variantContainers.length === 0) {
+                displayErrorMessage('variants-error', 'Please add at least one product variant');
                 isValid = false;
-                break;
+            } else {
+                for (let container of variantContainers) {
+                    const color = container.querySelector('.variant-color').value.trim();
+                    const sizes = container.querySelectorAll('.size-entry');
+
+                    if (!color) {
+                        displayErrorMessage('variants-error', 'Color is required for all variants');
+                        isValid = false;
+                        break;
+                    }
+
+                    if (sizes.length === 0) {
+                        displayErrorMessage('variants-error', 'Each variant must have at least one size');
+                        isValid = false;
+                        break;
+                    }
+
+                    for (let sizeEntry of sizes) {
+                        const sizeValue = sizeEntry.querySelector('.variant-size').value.trim();
+                        const stockValue = sizeEntry.querySelector('.variant-stock').value.trim();
+
+                        if (!sizeValue || !stockValue) {
+                            displayErrorMessage('variants-error', 'Size and stock are required for all variants');
+                            isValid = false;
+                            break;
+                        }
+
+                        if (isNaN(stockValue) || parseInt(stockValue) < 0) {
+                            displayErrorMessage('variants-error', 'Stock must be a non-negative number');
+                            isValid = false;
+                            break;
+                        }
+                    }
+                }
             }
 
-            if (sizes.length === 0) {
-                displayErrorMessage('variants-error', 'Each variant must have at least one size');
+            if (isValid) {
+                const variantsData = collectVariantsData();
+                const variantsInput = document.createElement('input');
+                variantsInput.type = 'hidden';
+                variantsInput.name = 'variantsData';
+                variantsInput.value = JSON.stringify(variantsData);
+                document.querySelector('form').appendChild(variantsInput);
+            }
+
+
+            if (name.trim() === "") {
+                displayErrorMessage('productName-error', 'Please enter a product name.');
                 isValid = false;
-                break;
+            } else if (!/^[a-zA-Z\s\-\&\@\$\%\!\#]+$/.test(name.trim())) {
+                displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters and allowed symbols.');
+                isValid = false;
             }
 
-            for (let sizeEntry of sizes) {
-                const sizeValue = sizeEntry.querySelector('.variant-size').value.trim();
-                const stockValue = sizeEntry.querySelector('.variant-stock').value.trim();
-                
-                if (!sizeValue || !stockValue) {
-                    displayErrorMessage('variants-error', 'Size and stock are required for all variants');
-                    isValid = false;
-                    break;
-                }
-
-                if (isNaN(stockValue) || parseInt(stockValue) < 0) {
-                    displayErrorMessage('variants-error', 'Stock must be a non-negative number');
-                    isValid = false;
-                    break;
-                }
+            if (name.length > 100) {
+                displayErrorMessage('productName-error', 'Product name cannot exceed 100 characters.');
+                isValid = false;
             }
+
+            if (description.trim() === "") {
+                displayErrorMessage('description-error', 'Please enter a product description.');
+                isValid = false;
+            }
+
+            const category = document.querySelector('select[name="category"]').value;
+            if (!category) {
+                displayErrorMessage('category-error', 'Please select a category');
+                isValid = false;
+            }
+
+            const MIN_PRICE = 0.01;
+            if (parseFloat(price) < MIN_PRICE) {
+                displayErrorMessage('regularPrice-error', `Price must be at least ${MIN_PRICE}`);
+                isValid = false;
+            }
+
+            if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+                displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+                isValid = false;
+            }
+
+            if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+                displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
+                isValid = false;
+            }
+
+            if (parseFloat(price) <= parseFloat(saleprice)) {
+                displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
+                isValid = false;
+            }
+
+            const images = document.getElementById('input1');
+            if (images.files.length === 0) {
+                displayErrorMessage('images-error', 'Please select an image.');
+                isValid = false;
+            }
+
+            return isValid;
         }
-    }
-
-    if (isValid) {
-        const variantsData = collectVariantsData();
-        const variantsInput = document.createElement('input');
-        variantsInput.type = 'hidden';
-        variantsInput.name = 'variantsData';
-        variantsInput.value = JSON.stringify(variantsData);
-        document.querySelector('form').appendChild(variantsInput);
-    }
-
-    // Product Name Validation
-    if (name.trim() === "") {
-        displayErrorMessage('productName-error', 'Please enter a product name.');
-        isValid = false;
-    } else if (!/^[a-zA-Z\s\-\&\@\$\%\!\#]+$/.test(name.trim())) {
-        displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters and allowed symbols.');
-        isValid = false;
-    }
-
-    if (name.length > 100) { // Adjust number as needed
-    displayErrorMessage('productName-error', 'Product name cannot exceed 100 characters.');
-    isValid = false;
-}
-
-    // Product Description Validation
-    if (description.trim() === "") {
-        displayErrorMessage('description-error', 'Please enter a product description.');
-        isValid = false;
-    }
-
-    const category = document.querySelector('select[name="category"]').value;
-    if (!category) {
-        displayErrorMessage('category-error', 'Please select a category');
-        isValid = false;
-    }
-
-        const MIN_PRICE = 0.01;
-    if (parseFloat(price) < MIN_PRICE) {
-        displayErrorMessage('regularPrice-error', `Price must be at least ${MIN_PRICE}`);
-        isValid = false;
-    }
-
-    // Regular Price Validation
-    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-        isValid = false;
-    }
-
-    // Sale Price Validation
-    if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
-        isValid = false;
-    }
-
-    if (parseFloat(price) <= parseFloat(saleprice)) {
-        displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
-        isValid = false;
-    }
-
-    // Image Validation
-    const images = document.getElementById('input1');
-    if (images.files.length === 0) {
-        displayErrorMessage('images-error', 'Please select an image.');
-        isValid = false;
-    }
-
-    return isValid;
-}
         function displayErrorMessage(elementId, message) {
             const errorElement = document.getElementById(elementId);
             errorElement.innerText = message;

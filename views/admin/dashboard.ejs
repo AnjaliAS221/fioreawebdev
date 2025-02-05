@@ -1,448 +1,452 @@
 <%- include('../partials/admin/header') %>
 
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
 
 
-<style>
-    :root {
-        --primary-color: #8B0000;
-        --secondary-color: #4B0082;
-        --accent-color: #FF4500;
-    }
+    <style>
+        :root {
+            --primary-color: #8B0000;
+            --secondary-color: #4B0082;
+            --accent-color: #FF4500;
+        }
 
-    body {
-        background-color: #f4f6f9;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
-    .dashboard-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
 
-    .card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
 
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
 
-    .card-header {
-        background-color: var(--primary-color);
-        color: white;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-    }
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
 
-    .stat-card {
-        display: flex;
-        align-items: center;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-    }
+        .stat-card {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
 
-    .stat-icon {
-        background-color: rgba(255,255,255,0.2);
-        border-radius: 50%;
-        padding: 1rem;
-        margin-right: 1rem;
-    }
+        .stat-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            padding: 1rem;
+            margin-right: 1rem;
+        }
 
-    .chart-container {
-        height: 350px;
-    }
-</style>
+        .chart-container {
+            height: 350px;
+        }
+    </style>
 
-<body>
-    <div class="dashboard-container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="text-dark mb-3">Fiorea Dashboard</h1>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/admin">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                        </ol>
-                    </nav>
-                    <button id="generateLedgerBtn" class="btn btn-primary">
-                        <i class="bi bi-file-spreadsheet me-2"></i>Generate Ledger
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="bi bi-cash-stack fs-3"></i>
-                    </div>
-                    <div>
-                        <h6 class="text-white-50">Total Revenue</h6>
-                        <h3 id="totalRevenue">₹<%= salesData.totalSalesAmount.toLocaleString() %></h3>
+    <body>
+        <div class="dashboard-container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="text-dark mb-3">Fiorea Dashboard</h1>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                            </ol>
+                        </nav>
+                        <button id="generateLedgerBtn" class="btn btn-primary">
+                            <i class="bi bi-file-spreadsheet me-2"></i>Generate Ledger
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="bi bi-cart-check fs-3"></i>
-                    </div>
-                    <div>
-                        <h6 class="text-white-50">Total Orders</h6>
-                        <h3 id="totalOrders"><%= count %></h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="bi bi-graph-up fs-3"></i>
-                    </div>
-                    <div>
-                        <h6 class="text-white-50">Avg Order Value</h6>
-                        <h3 id="avgOrderValue">₹<%= (salesData.totalSalesAmount / count || 0).toFixed(2) %></h3>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Sales Overview</h5>
-                        <select id="timeFilter" class="form-select form-select-sm w-auto">
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly" selected>Monthly</option>
-                            <option value="yearly">Yearly</option>
-                        </select>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-cash-stack fs-3"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-white-50">Total Revenue</h6>
+                            <h3 id="totalRevenue">₹<%= salesData.totalSalesAmount.toLocaleString() %>
+                            </h3>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="mainChart"></canvas>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-cart-check fs-3"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-white-50">Total Orders</h6>
+                            <h3 id="totalOrders">
+                                <%= count %>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-graph-up fs-3"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-white-50">Avg Order Value</h6>
+                            <h3 id="avgOrderValue">₹<%= (salesData.totalSalesAmount / count || 0).toFixed(2) %>
+                            </h3>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="mb-0">Top Selling Products</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="productsChart" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="mb-0">Category Distribution</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <canvas id="categoriesChart" height="300"></canvas>
-                            </div>
-                            <div class="col-md-6">
-                                <ul id="categoryLegend" class="list-unstyled"></ul>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Sales Overview</h5>
+                            <select id="timeFilter" class="form-select form-select-sm w-auto">
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly" selected>Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="mainChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">Top Selling Products</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="productsChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">Category Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <canvas id="categoriesChart" height="300"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul id="categoryLegend" class="list-unstyled"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    </section>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            
-            const chartConfig = {
-                colors: {
-                    primary: 'rgba(139, 0, 0, 1)',
-                    secondary: 'rgba(75, 0, 130, 1)',
-                    accent: 'rgba(255, 69, 0, 1)',
-                    background: {
-                        primary: 'rgba(128, 0, 0, 0.2)',
-                        secondary: 'rgba(220, 20, 60, 0.2)',
-                        accent: 'rgba(255, 140, 0, 0.2)'
-                    }
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    layout: {
-                        padding: {
-                            top: 5,
-                            bottom: 5
+        </section>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                const chartConfig = {
+                    colors: {
+                        primary: 'rgba(139, 0, 0, 1)',
+                        secondary: 'rgba(75, 0, 130, 1)',
+                        accent: 'rgba(255, 69, 0, 1)',
+                        background: {
+                            primary: 'rgba(128, 0, 0, 0.2)',
+                            secondary: 'rgba(220, 20, 60, 0.2)',
+                            accent: 'rgba(255, 140, 0, 0.2)'
                         }
-                    }
-                }
-            };
-        
-           
-            const safeJSONParse = (jsonString, defaultValue = []) => {
-                try {
-                    return JSON.parse(jsonString) || defaultValue;
-                } catch (error) {
-                    console.error('JSON parsing error:', error);
-                    return defaultValue;
-                }
-            };
-        
-            const productsData = JSON.parse(`<%- JSON.stringify(products || []) %>`);
-            const categoriesData = JSON.parse('<%- JSON.stringify(categories) %>');
-            const salesData = JSON.parse('<%-JSON.stringify(salesData)%>');
-            console.log(productsData,categoriesData,salesData);
-        
-            
-            const initMainSalesChart = () => {
-                const mainChartCtx = document.getElementById('mainChart');
-                if (!mainChartCtx) return null;
-        
-                return new Chart(mainChartCtx, {
-                    type: 'line',
-                    data: {
-                        labels: salesData.monthly.labels,
-                        datasets: [
-                            {
-                                label: 'Monthly Sales',
-                                data: salesData.monthly.data,
-                                borderColor: chartConfig.colors.primary,
-                                backgroundColor: chartConfig.colors.background.primary,
-                                tension: 0.4,
-                                fill: true
-                            },
-                            {
-                                label: 'Weekly Sales',
-                                data: salesData.weekly.data,
-                                borderColor: chartConfig.colors.secondary,
-                                backgroundColor: chartConfig.colors.background.secondary,
-                                tension: 0.4,
-                                fill: true,
-                                hidden: true
-                            },
-                            {
-                                label: 'Yearly Sales',
-                                data: salesData.yearly.data,
-                                borderColor: chartConfig.colors.accent,
-                                backgroundColor: chartConfig.colors.background.accent,
-                                tension: 0.4,
-                                fill: true,
-                                hidden: true
-                            }
-                        ]
                     },
                     options: {
-                        ...chartConfig.options,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                min: 0,
-                                max: 60000,
-                                ticks: {
-                                    stepSize: 3000,
-                                    callback: (value) => `₹${value.toLocaleString()}`
-                                }
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        layout: {
+                            padding: {
+                                top: 5,
+                                bottom: 5
                             }
+                        }
+                    }
+                };
+
+
+                const safeJSONParse = (jsonString, defaultValue = []) => {
+                    try {
+                        return JSON.parse(jsonString) || defaultValue;
+                    } catch (error) {
+                        console.error('JSON parsing error:', error);
+                        return defaultValue;
+                    }
+                };
+
+                const productsData = JSON.parse(`<%- JSON.stringify(products || []) %>`);
+                const categoriesData = JSON.parse('<%- JSON.stringify(categories) %>');
+                const salesData = JSON.parse('<%-JSON.stringify(salesData)%>');
+                console.log(productsData, categoriesData, salesData);
+
+
+                const initMainSalesChart = () => {
+                    const mainChartCtx = document.getElementById('mainChart');
+                    if (!mainChartCtx) return null;
+
+                    return new Chart(mainChartCtx, {
+                        type: 'line',
+                        data: {
+                            labels: salesData.monthly.labels,
+                            datasets: [
+                                {
+                                    label: 'Monthly Sales',
+                                    data: salesData.monthly.data,
+                                    borderColor: chartConfig.colors.primary,
+                                    backgroundColor: chartConfig.colors.background.primary,
+                                    tension: 0.4,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Weekly Sales',
+                                    data: salesData.weekly.data,
+                                    borderColor: chartConfig.colors.secondary,
+                                    backgroundColor: chartConfig.colors.background.secondary,
+                                    tension: 0.4,
+                                    fill: true,
+                                    hidden: true
+                                },
+                                {
+                                    label: 'Yearly Sales',
+                                    data: salesData.yearly.data,
+                                    borderColor: chartConfig.colors.accent,
+                                    backgroundColor: chartConfig.colors.background.accent,
+                                    tension: 0.4,
+                                    fill: true,
+                                    hidden: true
+                                }
+                            ]
                         },
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
+                        options: {
+                            ...chartConfig.options,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 60000,
+                                    ticks: {
+                                        stepSize: 3000,
+                                        callback: (value) => `₹${value.toLocaleString()}`
+                                    }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
-            };
-        
-            const setupTimeFilterListener = (mainChart) => {
-                const timeFilter = document.getElementById('timeFilter');
-                if (!timeFilter || !mainChart) return;
-        
-                timeFilter.addEventListener('change', function (e) {
-                    const timeFrame = e.target.value;
-                    
-                    mainChart.data.datasets.forEach((dataset, index) => {
-                        mainChart.data.datasets[index].hidden = true;
                     });
-        
-                    switch(timeFrame) {
-                        case 'weekly':
-                            mainChart.data.labels = salesData.weekly.labels;
-                            mainChart.data.datasets[1].hidden = false;
-                            break;
-                        case 'monthly':
-                            mainChart.data.labels = salesData.monthly.labels;
-                            mainChart.data.datasets[0].hidden = false;
-                            break;
-                        case 'yearly':
-                            mainChart.data.labels = salesData.yearly.labels;
-                            mainChart.data.datasets[2].hidden = false;
-                            break;
-                    }
-                    
-                    mainChart.update();
-                });
-            };
-        
-           
-            const initProductsChart = () => {
-                const productsChartCtx = document.getElementById("productsChart");
-                
-                if (!productsChartCtx) return;
-                
-                return new Chart(productsChartCtx, {
-                    type: "bar",
-                    data: {
-                        labels: productsData.map(item => item._id || 'Unknown'),
-                        datasets: [{
-                            label: "Quantity Sold",
-                            data: productsData.map(item => item.totalQuantitySold),
-                            backgroundColor: chartConfig.colors.primary,
-                        }]
-                    },
-                    options: {
-                        ...chartConfig.options,
-                        scales: {
-                            y: { 
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Quantity'
+                };
+
+                const setupTimeFilterListener = (mainChart) => {
+                    const timeFilter = document.getElementById('timeFilter');
+                    if (!timeFilter || !mainChart) return;
+
+                    timeFilter.addEventListener('change', function (e) {
+                        const timeFrame = e.target.value;
+
+                        mainChart.data.datasets.forEach((dataset, index) => {
+                            mainChart.data.datasets[index].hidden = true;
+                        });
+
+                        switch (timeFrame) {
+                            case 'weekly':
+                                mainChart.data.labels = salesData.weekly.labels;
+                                mainChart.data.datasets[1].hidden = false;
+                                break;
+                            case 'monthly':
+                                mainChart.data.labels = salesData.monthly.labels;
+                                mainChart.data.datasets[0].hidden = false;
+                                break;
+                            case 'yearly':
+                                mainChart.data.labels = salesData.yearly.labels;
+                                mainChart.data.datasets[2].hidden = false;
+                                break;
+                        }
+
+                        mainChart.update();
+                    });
+                };
+
+
+                const initProductsChart = () => {
+                    const productsChartCtx = document.getElementById("productsChart");
+
+                    if (!productsChartCtx) return;
+
+                    return new Chart(productsChartCtx, {
+                        type: "bar",
+                        data: {
+                            labels: productsData.map(item => item._id || 'Unknown'),
+                            datasets: [{
+                                label: "Quantity Sold",
+                                data: productsData.map(item => item.totalQuantitySold),
+                                backgroundColor: chartConfig.colors.primary,
+                            }]
+                        },
+                        options: {
+                            ...chartConfig.options,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Quantity'
+                                    }
                                 }
                             }
                         }
-                    }
-                });
-            };
-        
-            
-            const initCategoriesChart = () => {
-                const categoriesChartCtx = document.getElementById("categoriesChart");
-                const categoryLegendContainer = document.getElementById("categoryLegend");
-                
-                if (!categoriesChartCtx || !categoryLegendContainer) return;
-        
-                const categoriesChart = new Chart(categoriesChartCtx, {
-                    type: "pie",
-                    data: {
-                        labels: categoriesData.map(item => item.categoryName || 'Unknown'),
-                        datasets: [{
-                            data: categoriesData.map(item => item.totalQuantitySold),
-                            backgroundColor: [
-                                '#800000', '#B22222', '#CD5C5C', 
-                                '#FF7F50', '#FF4500', '#DA70D6'
-                            ],
-                        }]
-                    },
-                    options: {
-                        ...chartConfig.options,
-                        plugins: {
-                            legend: { display: false }
+                    });
+                };
+
+
+                const initCategoriesChart = () => {
+                    const categoriesChartCtx = document.getElementById("categoriesChart");
+                    const categoryLegendContainer = document.getElementById("categoryLegend");
+
+                    if (!categoriesChartCtx || !categoryLegendContainer) return;
+
+                    const categoriesChart = new Chart(categoriesChartCtx, {
+                        type: "pie",
+                        data: {
+                            labels: categoriesData.map(item => item.categoryName || 'Unknown'),
+                            datasets: [{
+                                data: categoriesData.map(item => item.totalQuantitySold),
+                                backgroundColor: [
+                                    '#800000', '#B22222', '#CD5C5C',
+                                    '#FF7F50', '#FF4500', '#DA70D6'
+                                ],
+                            }]
+                        },
+                        options: {
+                            ...chartConfig.options,
+                            plugins: {
+                                legend: { display: false }
+                            }
                         }
-                    }
-                });
-        
-                
-                categoryLegendContainer.innerHTML = ''; 
-                categoriesChart.data.labels.forEach((label, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
+                    });
+
+
+                    categoryLegendContainer.innerHTML = '';
+                    categoriesChart.data.labels.forEach((label, index) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
                         <span class="badge me-2" style="background-color: ${categoriesChart.data.datasets[0].backgroundColor[index]}">
                             ${label}
                         </span>
                         ${categoriesChart.data.datasets[0].data[index].toLocaleString()}
                     `;
-                    categoryLegendContainer.appendChild(li);
-                });
-        
-                return categoriesChart;
-            };
-        
-           
-            
-            const setupLedgerBookGeneration = () => {
-                const generateLedgerBtn = document.getElementById('generateLedgerBtn');
-                if (!generateLedgerBtn) return;
-        
-                generateLedgerBtn.addEventListener('click', async function() {
-                    try {
-                        
-                        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Generating...';
-                        this.disabled = true;
-        
-                        const response = await fetch('/admin/generate-ledger', {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json'
+                        categoryLegendContainer.appendChild(li);
+                    });
+
+                    return categoriesChart;
+                };
+
+
+
+                const setupLedgerBookGeneration = () => {
+                    const generateLedgerBtn = document.getElementById('generateLedgerBtn');
+                    if (!generateLedgerBtn) return;
+
+                    generateLedgerBtn.addEventListener('click', async function () {
+                        try {
+
+                            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Generating...';
+                            this.disabled = true;
+
+                            const response = await fetch('/admin/generate-ledger', {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Failed to generate ledger');
                             }
-                        });
-        
-                        if (!response.ok) {
-                            throw new Error('Failed to generate ledger');
+
+                            const ledgerData = await response.json();
+
+
+                            const workbook = XLSX.utils.book_new();
+
+
+                            const salesSheet = XLSX.utils.json_to_sheet(ledgerData.sales);
+                            XLSX.utils.book_append_sheet(workbook, salesSheet, 'Sales');
+
+
+                            const productsSheet = XLSX.utils.json_to_sheet(ledgerData.products);
+                            XLSX.utils.book_append_sheet(workbook, productsSheet, 'Products');
+
+
+                            const categoriesSheet = XLSX.utils.json_to_sheet(ledgerData.categories);
+                            XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Categories');
+
+
+                            XLSX.writeFile(workbook, `Fiorea_Ledger_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+
+                            this.innerHTML = '<i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book';
+                            this.disabled = false;
+                        } catch (error) {
+                            console.error('Ledger generation error:', error);
+                            alert('Failed to generate ledger. Please try again.');
+                            this.innerHTML = '<i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book';
+                            this.disabled = false;
                         }
-        
-                        const ledgerData = await response.json();
-        
-                        
-                        const workbook = XLSX.utils.book_new();
-                        
-                        
-                        const salesSheet = XLSX.utils.json_to_sheet(ledgerData.sales);
-                        XLSX.utils.book_append_sheet(workbook, salesSheet, 'Sales');
-        
-                        
-                        const productsSheet = XLSX.utils.json_to_sheet(ledgerData.products);
-                        XLSX.utils.book_append_sheet(workbook, productsSheet, 'Products');
-        
-                        
-                        const categoriesSheet = XLSX.utils.json_to_sheet(ledgerData.categories);
-                        XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Categories');
-        
-                        
-                        XLSX.writeFile(workbook, `Fiorea_Ledger_${new Date().toISOString().split('T')[0]}.xlsx`);
-        
-                        
-                        this.innerHTML = '<i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book';
-                        this.disabled = false;
-                    } catch (error) {
-                        console.error('Ledger generation error:', error);
-                        alert('Failed to generate ledger. Please try again.');
-                        this.innerHTML = '<i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book';
-                        this.disabled = false;
-                    }
-                });
-            };
-        
-            const mainChart = initMainSalesChart();
-            setupTimeFilterListener(mainChart);
-            initProductsChart();
-            initCategoriesChart();
-            setupLedgerBookGeneration();
-        });
+                    });
+                };
+
+                const mainChart = initMainSalesChart();
+                setupTimeFilterListener(mainChart);
+                initProductsChart();
+                initCategoriesChart();
+                setupLedgerBookGeneration();
+            });
         </script>
 
-    <%- include('../partials/admin/footer') %>
+        <%- include('../partials/admin/footer') %>

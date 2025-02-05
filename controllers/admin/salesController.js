@@ -238,7 +238,8 @@ const exportSalesToPDF = async (req, res) => {
             x += columns[0].width + columnSpacing;
 
          
-            doc.text(order.user ? order.user.username : 'N/A', x, y);
+
+            doc.text(order.user ? order.user.name : 'N/A', x, y);
             x += columns[1].width + columnSpacing;
 
             const productsWithQty = order.orderedItems
@@ -347,7 +348,7 @@ const exportSalesToExcel = async (req, res) => {
         orders.forEach((order, index) => {
             worksheet.addRow({
                 no: index + 1,
-                username: order.user ? order.user.username : 'N/A',
+                username: order.user ? order.user.name : 'N/A',
                 products: order.orderedItems
                     .map(item => `${item.product ? item.product.productName : 'N/A'} (${item.quantity})`)
                     .join(', '),

@@ -289,50 +289,59 @@
                     <div class="checkout-card">
                         <div class="card-header">
                             <h4>Order Summary</h4>
-                            
+
                         </div>
 
                         <!-- Products List -->
                         <div class="products-list">
-                            <% if (cart && cart.items && cart.items.length > 0) { %>
-                                <% cart.items.forEach(item => { %>
+                            <% if (cart && cart.items && cart.items.length> 0) { %>
+                                <% cart.items.forEach(item=> { %>
                                     <div class="product-item">
-                                        <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" 
-                                            alt="<%= item.productId.productName %>" 
-                                            class="product-image">
+                                        <img src="/uploads/re-image/<%= item.productId.productImage[0] %>"
+                                            alt="<%= item.productId.productName %>" class="product-image">
                                         <div class="product-details">
-                                            <div class="product-title"><%= item.productId.productName %></div>
+                                            <div class="product-title">
+                                                <%= item.productId.productName %>
+                                            </div>
                                             <div class="product-variant">
-                                                <% if (item.color) { %>Color: <%= item.color %><% } %>
-                                                <% if (item.size) { %> | Size: <%= item.size %><% } %>
+                                                <% if (item.color) { %>Color: <%= item.color %>
+                                                        <% } %>
+                                                            <% if (item.size) { %> | Size: <%= item.size %>
+                                                                    <% } %>
                                             </div>
                                             <div class="d-flex justify-content-between mt-2">
                                                 <span>Qty: <%= item.quantity %></span>
-                                                <span class="text-success">₹<%= item.totalPrice.toLocaleString() %></span>
+                                                <span class="text-success">₹<%= item.totalPrice.toLocaleString() %>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                <% }); %>
-                            <% } %>
+                                    <% }); %>
+                                        <% } %>
 
-                            <% if (product) { %>
-                                <div class="product-item">
-                                    <img src="/uploads/re-image/<%= product.productImage[0] %>" 
-                                        alt="<%= product.productName %>" 
-                                        class="product-image">
-                                    <div class="product-details">
-                                        <div class="product-title"><%= product.productName %></div>
-                                        <div class="product-variant">
-                                            <% if (product.color) { %>Color: <%= product.color %><% } %>
-                                            <% if (product.size) { %> | Size: <%= product.size %><% } %>
-                                        </div>
-                                        <div class="d-flex justify-content-between mt-2">
-                                            <span>Qty: <%= product.quantity %></span>
-                                            <span class="text-success">₹<%= product.totalPrice.toLocaleString() %></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% } %>
+                                            <% if (product) { %>
+                                                <div class="product-item">
+                                                    <img src="/uploads/re-image/<%= product.productImage[0] %>"
+                                                        alt="<%= product.productName %>" class="product-image">
+                                                    <div class="product-details">
+                                                        <div class="product-title">
+                                                            <%= product.productName %>
+                                                        </div>
+                                                        <div class="product-variant">
+                                                            <% if (product.color) { %>Color: <%= product.color %>
+                                                                    <% } %>
+                                                                        <% if (product.size) { %> | Size: <%=
+                                                                                product.size %>
+                                                                                <% } %>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mt-2">
+                                                            <span>Qty: <%= product.quantity %></span>
+                                                            <span class="text-success">₹<%=
+                                                                    product.totalPrice.toLocaleString() %></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <% } %>
                         </div>
 
                         <!-- Coupon Section -->
@@ -376,9 +385,7 @@
             </div>
         </div>
 
-        <input type="hidden" id="productData" 
-            data-product="<%- JSON.stringify(product) %>" 
-        />
+        <input type="hidden" id="productData" data-product="<%- JSON.stringify(product) %>" />
     </div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
@@ -391,6 +398,7 @@
             document.getElementById('finalPrice').value = finalAmount
         }
         let globalDiscount = 0;
+
         function selectAddress(element, addressId) {
             document.querySelectorAll('.address-card').forEach(card => {
                 card.classList.remove('selected');
@@ -403,140 +411,240 @@
 
         async function handleFormSubmission(event) {
             event.preventDefault();
-            await syncData()
 
-            const form = document.getElementById('orderForm');
-            console.log("form",form);
-            const formData = new FormData(form);
-            console.log("form data",JSON.stringify(formData));
+            try {
+                await syncData();
 
-            const cartItems = JSON.parse(formData.get('cart') || '[]');
-            console.log("ffjhjh",cartItems);
-            const validCartItems = cartItems.every(item => item.variantId);
-            
-            if (!validCartItems) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Some products in your cart are missing variant information. Please try again or contact support.'
-                });
-                return;
-            }
-            const paymentMethod = formData.get('payment_method')
-            if (paymentMethod === 'COD') {
+                const form = document.getElementById('orderForm');
+                const formData = new FormData(form);
 
-                const codResponse = await fetch('/place-order-initial', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ...Object.fromEntries(formData),
-                        paymentMethod: 'COD',
-                        paymentStatus: 'Pending'
-                    })
+                let cart = JSON.parse(formData.get('cart') || '[]');
+
+                const cartItems = cart.map(item => {
+                    const product = item.productId;
+                    const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
+
+                    if (!variant) {
+                        throw new Error(`No matching variant found for product ${product.productName}`);
+                    }
+
+                    const size = variant.sizes.find(s => s.size === item.size);
+
+                    if (!size) {
+                        throw new Error(`Size not found for ${product.productName} variant ${variant.color}`);
+                    }
+
+                    return {
+                        ...item,
+                        variantId: variant._id,
+                        sizeId: size._id,
+                    };
                 });
 
-                const result = await codResponse.json();
-                console.log(result);
-                if (!result.success) throw new Error(result.message || 'Failed to place COD order.');
+                formData.set('cart', JSON.stringify(cartItems));
 
-                // Redirect to order confirmation page for COD orders
-                window.location.href = `/order-confirmation?id=${result.orderId}`;
-            } else if (paymentMethod === 'Online') {
-                await processOnlinePayment(formData);
+                await validateVariant(cartItems[0]);
+
+                const isValid = await validateOrderBeforePayment(formData);
+                if (!isValid) {
+                    return;
+                }
+
+                const paymentMethod = formData.get('payment_method');
+
+                if (paymentMethod === 'COD') {
+                    const codResponse = await fetch('/place-order-initial', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            form: Object.fromEntries(formData),
+                            paymentMethod: 'COD',
+                            paymentStatus: 'Pending',
+                        })
+                    });
+
+                    const result = await codResponse.json();
+
+                    if (!result.success) {
+                        throw new Error(result.message || 'Failed to place COD order.');
+                    }
+
+                    window.location.href = `/order-confirmation?id=${result.orderId}`;
+                } else if (paymentMethod === 'Online') {
+                    await processOnlinePayment(formData);
+                }
+
+            } catch (error) {
+                console.error("Error during form submission:", error);
             }
         }
 
-        async function processOnlinePayment(formData) {
-            console.log(formData);
+
+        async function validateVariant(item) {
+            const product = item.productId;
+
+            const variant = product.variants.find(v => v._id === item.variantId);
+            if (!variant) {
+                throw new Error(`Invalid color selection for ${product.productName}`);
+            }
+
+            const sizeObj = variant.sizes.find(s => s.size === item.size);
+            if (!sizeObj) {
+                throw new Error(`Invalid size selection for ${product.productName}`);
+            }
+
+            return true;
+        }
+
+        async function validateOrderBeforePayment(formData) {
             try {
-
-                const finalPriceElement = document.getElementById('finalPrice');
-                let finalPrice;
-
-                if (finalPriceElement && finalPriceElement.value) {
-                    finalPrice = parseFloat(finalPriceElement.value);
-                } else {
-                    finalPrice = parseFloat('<%= totalPrice %>');
-                }
-
-                if (isNaN(finalPrice) || finalPrice <= 0) {
-                    throw new Error('Invalid order amount');
-                }
-
-                // Validate address
                 const addressId = formData.get('addressId');
                 if (!addressId) {
                     throw new Error('Please select a delivery address');
                 }
 
-                const requestData = {
-                    amount: finalPrice,
-                    addressId: addressId,
-                    cartItems: JSON.parse(formData.get('cart') || '[]').map(item => ({
-                        ...item,
-                        variantId: item.variantId || item.variant_id // Handle both possible names
-                    })),
-                    paymentMethod: 'Online'
-                };
+                const cartItems = JSON.parse(formData.get('cart') || '[]');
+                if (!cartItems || cartItems.length === 0) {
+                    throw new Error('Your cart is empty');
+                }
+
+                for (const item of cartItems) {
+                    if (!item.productId) {
+                        throw new Error('Invalid product in cart');
+                    }
+
+                    if (!item.variantId) {
+                        throw new Error(`Please select variant for ${item.productId.productName}`);
+                    }
+
+                    if (!item.quantity || item.quantity <= 0) {
+                        throw new Error(`Invalid quantity for ${item.productId.productName}`);
+                    }
+
+                    if (!item.totalPrice || item.totalPrice <= 0) {
+                        throw new Error(`Invalid price for ${item.productId.productName}`);
+                    }
+
+                    if (item.productId.hasVariants) {
+                        if (!item.size && item.productId.requiresSize) {
+                            throw new Error(`Please select size for ${item.productId.productName}`);
+                        }
+                        if (!item.color && item.productId.requiresColor) {
+                            throw new Error(`Please select color for ${item.productId.productName}`);
+                        }
+                    }
+
+                    await validateVariant(item);
+                }
+
+                const finalPrice = parseFloat(formData.get('finalPrice'));
+                const totalPrice = parseFloat(formData.get('totalPrice'));
+                const discount = parseFloat(formData.get('discount') || 0);
+
+                if (isNaN(finalPrice) || finalPrice <= 0) {
+                    throw new Error('Invalid order amount');
+                }
+
+                if (isNaN(totalPrice) || totalPrice <= 0) {
+                    throw new Error('Invalid total price');
+                }
 
                 const couponCode = formData.get('coupon');
                 if (couponCode) {
-                    requestData.couponCode = couponCode;
-                    requestData.discount = parseFloat(formData.get('discount') || '0');
+                    const expectedFinalPrice = totalPrice - discount;
+
+                    if (Math.abs(finalPrice - expectedFinalPrice) > 0.01) {
+                        throw new Error('Price calculation mismatch');
+                    }
+
+                    if (!discount || discount <= 0) {
+                        throw new Error('Invalid coupon discount');
+                    }
+
+                    if (discount >= totalPrice) {
+                        throw new Error('Discount amount exceeds total price');
+                    }
+                } else {
+                    if (Math.abs(finalPrice - totalPrice) > 0.01) {
+                        throw new Error('Price calculation mismatch');
+                    }
                 }
 
-                // Create order
-                const response = await fetch('/create-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestData)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to create payment order');
+                const paymentMethod = formData.get('payment_method');
+                if (!paymentMethod || !['COD', 'Online'].includes(paymentMethod)) {
+                    throw new Error('Please select a valid payment method');
                 }
 
-                const order = await response.json();
-                if (!order.success) {
-                    throw new Error(order.message || 'Failed to initialize payment');
+                const validation = await validateStock(cartItems);
+                if (!validation.success) {
+                    throw new Error(validation.message || 'Stock validation failed');
                 }
+                formData.set('formattedItems', JSON.stringify(validation.formattedItems));
 
-                await initializeRazorpay(order, formData);
+                return true;
+
             } catch (error) {
-                console.error('Payment processing error:', error);
                 Swal.fire({
-                    title: 'Payment Error',
-                    text: error.message || 'Failed to process payment',
-                    icon: 'error'
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: error.message,
+                    confirmButtonColor: '#dc3545'
                 });
-                throw error;
+
+                return false;
             }
         }
 
-        async function initializeRazorpay(orderDetails, formData) {
 
-            let retryCount = 0;
-            const MAX_RETRIES = 3;
-            const RETRY_DELAY = 2000;
 
-            try {
-                if (retryCount >= MAX_RETRIES) {
-                    throw new Error('Maximum retry attempts reached');
+        async function validateStock(cartItems) {
+            console.log("Starting stock validation...");
+            for (const item of cartItems) {
+                console.log(`Validating stock for product: ${item.productId.productName}, variant: ${item.variantId}`);
+
+                const product = item.productId;
+                const variant = product.variants.find(v => v._id.toString() === item.variantId);
+
+                if (!variant) {
+                    console.error(`Variant not found for ${product.productName}`);
+                    throw new Error(`Variant not found for ${product.productName}`);
                 }
 
+                // Find the size corresponding to sizeId in the variant
+                const size = variant.sizes.find(s => s._id.toString() === item.sizeId);
 
-                if (retryCount > 0) {
-                    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+                if (!size) {
+                    console.error(`Size not found for ${product.productName} variant ${variant.color}`);
+                    throw new Error(`Size not found for ${product.productName} variant ${variant.color}`);
+                }
+
+                // Validate stock for the size
+                console.log(`Checking stock for size: ${size.size}, stock: ${size.stock}`);
+                if (size.stock <= 0) {
+                    console.error(`Out of stock for ${product.productName} size ${size.size}`);
+                    throw new Error(`Out of stock for ${product.productName} size ${size.size}`);
+                }
+
+                console.log(`Stock available for ${product.productName} size ${size.size}: ${size.stock}`);
+            }
+
+            console.log("Stock validation successful.");
+            return { success: true };
+        }
+
+
+        async function processOnlinePayment(formData) {
+            try {
+                const formattedItems = JSON.parse(formData.get('cart'));
+
+                const isValid = await validateOrderBeforePayment(formData);
+                if (!isValid) {
+                    return;
                 }
 
                 const initialOrderResponse = await fetch('/place-order-initial', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         ...Object.fromEntries(formData),
                         paymentMethod: 'Online',
@@ -544,99 +652,90 @@
                     })
                 });
 
-
-                if (!initialOrderResponse.ok) {
-                    throw new Error('Failed to initialize order');
-                }
-
                 const initialOrderData = await initialOrderResponse.json();
                 if (!initialOrderData.success) {
+                    console.error("Failed to initialize order:", initialOrderData.message);
                     throw new Error(initialOrderData.message || 'Failed to initialize order');
                 }
 
-
-                const options = {
-                    key: initialOrderData.key,
-                    amount: orderDetails.amount,
-                    currency: orderDetails.currency || 'INR',
-                    order_id: orderDetails.id,
-                    handler: async function (response) {
-                        try {
-                            const verifyResponse = await fetch('/verify-payment', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    orderId: initialOrderData.orderId,
-                                    paymentId: response.razorpay_payment_id,
-                                    razorpayOrderId: response.razorpay_order_id,
-                                    signature: response.razorpay_signature
-                                })
-                            });
-
-                            const verifyResult = await verifyResponse.json();
-                            if (!verifyResult.success) throw new Error(verifyResult.message || 'Payment verification failed');
-
-                            const finalOrderResponse = await fetch('/place-order', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    orderId: initialOrderData.orderId,
-                                    paymentSuccess: true,
-                                    paymentDetails: {
-                                        razorpay_payment_id: response.razorpay_payment_id,
-                                        razorpay_order_id: response.razorpay_order_id,
-                                        razorpay_signature: response.razorpay_signature
-                                    }
-                                })
-                            });
-
-                            const finalOrderData = await finalOrderResponse.json();
-                            if (!finalOrderData.success) throw new Error(finalOrderData.message || 'Failed to finalize order');
-
-                            window.location.href = `/order-confirmation?id=${initialOrderData.orderId}`;
-                        } catch (error) {
-                            await handlePaymentFailure(error, initialOrderData.orderId);
-                        }
-                    },
-                    modal: {
-                        ondismiss: async function () {
-                            await handlePaymentFailure(
-                                new Error('Payment cancelled by user'),
-                                initialOrderData.orderId,
-                                'cancelled'
-                            );
-                        }
-                    },
-
-                    retry: {
-                        enabled: true,
-                        max_count: 3
-                    },
-                    notes: {
-                        orderId: initialOrderData.orderId
-                    }
-                };
-
-                const razorpay = new Razorpay(options);
-                razorpay.on('payment.failed', async function (response) {
-                    await handlePaymentFailure(
-                        new Error(response.error.description),
-                        initialOrderData.orderId,
-                        'failed',
-                        response.error
-                    );
+                const razorpayResponse = await fetch('/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: parseFloat(formData.get('finalPrice')),
+                        addressId: formData.get('addressId')
+                    })
                 });
-                razorpay.open();
+
+                const razorpayOrder = await razorpayResponse.json();
+                if (!razorpayOrder.success) {
+                    console.error("Failed to create Razorpay order:", razorpayOrder.message);
+                    throw new Error(razorpayOrder.message || 'Failed to create Razorpay order');
+                }
+
+                await initializeRazorpay(razorpayOrder, initialOrderData);
+
             } catch (error) {
+                console.error("Payment failure:", error);
                 await handlePaymentFailure(error);
             }
         }
 
+        async function initializeRazorpay(orderDetails, initialOrderData) {
+            const options = {
+                key: initialOrderData.key,
+                amount: orderDetails.amount,
+                currency: orderDetails.currency,
+                order_id: orderDetails.id,
+                handler: async function (response) {
+                    try {
+                        const verifyResponse = await fetch('/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                orderId: initialOrderData.orderId,
+                                paymentId: response.razorpay_payment_id,
+                                razorpayOrderId: response.razorpay_order_id,
+                                signature: response.razorpay_signature
+                            })
+                        });
 
+                        const verifyResult = await verifyResponse.json();
+                        if (!verifyResult.success) {
+                            throw new Error(verifyResult.message || 'Payment verification failed');
+                        }
+
+                        const finalOrderResponse = await fetch('/place-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                orderId: initialOrderData.orderId,
+                                paymentSuccess: true,
+                                paymentDetails: {
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature
+                                }
+                            })
+                        });
+
+                        const finalOrderResult = await finalOrderResponse.json();
+                        if (!finalOrderResult.success) {
+                            throw new Error(finalOrderResult.message || 'Failed to update order status');
+                        }
+
+                        window.location.href = `/order-confirmation?id=${initialOrderData.orderId}`;
+                    } catch (error) {
+                        await handlePaymentFailure(error, initialOrderData.orderId);
+                    }
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+        }
 
         async function handlePaymentFailure(error, orderId, status = 'failed', paymentError = null) {
-            console.error('Payment failed:', error);
-
             if (orderId) {
                 try {
                     await fetch('/update-failed-order', {
@@ -646,7 +745,8 @@
                             orderId: orderId,
                             status: status,
                             error: error.message,
-                            paymentError: paymentError
+                            paymentError: paymentError,
+                            failureReason: 'Payment processing failed'
                         })
                     });
                 } catch (updateError) {
@@ -654,25 +754,17 @@
                 }
             }
 
-
             Swal.fire({
                 icon: 'error',
                 title: 'Payment Failed',
                 text: error.message || 'Your payment could not be processed. Please try again.',
                 showCancelButton: true,
                 confirmButtonText: 'Try Again',
-                cancelButtonText: 'Cancel',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed && orderId) {
-                    fetch(`/retry-payment`, {
-                        method: "post",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ orderId })
-                    })
+                    window.location.href = `/retry-payment/${orderId}`;
                 } else {
-
                     window.location.href = orderId
                         ? `/payment-failed?id=${orderId}&error=${encodeURIComponent(error.message)}`
                         : '/cart';
@@ -681,7 +773,7 @@
         }
 
 
-        // Coupon Application
+
         document.getElementById('coupon-form').addEventListener('submit', function (e) {
             e.preventDefault();
             const couponCode = document.getElementById('couponCode').value.trim();
@@ -695,44 +787,33 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     if (data.success) {
-
                         globalDiscount = data.couponDiscount;
 
                         const totalPriceElement = document.getElementById('totalPriceElement');
                         const originalTotal = parseFloat(totalPriceElement.textContent.replace('₹', '').replace(',', ''));
 
-
                         const discountRow = document.createElement('div');
                         discountRow.className = 'd-flex justify-content-between mb-2';
                         discountRow.innerHTML = `
-                <strong>Coupon Discount</strong>
-                <strong class="text-success" id="discount">-₹${data.couponDiscount.toLocaleString()}</strong>
-            `;
+                    <strong>Coupon Discount</strong>
+                    <strong class="text-success" id="discount">-₹${data.couponDiscount.toLocaleString()}</strong>
+                `;
 
                         const finalTotalRow = document.createElement('div');
                         finalTotalRow.className = 'd-flex justify-content-between mb-2 final-total';
                         finalTotalRow.innerHTML = `
-                <strong>Final Amount</strong>
-                <strong id="finalAmount">₹${data.discountedPrice.toLocaleString()}</strong>
-            `;
+                    <strong>Final Amount</strong>
+                    <strong id="finalAmount">₹${data.discountedPrice.toLocaleString()}</strong>
+                `;
 
-                        // Update hidden fields
                         document.getElementById('finalPrice').value = data.discountedPrice;
-                        console.log(data.discountedPrice);
                         document.getElementById('coupon').value = couponCode;
                         document.getElementById('discountapp').value = data.couponDiscount;
-                        // document.getElementById('totalPrice').value = data.discountedPrice;
 
-                        // Update price summary display
                         const priceSummary = document.querySelector('.price-summary');
                         priceSummary.appendChild(discountRow);
                         priceSummary.appendChild(finalTotalRow);
-
-                        // Update total price input
-                        document.querySelector('input[name="totalPrice"]').value = data.discountedPrice;
-
 
                         document.getElementById('applyCouponBtn').style.display = 'none';
                         document.getElementById('removeCouponBtn').style.display = 'block';
@@ -753,7 +834,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Coupon Application Error:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -762,7 +842,6 @@
                     });
                 });
         });
-
 
         function syncData() {
             const couponCode = document.getElementById('couponCode').value || '';
@@ -783,16 +862,6 @@
         function removeCoupon() {
             const couponCode = document.getElementById('couponCode').value.trim();
 
-            if (!couponCode) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No coupon code found',
-                    confirmButtonColor: '#dc3545'
-                });
-                return;
-            }
-
             fetch('/removeCoupon', {
                 method: 'POST',
                 headers: {
@@ -800,64 +869,38 @@
                 },
                 body: JSON.stringify({ couponCode })
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-
                         document.getElementById('couponCode').value = '';
-
+                        document.getElementById('coupon').value = '';
+                        document.getElementById('discountapp').value = '0';
+                        document.getElementById('finalPrice').value = data.totalPrice;
+                        document.getElementById('discount').value = '0';
 
                         const priceSummary = document.querySelector('.price-summary');
+                        const discountRows = priceSummary.querySelectorAll('.d-flex.justify-content-between');
 
-
-                        const discountElements = priceSummary.querySelectorAll('.d-flex.justify-content-between');
-                        discountElements.forEach((element, index) => {
-
+                        discountRows.forEach((row, index) => {
                             if (index > 0) {
-                                element.remove();
+                                row.remove();
                             }
                         });
 
-
                         const totalPriceElement = document.getElementById('totalPriceElement');
-                        const originalPrice = parseFloat('<%= totalPrice %>');
                         if (totalPriceElement) {
-                            totalPriceElement.textContent = `₹${originalPrice.toLocaleString()}`;
+                            totalPriceElement.textContent = `₹${data.totalPrice.toLocaleString()}`;
                         }
-
-
-                        document.getElementById('finalPrice').value = originalPrice;
-                        document.getElementById('coupon').value = '';
-                        document.getElementById('discountapp').value = '0';
 
                         document.getElementById('applyCouponBtn').style.display = 'block';
                         document.getElementById('removeCouponBtn').style.display = 'none';
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Coupon Removed',
-                            text: 'Coupon has been removed from your order',
-                            confirmButtonColor: '#28a745'
-                        });
-                    } else {
-                        throw new Error(data.message || 'Failed to remove coupon');
                     }
                 })
                 .catch(error => {
                     console.error('Remove Coupon Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message || 'Failed to remove coupon. Please try again.',
-                        confirmButtonColor: '#dc3545'
-                    });
                 });
         }
+
 
         function selectPaymentMethod(element, method) {
             document.querySelectorAll('.payment-option').forEach(option => {
@@ -866,6 +909,9 @@
             element.classList.add('selected');
             element.querySelector('input[type="radio"]').checked = true;
         }
+
+
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
