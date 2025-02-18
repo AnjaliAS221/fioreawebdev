@@ -52,7 +52,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(flash());
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -62,6 +62,7 @@ app.set("views", [
 ]);
 app.set("view engine", "ejs");
 
+app.use(flash());
 
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
@@ -72,6 +73,7 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRouter);
 app.use("/", userRouter);
+
 app.use((req,res)=>{
   res.render("page-404")
 })

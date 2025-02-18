@@ -538,18 +538,16 @@
                 function showOrderDetails(orderData) {
                     try {
 
-                        console.log('Received orderData:', orderData);
-
                         const sanitizedOrderData = typeof orderData === 'string' ? sanitizeString(orderData) : orderData;
-                        console.log('Sanitized orderData:', sanitizedOrderData);
+
 
                         const order = typeof sanitizedOrderData === 'string' ? JSON.parse(sanitizedOrderData) : sanitizedOrderData;
-                        console.log('Parsed order:', order);
+
 
                         const modalBody = document.getElementById('orderDetailsModalBody');
 
                         const shippingAddress = order.address || null;
-                        console.log('Shipping Address:', shippingAddress);
+
 
                         const orderDetails = {
                             id: order._id.toString().slice(-8).toUpperCase(),
@@ -565,8 +563,7 @@
                             shippingAddress: shippingAddress,
                             items: order.orderedItems || []
                         };
-                        console.log('Full order with address:', order.address);
-                        console.log('Order details:', orderDetails);
+                        
 
                         let detailsHTML = `
             <div class="row">
@@ -637,7 +634,6 @@
                         orderDetailsModal.show();
 
                     } catch (error) {
-                        // Log error for debugging
                         console.error('Error in showOrderDetails:', error);
                         alert('Failed to load order details. Please check the console for more information.');
                     }

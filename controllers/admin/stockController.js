@@ -12,7 +12,6 @@ const loadStock = async (req, res) => {
 
         const totalProducts = await Product.countDocuments();
         
-        // Calculate total stock for each product
         const productsWithTotalStock = products.map(product => {
             const totalStock = product.variants.reduce((variantTotal, variant) => {
                 return variantTotal + variant.sizes.reduce((sizeTotal, size) => {
@@ -39,60 +38,57 @@ const loadStock = async (req, res) => {
 
 const updateStock = async (req, res) => {
     try {
-        const { productId, variantId, sizeId, newStock } = req.body;
-        
-        const product = await Product.findById(productId);
+        const { productId, variantIndex, sizeIndex, newStock } = req.body;
+    
+        const product = await Product.findOne({
+            _id: productId
+        });
+
         if (!product) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "Product not found" 
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
             });
         }
 
-        // Find the variant and size
-        const variant = product.variants.id(variantId);
-        if (!variant) {
+        
+        if (!product.variants[variantIndex]) {
             return res.status(404).json({
                 success: false,
                 message: "Variant not found"
             });
         }
 
-        const size = variant.sizes.id(sizeId);
-        if (!size) {
+        if (!product.variants[variantIndex].sizes[sizeIndex]) {
             return res.status(404).json({
                 success: false,
                 message: "Size not found"
             });
         }
-
-        // Update the stock
-        size.stock = parseInt(newStock);
+        product.variants[variantIndex].sizes[sizeIndex].stock = parseInt(newStock);
         await product.save();
 
-        // Calculate new total stock
+  
         const totalStock = product.variants.reduce((variantTotal, variant) => {
             return variantTotal + variant.sizes.reduce((sizeTotal, size) => {
                 return sizeTotal + size.stock;
             }, 0);
         }, 0);
-        
-        res.json({ 
-            success: true, 
-            updatedProduct: product,
+
+        res.json({
+            success: true,
+            message: "Stock updated successfully",
             totalStock
         });
-        
+
     } catch (error) {
         console.error('Stock update error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: "An error occurred while updating stock." 
+        res.status(500).json({
+            success: false,
+            message: "An error occurred while updating stock: " + error.message
         });
     }
 };
-
-
 const searchProducts = async (req, res) => {
     const query = req.query.query || '';
     const category = req.query.category || '';
@@ -113,7 +109,7 @@ const searchProducts = async (req, res) => {
                 
             const filteredProducts = populatedProducts.filter(product => product.category);
             
-            // Add total stock calculation
+          
             const productsWithStock = filteredProducts.map(product => ({
                 ...product._doc,
                 totalStock: product.variants.reduce((variantTotal, variant) => {
@@ -128,7 +124,7 @@ const searchProducts = async (req, res) => {
         
         const products = await Product.find(searchQuery).populate('category');
         
-        // Add total stock calculation
+
         const productsWithStock = products.map(product => ({
             ...product._doc,
             totalStock: product.variants.reduce((variantTotal, variant) => {

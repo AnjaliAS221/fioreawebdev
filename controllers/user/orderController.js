@@ -6,7 +6,7 @@ const Return = require('../../models/returnSchema');
 const Cart = require('../../models/cartSchema');
 const Coupon = require('../../models/couponSchema');
 const Wallet = require('../../models/walletSchema');
-// const { validateAndUpdateStock } = require('./productController');
+
 
 const loadCheckout = async (req, res) => {
     try {
@@ -98,124 +98,138 @@ const loadCheckout = async (req, res) => {
 
 const placeOrderInitial = async (req, res) => {
     try {
-        console.log("Received request for placing order", req.body);
-        
-        
-       
-        const form = req.body.form || req.body; 
-
-        const payment_method = form.payment_method || null;
-        const finalPrice = form.finalPrice || 0;
-        const coupon = form.coupon || null;
-        const discount = form.discount || 0;
-        const cart = form.cart || null;
-        const totalPrice = form.totalPrice || 0;
-        const addressId = form.addressId || null;
-        const singleProduct = form.singleProduct || null;
-        
+        const form = req.body.form || req.body;
         const userId = req.session.user;
 
-        console.log("User ID:", userId);
-        console.log("Address ID:", addressId);
-        console.log("Payment Method:", payment_method);
+        const {
+            payment_method,
+            finalPrice = 0,
+            coupon = null,
+            discount = 0,
+            cart = null,
+            totalPrice = 0,
+            addressId,
+            singleProduct = null
+        } = form;
 
-        if (!addressId) {
-            console.warn("Address ID is missing");
-            return res.status(400).json({ success: false, message: 'Address ID is required' });
+        if (!addressId || !payment_method) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Address and payment method are required' 
+            });
         }
 
-        if (!payment_method) {
-            console.warn("Payment method is missing");
-            return res.status(400).json({ success: false, message: 'Payment method is required' });
+        let parsedSingleProduct = null;
+        if (singleProduct) {
+            try {
+                parsedSingleProduct = typeof singleProduct === 'string' ? 
+                    JSON.parse(singleProduct) : singleProduct;
+            } catch (err) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid product data format'
+                });
+            }
         }
 
-        if (!cart && !singleProduct) {
-            console.warn("Cart and Single Product data both missing");
-            return res.status(400).json({ success: false, message: 'Either cart or single product information is required' });
-        }
-
-        const parsedTotalPrice = Number(totalPrice);
-        const parsedFinalPrice = Number(finalPrice);
-        const parsedDiscount = Number(discount || 0);
-
-        console.log("Parsed Prices:", { parsedTotalPrice, parsedFinalPrice, parsedDiscount });
-
-        if (isNaN(parsedTotalPrice) || isNaN(parsedFinalPrice)) {
-            console.error("Invalid price values provided");
-            return res.status(400).json({ success: false, message: 'Invalid price values' });
+        if (!cart && !parsedSingleProduct) {
+            return res.status(400).json({
+                success: false,
+                message: 'Either cart or single product information is required'
+            });
         }
 
         let orderedItems = [];
-        if (singleProduct) {
-            console.log("Processing single product order");
-            const product = JSON.parse(singleProduct);
-
-            let variantId;
-            if (product.selectedVariant) {
-                variantId = product.selectedVariant;
-            } else if (product.variants && product.variants.length > 0) {
-                variantId = product.variants[0]._id;
-            } else {
-                console.warn("No variant found for product", product._id);
-                return res.status(400).json({ success: false, message: 'No variant information found for the product' });
+        
+        if (parsedSingleProduct) {
+            const product = parsedSingleProduct;
+            const productFromDB = await Product.findById(product._id);
+            const variant = productFromDB.variants.find(v => v.color === product.color);
+            if (!variant) {
+                return res.status(400).json({ success: false, message: 'Variant not found for product' });
             }
+
+           
+
+            const sizeVariant = variant.sizes.find(s => s.size === product.size);
+            if (!sizeVariant) {
+                return res.status(400).json({ success: false, message: 'Size not found for product' });
+            }
+
+            if (sizeVariant.stock < product.quantity) {
+                return res.status(400).json({ success: false, message: 'Insufficient stock for selected variant' });
+            }
+
+            
+            sizeVariant.stock -= product.quantity;
+            await productFromDB.save();
 
             orderedItems.push({
                 product: product._id,
-                variantId: variantId,
-                quantity: 1,
-                price: product.salePrice || product.regularPrice,
-                color: product.selectedColor,
-                size: product.selectedSize
+                variantId: variant._id,
+                quantity: product.quantity,
+                price: product.salePrice || product.price,
+                color: product.color,
+                size: product.size
             });
 
-            console.log("Updating product stock", product._id);
-            await Product.findByIdAndUpdate(product._id, { $inc: { quantity: -1 } });
         } else if (cart) {
-            console.log("Processing cart order");
             const cartItems = JSON.parse(cart);
 
-            orderedItems = cartItems.map(item => {
-                if (!item.variantId) {
-                    throw new Error(`Variant ID missing for product ${item.productId}`);
+            for (const item of cartItems) {
+                const productFromDB = await Product.findById(item.productId);
+        
+                const variant = productFromDB.variants.find(v => v._id.toString() === item.variantId);
+                if (!variant) {
+                    return res.status(400).json({ success: false, message: `Variant not found for product ${item.productId}` });
                 }
-                return {
+        
+                const sizeVariant = variant.sizes.find(s => s.size === item.size);
+                if (!sizeVariant) {
+                    return res.status(400).json({ success: false, message: `Size not found for product ${item.productId}` });
+                }
+        
+                if (sizeVariant.stock < item.quantity) {
+                    return res.status(400).json({ success: false, message: `Insufficient stock for product ${item.productId}` });
+                }
+
+                sizeVariant.stock -= item.quantity;
+                await productFromDB.save();
+
+                orderedItems.push({
                     product: item.productId,
-                    variantId: item.variantId,
+                    variantId: variant._id,
                     quantity: item.quantity,
                     price: item.totalPrice / item.quantity,
                     color: item.color,
                     size: item.size
-                };
-            });
-
-            for (const item of cartItems) {
-                console.log("Updating stock for product", item.productId);
-                await Product.findByIdAndUpdate(item.productId, { $inc: { quantity: -item.quantity } });
+                });
             }
         }
 
-        console.log("Step 1 - AddressId received:", addressId);
         const addressDoc = await Address.findOne({ userId });
-        console.log("Step 2 - Full address document:", JSON.stringify(addressDoc, null, 2));
-
         if (!addressDoc) {
-            console.error("No address document found for user");
-            return res.status(400).json({ success: false, message: 'No address found for user' });
+            return res.status(400).json({
+                success: false,
+                message: 'No address found for user'
+            });
         }
 
-        const address = addressDoc.address.find(addr => addr._id.toString() === addressId);
-        console.log("Step 3 - Found matching address:", JSON.stringify(address, null, 2));
-
-        if (!address) {
-            console.error("Specified address not found in user's addresses");
-            return res.status(400).json({ success: false, message: 'Invalid address ID' });
-        }
+        const address = addressDoc.address.find(
+            addr => addr._id.toString() === addressId
+        );
         
-        const orderData = {
+        if (!address) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid address ID'
+            });
+        }
+
+        const order = new Order({
             orderedItems,
             totalPrice,
-            discount: discount,
+            discount,
             finalAmount: Number(finalPrice),
             user: userId,
             address: addressId,
@@ -224,39 +238,39 @@ const placeOrderInitial = async (req, res) => {
             paymentStatus: 'Pending',
             couponCode: coupon || 'N/A',
             couponApplied: Boolean(coupon && discount)
-        };
+        });
 
-        console.log("Step 4 - Order data being created:", JSON.stringify(orderData, null, 2));
-
-        const newOrder = new Order(orderData);
-
-        console.log("Step 5 - New order object before save:", JSON.stringify(newOrder, null, 2));
-
-        console.log("Saving order record");
-        await newOrder.save();
-        console.log("Step 6 - Saved order:", JSON.stringify(newOrder, null, 2));
-        console.log("Order placed successfully", newOrder._id);
+        await order.save();
 
         if (coupon) {
-            console.log("Applying coupon", coupon);
-            await Coupon.findOneAndUpdate({ name: coupon }, { $push: { userId: userId } });
+            await Coupon.findOneAndUpdate(
+                { name: coupon }, 
+                { $push: { userId: userId } }
+            );
         }
 
-        console.log("Emptying user's cart");
-        const cartempty = await Cart.findOne({ userId });
-        cartempty.items = [];
-        await cartempty.save();
+        if (cart) {
+            await Cart.findOneAndUpdate(
+                { userId },
+                { $set: { items: [] } }
+            );
+        }
 
+        return res.status(200).json({ 
+            success: true, 
+            orderId: order._id, 
+            key: process.env.RAZORPAY_KEY_ID 
+        });
         
-
-        res.status(200).json({ success: true, orderId: newOrder._id, key: process.env.RAZORPAY_KEY_ID });
     } catch (error) {
-        console.error("Error placing initial order:", error);
-        console.error("Error stack:", error.stack);
-        res.status(500).json({ success: false, message: 'Failed to save order. Please try again.', error: error.message });
+        console.error("Error placing order:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to save order. Please try again.',
+            error: error.message 
+        });
     }
 };
-
 
 const orderConfirm = async (req, res) => {
     try {
@@ -267,7 +281,7 @@ const orderConfirm = async (req, res) => {
 
     } catch (error) {
         console.error("Error loading cofirmation page", error);
-        res.redirect('/page-not-found');
+        res.redirect('/pageNotFound');
     }
 }
 
@@ -283,7 +297,8 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(orderId).populate('orderedItems.product');
+
         if (!order) {
             return res.status(404).json({
                 success: false,
@@ -315,6 +330,18 @@ const cancelOrder = async (req, res) => {
                 refundStatus: 'Completed',
                 refundedToWallet: true
             };
+        }
+
+        for (const item of order.orderedItems) {
+            const product = item.product;
+            const variant = product.variants.find(v => v._id.toString() === item.variantId);
+            if (variant) {
+                const sizeVariant = variant.sizes.find(s => s.size === item.size);
+                if (sizeVariant) {
+                    sizeVariant.stock += item.quantity;
+                    await product.save();
+                }
+            }
         }
 
         order.status = 'Cancelled';

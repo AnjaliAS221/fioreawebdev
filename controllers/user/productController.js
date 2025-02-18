@@ -3,23 +3,82 @@ const User = require('../../models/userSchema');
 const Category = require('../../models/categorySchema');
 
 
-const handleError = (res, error, customMessage = 'An error occurred') => {
-    console.error(customMessage, error);
-    res.status(500).render('page-404', { message: customMessage });
+const loadShoppingPage = async (req, res) => {
+    try {
+        const allCategories = await Category.find();
+
+        const user = req.session.user;
+        const userData = await User.findOne({ _id: user });
+
+        const listedCategories = await Category.find({ isListed: true });
+        const categoryIds = listedCategories.map((category) => category._id.toString());
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+
+        const products = await Product.find({
+            isBlocked: false,
+            category: { $in: categoryIds },
+        }).populate('variants').sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+        const totalProducts = await Product.countDocuments({
+            isBlocked: false,
+            category: { $in: categoryIds },
+        });
+
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        const categoriesWithIds = listedCategories.map(category => ({ _id: category._id, name: category.name }));
+
+        const productsWithStockStatus = products.map(product => {
+            let totalStock = 0;
+            if (product.variants && Array.isArray(product.variants)) {
+                product.variants.forEach(variant => {
+                    if (variant.sizes && Array.isArray(variant.sizes)) {
+                        variant.sizes.forEach(size => {
+                            totalStock += size.stock || 0;
+                        });
+                    }
+                });
+            }
+            return {
+                ...product.toObject(),
+                totalStock
+            };
+        });
+
+        const wishlistProducts = userData.wishlist.map(item => item.toString());
+
+        res.render("shop", {
+            user: userData,
+            products: productsWithStockStatus,
+            wishlistProducts,
+            categories: allCategories,
+            category: categoriesWithIds,
+            totalProducts: totalProducts,
+            currentPage: page,
+            totalPages: totalPages,
+        });
+    } catch (error) {
+        console.log("shopping page not loading:", error);
+        res.redirect("/pageNotFound");
+    }
 };
 
 const productDetails = async (req, res) => {
     try {
         const userId = req.session.user;
-        console.log('the userId', userId);
         const userData = await User.findById(userId);
-        console.log('The userData', userData);
+        
 
         const productId = req.query.id;
-        console.log("Product ID:", req.query.id); 
-        const product = await Product.findById(productId).populate('category');
-        const findCategory = product.category;
+        const product = await Product.findOne({
+            _id: productId,
+            isBlocked: false
+        }).populate('category');
 
+        const findCategory = product.category;
         const categoryOffer = findCategory?.categoryOffer || 0;
         const productOffer = product.productOffer || 0;
         const totalOffer = categoryOffer + productOffer;
@@ -31,7 +90,7 @@ const productDetails = async (req, res) => {
         }
 
         const colors = [...new Set(product.variants.map(variant => variant.color))];
-        console.log("Product Variants:", product.variants);
+        
 
         const colorSizeMap = {};
         colors.forEach(color => {
@@ -50,6 +109,13 @@ const productDetails = async (req, res) => {
             }, 0);
         }, 0);
 
+        let totalStock = 0;
+        product.variants.forEach((variant) => {
+            variant.sizes.forEach((size) => {
+                totalStock += size.stock;
+            });
+        });
+
         res.render("product-details", {
             user: userData,
             product: {
@@ -61,56 +127,77 @@ const productDetails = async (req, res) => {
             totalOffer,
             category: findCategory,
             quantity: totalQuantity,
-            isInWishlist  
+            isInWishlist,
+            totalStock  
         });
     } catch (error) {
         console.error("Error fetching product details", error);
         res.redirect("/pageNotFound");
     }
 }
-
-const getAllProducts = async (req, res) => {
+const searchProducts = async (req, res) => {
     try {
-        const limit = 16;
-        const page = Math.max(1, parseInt(req.query.page) || 1);
-        const userId = req.session.user;
+        const user = req.session.user;
+        const userData = await User.findOne({ _id: user });
+        let search = req.body.query.trim();
 
-        const [products, count, categories, user] = await Promise.all([
-            Product.find({ isBlocked: false }).lean(),
-            Product.countDocuments(),
-            Category.find({ isListed: false }),
-            User.findById(userId)
-        ]);
+        const categories = await Category.find({ isListed: true }).lean();
+        const categoryIds = categories.map(category => category._id.toString());
 
-        const wishlistedProducts = user ? user.wishlist.map(id => id.toString()) : [];
+        let searchResult = [];
+        if (req.session.filteredProducts && req.session.filteredProducts.length > 0) {
+            searchResult = req.session.filteredProducts.filter(product => {
+                return product.productName.toLowerCase().includes(search.toLowerCase());
+            });
+        } else {
+            searchResult = await Product.find({
+                productName: { $regex: ".*" + search + ".*", $options: "i" },
+                isBlocked: false,
+                category: { $in: categoryIds }
+            });
+        }
 
-        const productsWithWishlistStatus = products.map(product => ({
-            ...product,
-            isInWishlist: wishlistedProducts.includes(product._id.toString())
-        }));
+     
+        const searchResultsWithStock = searchResult.map(product => {
+            let totalStock = 0;
+            product.variants.forEach(variant => {
+                variant.sizes.forEach(size => {
+                    totalStock += size.stock;
+                });
+            });
 
-        const paginatedProducts = productsWithWishlistStatus
-            .slice((page - 1) * limit, page * limit);
+            return {
+                ...product.toObject(),
+                totalStock
+            };
+        });
 
-        const totalPages = Math.ceil(count / limit);
+        searchResultsWithStock.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        res.render('all-products', {
-            products: paginatedProducts,
-            categories,
+        const itemsPerPage = 6;
+        const currentPage = parseInt(req.query.page) || 1;
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const totalPages = Math.ceil(searchResultsWithStock.length / itemsPerPage);
+        const currentProduct = searchResultsWithStock.slice(startIndex, endIndex);
+
+        res.render("shop", {
+            user: userData,
+            products: currentProduct,
+            categories: categories,
             totalPages,
-            currentPage: page
+            currentPage,
+            count: searchResultsWithStock.length,
         });
     } catch (error) {
-        handleError(res, error, 'Error loading all products');
+        console.log(error);
+        res.redirect("/pageNotFound");
     }
 };
 
 
-
-
-
 module.exports = {
+    loadShoppingPage,
+    searchProducts,
     productDetails,
-    getAllProducts,
-   
 }

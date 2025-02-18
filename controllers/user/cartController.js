@@ -2,81 +2,97 @@ const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
 const User = require('../../models/userSchema');
 
+
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user;
-        console.log(`Loading cart for user ID: ${userId}`);
-
         if (!userId) {
-            console.log("User not logged in, redirecting to login page.");
             return res.redirect('/login');
         }
 
         const user = await User.findById(userId);
-        console.log(`User details: ${JSON.stringify(user)}`);
-
         const cartItems = await Cart.findOne({ userId }).populate('items.productId');
-        console.log(`Cart items retrieved: ${cartItems ? cartItems.items.length : 0}`);
 
         if (!cartItems || cartItems.items.length === 0) {
-            console.log("Cart is empty, rendering empty cart page.");
-            return res.render('cart', { cart: null, products: [], totalAmount: 0, user });
+            return res.render('cart', { 
+                cart: null, 
+                products: [], 
+                totalAmount: 0, 
+                user 
+            });
         }
 
-        const totalAmount = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0);
-        console.log(`Total amount for cart: ${totalAmount}`);
+        const validItems = cartItems.items.filter(item => {
+            if (!item.productId || item.productId.isBlocked) return false;
 
-        res.render('cart', { cart: cartItems, products: cartItems.items, totalAmount, user });
+            const variant = item.productId.variants.find(v => v.color === item.color);
+            if (!variant) return false;
+
+            const sizeInfo = variant.sizes.find(s => s.size === item.size);
+
+            item.inStock = Boolean(sizeInfo && sizeInfo.stock >= item.quantity);
+            return true;
+        });
+
+        if (validItems.length !== cartItems.items.length) {
+            cartItems.items = validItems;
+            await cartItems.save();
+        }
+
+        const totalAmount = validItems.reduce((sum, item) => 
+            item.inStock ? sum + item.totalPrice : sum, 0
+        );
+
+        const hasOutOfStockItems = validItems.some(item => !item.inStock);
+        const inStockItems = validItems.filter(item => item.inStock);
+
+        res.render('cart', { 
+            cart: cartItems, 
+            products: validItems, 
+            totalAmount,
+            user,
+            hasOutOfStockItems,
+            inStockItemsCount: inStockItems.length
+        });
     } catch (error) {
         console.error("Error loading cart", error);
         res.redirect('/page-not-found');
     }
 };
 
-
 const addCart = async (req, res) => {
     try {
         const { productId, size, color } = req.body;
         const userId = req.session.user;
 
-        console.log(`Adding product to cart: User ID: ${userId}, Product ID: ${productId}, Size: ${size}, Color: ${color}`);
-
         if (!userId) {
-            console.log("User not logged in, redirecting to login page.");
             return res.redirect('/login');
         }
 
         const product = await Product.findById(productId);
         if (!product) {
-            console.log(`Product not found: ${productId}`);
             return res.status(404).json({ success: false, message: "Product not found" });
         }
-        console.log(`Product details: ${JSON.stringify(product)}`);
 
         const variant = product.variants.find(v => v.color === color);
         if (!variant) {
-            console.log(`Variant color not found: ${color} for product ID: ${productId}`);
             return res.status(400).json({ success: false, message: "Variant color not found" });
         }
 
         const sizeVariant = variant.sizes.find(s => s.size === size);
         if (!sizeVariant) {
-            console.log(`Size not found: ${size} for variant: ${color}`);
             return res.status(400).json({ success: false, message: "Size not found for selected variant" });
         }
 
         const variantId = variant._id;
         const sizeId = sizeVariant._id;
-        console.log(`Variant ID: ${variantId}, Size ID: ${sizeId}`);
 
         const quantity = parseInt(req.body.quantity, 10) || 1;
         const totalPrice = product.salePrice * quantity;
-        console.log(`Quantity: ${quantity}, Total Price: ${totalPrice}`);
 
         let cartDoc = await Cart.findOne({ userId });
 
         if (cartDoc) {
-            console.log(`Found existing cart for user: ${userId}`);
 
             const existingItemIndex = cartDoc.items.findIndex(
                 item => item.productId.toString() === productId &&
@@ -85,11 +101,9 @@ const addCart = async (req, res) => {
             );
 
             if (existingItemIndex >= 0) {
-                console.log(`Item already exists in cart, updating quantity and total price.`);
                 cartDoc.items[existingItemIndex].quantity += quantity;
                 cartDoc.items[existingItemIndex].totalPrice += totalPrice;
             } else {
-                console.log(`New item, adding to cart.`);
                 cartDoc.items.push({
                     productId,
                     variantId,
@@ -104,7 +118,6 @@ const addCart = async (req, res) => {
 
             await cartDoc.save();
         } else {
-            console.log(`No existing cart found for user, creating new cart.`);
             cartDoc = new Cart({
                 userId,
                 items: [{
@@ -121,7 +134,6 @@ const addCart = async (req, res) => {
             await cartDoc.save();
         }
 
-        console.log(`Product successfully added to cart.`);
         res.status(200).json({ success: true, message: 'Product added to cart' });
     } catch (error) {
         console.error("Error adding to cart", error);
@@ -138,22 +150,19 @@ const removeCartItem = async (req, res) => {
         const { productId } = req.body;
 
         if (!userId) {
-            console.log("Unauthorized access attempt");
             return res.redirect('/login');
         }
 
-        console.log(`User ${userId} attempting to remove product ${productId}`);
+
         const cartDoc = await Cart.findOne({ userId });
 
         if (!cartDoc) {
-            console.log(`Cart not found for user ${userId}`);
             return res.status(404).json({ success: false, message: "Cart not found" });
         }
 
         const updatedItems = cartDoc.items.filter(item => item.productId.toString() !== productId);
         
         if (updatedItems.length === cartDoc.items.length) {
-            console.log(`Product ${productId} not found in cart`);
             return res.status(404).json({ success: false, message: "Product not found in cart" });
         }
 
@@ -163,8 +172,7 @@ const removeCartItem = async (req, res) => {
         
         const totalAmount = cartDoc.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
-        console.log(`Product ${productId} removed. New total amount: ${totalAmount}`);
-        console.log(`Updated cart items:`, cartDoc.items); 
+       
         res.json({
             success: true,
             message: 'Item removed from cart',
@@ -184,20 +192,16 @@ const updateCart = async (req, res) => {
         const userId = req.session.user;
 
         if (!userId) {
-            console.log("Unauthorized cart update attempt");
             return res.status(401).json({ success: false, message: 'User not authenticated' });
         }
 
-        console.log(`User ${userId} updating product ${productId} to quantity ${newQuantity}`);
         const cart = await Cart.findOne({ userId }).populate('items.productId');
         if (!cart) {
-            console.log(`Cart not found for user ${userId}`);
             return res.status(404).json({ success: false, message: 'Cart not found' });
         }
 
         const cartItem = cart.items.find(item => item.productId._id.toString() === productId);
         if (!cartItem) {
-            console.log(`Product ${productId} not found in cart`);
             return res.status(404).json({ success: false, message: 'Product not found in cart' });
         }
 
@@ -217,7 +221,6 @@ const updateCart = async (req, res) => {
         await cart.save();
 
         const totalAmount = cart.items.reduce((total, item) => total + item.totalPrice, 0);
-        console.log(`Cart updated: Product ${productId}, New Quantity: ${newQuantity}, Total Amount: ${totalAmount}`);
 
         res.json({ success: true, newQuantity, newSubtotal: cartItem.totalPrice, totalAmount });
     } catch (error) {
@@ -225,47 +228,65 @@ const updateCart = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error during cart update' });
     }
 };
-
 const updateCartItem = async (req, res) => {
-    console.log('Received update request:', req.body);
     try {
         const { productId, size, color } = req.body;
         const userId = req.session.user;
 
         if (!userId) {
-            console.log("Unauthorized cart item update attempt");
             return res.status(401).json({ success: false, message: 'User not authenticated' });
         }
 
+        // Find cart and populate product details
         const cart = await Cart.findOne({ userId }).populate('items.productId');
         if (!cart) {
-            console.log(`Cart not found for user ${userId}`);
             return res.status(404).json({ success: false, message: 'Cart not found' });
         }
 
+        // Find product
         const product = await Product.findById(productId);
         if (!product) {
-            console.log(`Product ${productId} not found`);
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
-        const variant = product.variants.find(v => v.color === color && v.sizes.some(s => s.size === size));
+        // Find variant and check size stock
+        const variant = product.variants.find(v => v.color === color);
         if (!variant) {
-            console.log(`Invalid variant for product ${productId}`);
-            return res.status(400).json({ success: false, message: 'Invalid size or color' });
+            return res.status(400).json({ success: false, message: 'Invalid color variant' });
         }
 
-        const cartItemIndex = cart.items.findIndex(item => item.productId._id.toString() === productId && item.color === color);
+        const sizeOption = variant.sizes.find(s => s.size === size);
+        if (!sizeOption) {
+            return res.status(400).json({ success: false, message: 'Size not available for this color' });
+        }
+
+        const isInStock = sizeOption.stock > 0;
+        if (!isInStock) {
+            return res.status(400).json({ success: false, message: 'Selected size is out of stock' });
+        }
+
+        const cartItemIndex = cart.items.findIndex(item => 
+            item.productId._id.toString() === productId && item.color === color
+        );
         if (cartItemIndex === -1) {
-            console.log(`Item ${productId} not found in cart`);
             return res.status(404).json({ success: false, message: 'Item not found in cart' });
         }
 
         cart.items[cartItemIndex].size = size;
-        await cart.save();
-        console.log(`Cart item updated: Product ${productId}, New Size: ${size}`);
+        cart.items[cartItemIndex].inStock = isInStock;
 
-        res.json({ success: true, message: 'Cart item updated successfully' });
+        await cart.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Cart item updated successfully',
+            item: {
+                productId,
+                size,
+                color,
+                inStock: isInStock
+            }
+        });
     } catch (error) {
         console.error('Cart item update error:', error);
         res.status(500).json({ success: false, message: 'Server error during cart item update' });

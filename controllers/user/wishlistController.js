@@ -4,7 +4,6 @@ const Wishlist = require('../../models/wishlistSchema');
 const Cart = require('../../models/cartSchema');
 
 
-
 const loadWishlist = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -12,6 +11,7 @@ const loadWishlist = async (req, res) => {
         const limit = 5;
         const skip = (page - 1) * limit;
 
+        const user = await User.findById(userId);
         const wishlistDoc = await Wishlist.findOne({ userId })
             .populate({
                 path: 'products.productId',
@@ -19,11 +19,44 @@ const loadWishlist = async (req, res) => {
                 populate: { path: 'category' }
             });
 
-        const wishlistProducts = wishlistDoc ? 
-            wishlistDoc.products.map(item => item.productId).slice(skip, skip + limit) : 
-            [];
+        if (!wishlistDoc) {
+            return res.render("wishlist", {
+                wishlist: [],
+                currentPage: page,
+                totalPages: 0,
+                hasNextPage: false,
+                hasPrevPage: false,
+                nextPage: null,
+                prevPage: null,
+            });
+        }
 
-        const totalWishlistProducts = wishlistDoc ? wishlistDoc.products.length : 0;
+        const validProducts = wishlistDoc.products.filter(item => item.productId && !item.productId.isBlocked);
+
+        if (validProducts.length !== wishlistDoc.products.length) {
+            wishlistDoc.products = validProducts;
+            await wishlistDoc.save();
+
+            user.wishlist = validProducts.map(item => item.productId._id);
+            await user.save();
+        }
+
+        const wishlistProducts = validProducts.slice(skip, skip + limit).map(item => {
+            const product = item.productId;
+            let totalStock = 0;
+            product.variants.forEach(variant => {
+                variant.sizes.forEach(size => {
+                    totalStock += size.stock;
+                });
+            });
+
+            return {
+                ...product.toObject(),
+                totalStock
+            };
+        });
+
+        const totalWishlistProducts = validProducts.length;
 
         res.render("wishlist", {
             wishlist: wishlistProducts,
@@ -41,6 +74,7 @@ const loadWishlist = async (req, res) => {
 };
 
 
+
 const getProductDetails = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -55,10 +89,9 @@ const getProductDetails = async (req, res) => {
             });
         }
 
-        // Extract unique colors from variants
         const colors = product.variants.map(variant => variant.color);
         
-        // Create colorSizeMap based on variants structure
+      
         const colorSizeMap = {};
         product.variants.forEach(variant => {
             colorSizeMap[variant.color] = variant.sizes.map(size => ({
@@ -67,7 +100,6 @@ const getProductDetails = async (req, res) => {
             }));
         });
         
-        // Check if product has any stock and is available
         const hasStock = product.variants.some(variant => 
             variant.sizes.some(size => size.stock > 0)
         );
@@ -146,7 +178,6 @@ const addToCart = async (req, res) => {
         const userId = req.session.user;
         const { productId, size, color } = req.body;
 
-        // Validate product exists and has stock
         const product = await Product.findById(productId);
         if (!product) {
             return res.json({
@@ -155,7 +186,6 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Find the selected size and check stock
         const selectedSize = product.sizes.find(s => s.size === size);
         if (!selectedSize) {
             return res.json({
@@ -171,7 +201,7 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Validate color
+    
         if (!product.colors.includes(color)) {
             return res.json({
                 success: false,
@@ -179,7 +209,7 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Check if product already exists in cart with same size and color
+       
         const existingCart = await Cart.findOne({ userId });
         
         if (existingCart) {
@@ -190,7 +220,7 @@ const addToCart = async (req, res) => {
             );
 
             if (existingItem) {
-                // Update quantity if stock allows
+                
                 if (existingItem.quantity < selectedSize.stock) {
                     existingItem.quantity += 1;
                     await existingCart.save();
@@ -201,7 +231,6 @@ const addToCart = async (req, res) => {
                     });
                 }
             } else {
-                // Add new item to cart
                 existingCart.items.push({
                     productId,
                     size,
@@ -211,7 +240,6 @@ const addToCart = async (req, res) => {
                 await existingCart.save();
             }
         } else {
-            // Create new cart
             await Cart.create({
                 userId,
                 items: [{

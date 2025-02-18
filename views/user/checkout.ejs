@@ -253,7 +253,7 @@
                     <form id="orderForm" onsubmit="return handleFormSubmission(event)">
                         <div class="payment-options">
                             <div class="payment-option" onclick="selectPaymentMethod(this, 'COD')">
-                                <input type="radio" name="payment_method" id="cod" value="COD" checked class="d-none">
+                                <input type="radio" name="payment_method" id="cod" value="COD" class="d-none">
                                 <label class="payment-label" for="cod">
                                     <i class="fi-rs-money"></i>
                                     Cash on Delivery
@@ -418,58 +418,20 @@
                 const form = document.getElementById('orderForm');
                 const formData = new FormData(form);
 
-                let cart = JSON.parse(formData.get('cart') || '[]');
 
-                const cartItems = cart.map(item => {
-                    const product = item.productId;
-                    const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
-
-                    if (!variant) {
-                        throw new Error(`No matching variant found for product ${product.productName}`);
-                    }
-
-                    const size = variant.sizes.find(s => s.size === item.size);
-
-                    if (!size) {
-                        throw new Error(`Size not found for ${product.productName} variant ${variant.color}`);
-                    }
-
-                    return {
-                        ...item,
-                        variantId: variant._id,
-                        sizeId: size._id,
-                    };
-                });
-
-                formData.set('cart', JSON.stringify(cartItems));
-
-                await validateVariant(cartItems[0]);
-
-                const isValid = await validateOrderBeforePayment(formData);
-                if (!isValid) {
+                if (!formData.get('addressId')) {
+                    Swal.fire({ icon: 'warning', title: 'Missing Address', text: 'Please select a delivery address' });
                     return;
                 }
 
+                if (!formData.get('payment_method')) {
+                    Swal.fire({ icon: 'warning', title: 'Payment Method Required', text: 'Please select a payment method to proceed' });
+                    return;
+                }
                 const paymentMethod = formData.get('payment_method');
 
                 if (paymentMethod === 'COD') {
-                    const codResponse = await fetch('/place-order-initial', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            form: Object.fromEntries(formData),
-                            paymentMethod: 'COD',
-                            paymentStatus: 'Pending',
-                        })
-                    });
-
-                    const result = await codResponse.json();
-
-                    if (!result.success) {
-                        throw new Error(result.message || 'Failed to place COD order.');
-                    }
-
-                    window.location.href = `/order-confirmation?id=${result.orderId}`;
+                    await processCODOrder(formData);
                 } else if (paymentMethod === 'Online') {
                     await processOnlinePayment(formData);
                 }
@@ -480,199 +442,72 @@
         }
 
 
-        async function validateVariant(item) {
-            const product = item.productId;
 
-            const variant = product.variants.find(v => v._id === item.variantId);
-            if (!variant) {
-                throw new Error(`Invalid color selection for ${product.productName}`);
-            }
 
-            const sizeObj = variant.sizes.find(s => s.size === item.size);
-            if (!sizeObj) {
-                throw new Error(`Invalid size selection for ${product.productName}`);
-            }
-
-            return true;
-        }
-
-        async function validateOrderBeforePayment(formData) {
+        async function processCODOrder(formData) {
             try {
-                const addressId = formData.get('addressId');
-                if (!addressId) {
-                    throw new Error('Please select a delivery address');
-                }
-
-                const cartItems = JSON.parse(formData.get('cart') || '[]');
-                if (!cartItems || cartItems.length === 0) {
-                    throw new Error('Your cart is empty');
-                }
-
-                for (const item of cartItems) {
-                    if (!item.productId) {
-                        throw new Error('Invalid product in cart');
-                    }
-
-                    if (!item.variantId) {
-                        throw new Error(`Please select variant for ${item.productId.productName}`);
-                    }
-
-                    if (!item.quantity || item.quantity <= 0) {
-                        throw new Error(`Invalid quantity for ${item.productId.productName}`);
-                    }
-
-                    if (!item.totalPrice || item.totalPrice <= 0) {
-                        throw new Error(`Invalid price for ${item.productId.productName}`);
-                    }
-
-                    if (item.productId.hasVariants) {
-                        if (!item.size && item.productId.requiresSize) {
-                            throw new Error(`Please select size for ${item.productId.productName}`);
-                        }
-                        if (!item.color && item.productId.requiresColor) {
-                            throw new Error(`Please select color for ${item.productId.productName}`);
-                        }
-                    }
-
-                    await validateVariant(item);
-                }
-
-                const finalPrice = parseFloat(formData.get('finalPrice'));
-                const totalPrice = parseFloat(formData.get('totalPrice'));
-                const discount = parseFloat(formData.get('discount') || 0);
-
-                if (isNaN(finalPrice) || finalPrice <= 0) {
-                    throw new Error('Invalid order amount');
-                }
-
-                if (isNaN(totalPrice) || totalPrice <= 0) {
-                    throw new Error('Invalid total price');
-                }
-
-                const couponCode = formData.get('coupon');
-                if (couponCode) {
-                    const expectedFinalPrice = totalPrice - discount;
-
-                    if (Math.abs(finalPrice - expectedFinalPrice) > 0.01) {
-                        throw new Error('Price calculation mismatch');
-                    }
-
-                    if (!discount || discount <= 0) {
-                        throw new Error('Invalid coupon discount');
-                    }
-
-                    if (discount >= totalPrice) {
-                        throw new Error('Discount amount exceeds total price');
-                    }
-                } else {
-                    if (Math.abs(finalPrice - totalPrice) > 0.01) {
-                        throw new Error('Price calculation mismatch');
-                    }
-                }
-
-                const paymentMethod = formData.get('payment_method');
-                if (!paymentMethod || !['COD', 'Online'].includes(paymentMethod)) {
-                    throw new Error('Please select a valid payment method');
-                }
-
-                const validation = await validateStock(cartItems);
-                if (!validation.success) {
-                    throw new Error(validation.message || 'Stock validation failed');
-                }
-                formData.set('formattedItems', JSON.stringify(validation.formattedItems));
-
-                return true;
-
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: error.message,
-                    confirmButtonColor: '#dc3545'
+                const response = await fetch('/place-order-initial', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        form: Object.fromEntries(formData),
+                        paymentMethod: 'COD',
+                        paymentStatus: 'Pending',
+                    })
                 });
 
-                return false;
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to place COD order.');
+                }
+
+                window.location.href = `/order-confirmation?id=${result.orderId}`;
+            } catch (error) {
+                console.error("COD Order Error:", error);
+                Swal.fire({ icon: 'error', title: 'Order Error', text: error.message });
             }
-        }
-
-
-
-        async function validateStock(cartItems) {
-            console.log("Starting stock validation...");
-            for (const item of cartItems) {
-                console.log(`Validating stock for product: ${item.productId.productName}, variant: ${item.variantId}`);
-
-                const product = item.productId;
-                const variant = product.variants.find(v => v._id.toString() === item.variantId);
-
-                if (!variant) {
-                    console.error(`Variant not found for ${product.productName}`);
-                    throw new Error(`Variant not found for ${product.productName}`);
-                }
-
-                // Find the size corresponding to sizeId in the variant
-                const size = variant.sizes.find(s => s._id.toString() === item.sizeId);
-
-                if (!size) {
-                    console.error(`Size not found for ${product.productName} variant ${variant.color}`);
-                    throw new Error(`Size not found for ${product.productName} variant ${variant.color}`);
-                }
-
-                // Validate stock for the size
-                console.log(`Checking stock for size: ${size.size}, stock: ${size.stock}`);
-                if (size.stock <= 0) {
-                    console.error(`Out of stock for ${product.productName} size ${size.size}`);
-                    throw new Error(`Out of stock for ${product.productName} size ${size.size}`);
-                }
-
-                console.log(`Stock available for ${product.productName} size ${size.size}: ${size.stock}`);
-            }
-
-            console.log("Stock validation successful.");
-            return { success: true };
         }
 
 
         async function processOnlinePayment(formData) {
             try {
+
+
                 const formattedItems = JSON.parse(formData.get('cart'));
 
-                const isValid = await validateOrderBeforePayment(formData);
-                if (!isValid) {
-                    return;
-                }
-
+                const orderRequestData = {
+                    ...Object.fromEntries(formData),
+                    paymentMethod: 'Online',
+                    paymentStatus: 'Pending'
+                };
                 const initialOrderResponse = await fetch('/place-order-initial', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ...Object.fromEntries(formData),
-                        paymentMethod: 'Online',
-                        paymentStatus: 'Pending'
-                    })
+                    body: JSON.stringify(orderRequestData)
                 });
 
                 const initialOrderData = await initialOrderResponse.json();
                 if (!initialOrderData.success) {
-                    console.error("Failed to initialize order:", initialOrderData.message);
                     throw new Error(initialOrderData.message || 'Failed to initialize order');
                 }
+
+                const razorpayRequestData = {
+                    amount: parseFloat(formData.get('finalPrice')),
+                    addressId: formData.get('addressId')
+                };
 
                 const razorpayResponse = await fetch('/create-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        amount: parseFloat(formData.get('finalPrice')),
-                        addressId: formData.get('addressId')
-                    })
+                    body: JSON.stringify(razorpayRequestData)
                 });
 
                 const razorpayOrder = await razorpayResponse.json();
+
                 if (!razorpayOrder.success) {
-                    console.error("Failed to create Razorpay order:", razorpayOrder.message);
                     throw new Error(razorpayOrder.message || 'Failed to create Razorpay order');
                 }
-
                 await initializeRazorpay(razorpayOrder, initialOrderData);
 
             } catch (error) {
@@ -689,6 +524,7 @@
                 order_id: orderDetails.id,
                 handler: async function (response) {
                     try {
+
                         const verifyResponse = await fetch('/verify-payment', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -728,12 +564,26 @@
                     } catch (error) {
                         await handlePaymentFailure(error, initialOrderData.orderId);
                     }
+                },
+
+                modal: {
+                    ondismiss: async function () {
+                        console.warn('Payment window closed by user.');
+                        await handlePaymentFailure(
+                            new Error('Payment process was canceled by user.'),
+                            initialOrderData.orderId,
+                            'failed',
+                            'User_Cancelled'
+                        );
+                    }
                 }
             };
 
             const razorpay = new Razorpay(options);
             razorpay.open();
         }
+
+
 
         async function handlePaymentFailure(error, orderId, status = 'failed', paymentError = null) {
             if (orderId) {
@@ -755,7 +605,7 @@
             }
 
             Swal.fire({
-                icon: 'error',
+                icon: 'warning',
                 title: 'Payment Failed',
                 text: error.message || 'Your payment could not be processed. Please try again.',
                 showCancelButton: true,
@@ -763,7 +613,7 @@
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed && orderId) {
-                    window.location.href = `/retry-payment/${orderId}`;
+                    retryPayment(orderId);
                 } else {
                     window.location.href = orderId
                         ? `/payment-failed?id=${orderId}&error=${encodeURIComponent(error.message)}`
@@ -772,6 +622,50 @@
             });
         }
 
+
+        async function retryPayment(orderId) {
+            try {
+                const response = await fetch('/retry-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to initiate retry payment');
+                }
+
+                const options = {
+                    key: data.key,
+                    amount: data.amount,
+                    currency: 'INR',
+                    order_id: data.orderId,
+                    name: 'Fiorea',
+                    description: 'Payment for Order',
+                    prefill: {
+                        name: data.customer.name,
+                        email: data.customer.email,
+                        contact: data.customer.phone
+                    },
+                    handler: async function (paymentResponse) {
+                        await verifyPayment(paymentResponse, orderId);
+                    }
+                };
+
+                const razorpay = new Razorpay(options);
+                razorpay.open();
+            } catch (error) {
+                console.error('Retry payment failed:', error);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Retry Payment Failed',
+                    text: 'Please try again later.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
 
 
         document.getElementById('coupon-form').addEventListener('submit', function (e) {
@@ -892,7 +786,7 @@
                         if (totalPriceElement) {
                             totalPriceElement.textContent = `₹${data.totalPrice.toLocaleString()}`;
                         }
-                
+
                         document.getElementById('applyCouponBtn').style.display = 'block';
                         document.getElementById('removeCouponBtn').style.display = 'none';
                     }

@@ -270,21 +270,18 @@ const verifyPayment = async (req, res) => {
 const validateAndUpdateStock = async (products) => {
     try {
         if (!products || products.length === 0) {
-            console.error("No products provided for stock validation.");
             return false;
         }
 
         const productIds = products.map(item => item.productId);
-        console.log("Fetching product IDs:", productIds);
 
         const productData = await Product.find({ _id: { $in: productIds } });
         if (!productData.length) {
-            console.error("No products found for given IDs:", productIds);
             return false;
         }
 
         const productMap = new Map(productData.map(prod => [prod._id.toString(), prod]));
-        console.log("Product Map:", productMap);
+      
 
         for (const item of products) {
             const productId = item.productId?.toString();
@@ -295,7 +292,6 @@ const validateAndUpdateStock = async (products) => {
 
             const product = productMap.get(productId);
             if (!product || product.stock < item.quantity) {
-                console.error("Insufficient stock for product:", productId);
                 return false;
             }
         }
@@ -320,7 +316,6 @@ const paymentFailed = async (req, res) => {
 
        
         if (!orderId) {
-            console.error("Missing orderId in query parameters.");
             return res.redirect('/cart');
         }
 
@@ -329,7 +324,6 @@ const paymentFailed = async (req, res) => {
 
 
         if (!order) {
-            console.error(`Order not found for ID: ${orderId}`);
             return res.status(404).render('error', {
                 message: 'Order not found',
                 error: 'The requested order could not be found'
@@ -422,7 +416,8 @@ const updateFailedOrder = async (req, res) => {
     try {
         const { orderId, status, error, paymentError } = req.body;
 
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(orderId).populate('orderedItems.product');
+
         if (!order) {
             return res.status(404).json({
                 success: false,
@@ -440,25 +435,13 @@ const updateFailedOrder = async (req, res) => {
             timestamp: new Date()
         };
 
-        if (order.orderedItems && order.orderedItems.length > 0) {
-            for (const item of order.orderedItems) {
-                const product = await Product.findById(item.product);
-                if (product) {
-                    
-                    const variant = product.variants.find(v => 
-                        v._id.toString() === item.variantId.toString()
-                    );
-                    
-                    if (variant) {
-                        const sizeToUpdate = variant.sizes.find(s => 
-                            s._id.toString() === item.sizeId.toString()
-                        );
-                        
-                        if (sizeToUpdate) {
-                            sizeToUpdate.stock += item.quantity;
-                        }
-                    }
-                    
+        for (const item of order.orderedItems) {
+            const product = item.product;
+            const variant = product.variants.find(v => v._id.toString() === item.variantId);
+            if (variant) {
+                const sizeVariant = variant.sizes.find(s => s.size === item.size);
+                if (sizeVariant) {
+                    sizeVariant.stock += item.quantity;
                     await product.save();
                 }
             }

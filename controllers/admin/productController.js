@@ -93,46 +93,39 @@ const addProducts = async (req, res) => {
 const getAllProducts = async (req, res) => {
     try {
         const search = req.query.search || "";
-        const page = req.query.page || 1;
+        const page = parseInt(req.query.page) || 1;
         const limit = 4;
 
         const productData = await Product.find({
-            $or: [
-                { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
+            productName: { $regex: search, $options: 'i' }
+        })
+            .limit(limit)
+            .skip((page - 1) * limit)
+            .populate('category')
+            .exec();
 
-
-            ],
-        }).limit(limit * 1).skip((page - 1) * limit).populate('category').exec();
-
-        const count = await Product.find({
-            $or: [
-                { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
-
-
-            ],
-        }).countDocuments();
+        const count = await Product.countDocuments({
+            productName: { $regex: search, $options: 'i' }
+        });
 
         const category = await Category.find({ isListed: true });
 
-
-        if (category) {
-            res.render("products", {
-                data: productData,
-                currentPage: page,
-                totalPages: Math.ceil(count / limit),
-                cat: category,
-                success_msg: req.flash('success_msg'),
-                error_msg: req.flash('error_msg'),
-
-            })
-        } else {
-            res.render("page-404");
-        }
+        res.render("products", {
+            data: productData,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit),
+            cat: category,
+            search: search,
+            success_msg: req.flash('success_msg'),
+            error_msg: req.flash('error_msg'),
+        });
 
     } catch (error) {
+        console.error(error);
         res.redirect("/admin/pageerror");
     }
-}
+};
+
 
 const addProductOffer = async (req, res) => {
     try {
@@ -217,7 +210,6 @@ const getEditProduct = async (req, res) => {
         res.render("edit-product", {
             product: product,
             cat: category,
-
         })
     } catch (error) {
         res.redirect("/admin/pageerror");

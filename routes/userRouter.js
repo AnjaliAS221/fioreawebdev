@@ -75,14 +75,11 @@ router.get("/deleteAddress",userAuth,profileController.deleteAddress);
 
 
 //shopping management
-router.get("/shop",userController.loadShoppingPage);
-router.post("/search",userController.searchProducts);
-
+router.get("/shop",productController.loadShoppingPage);
+router.post("/search",productController.searchProducts);
 
 //product management
 router.get("/productDetails",productController.productDetails);
-router.get('/all-products',productController.getAllProducts);
-
 
 // filtering products
 router.post('/sort-and-search',filterController.sortSearch)

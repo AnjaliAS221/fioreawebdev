@@ -1,16 +1,12 @@
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 
-
-
 const sortSearch = async (req, res) => {
     try {
         const { search = '', category = 'all-categories', sort = 'default' } = req.body;
 
-        // Build the query
-        const query = {};
+        const query = { isBlocked: false }; 
 
-        // Add search condition if search term exists
         if (search.trim()) {
             query.$or = [
                 { productName: { $regex: search.trim(), $options: 'i' } },
@@ -18,12 +14,10 @@ const sortSearch = async (req, res) => {
             ];
         }
 
-        // Add category filter if specific category selected
         if (category !== 'all-categories') {
             query.category = category;
         }
 
-        // Define sorting conditions with collation for proper alphabetical sorting
         let sortCondition = {};
         let collation = null;
 
@@ -45,36 +39,46 @@ const sortSearch = async (req, res) => {
                 break;
             case 'alphabetical-a-z':
                 sortCondition = { productName: 1 };
-                collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
+                collation = { locale: 'en', strength: 2 };
                 break;
             case 'alphabetical-z-a':
                 sortCondition = { productName: -1 };
-                collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
+                collation = { locale: 'en', strength: 2 };
                 break;
             default:
                 sortCondition = { createdAt: -1 };
         }
 
-        // Fetch products with combined query
         let productsQuery = Product.find(query)
-            .sort(sortCondition)
-            .lean();
+            .populate('variants')
+            .sort(sortCondition);
 
-        // Apply collation for alphabetical sorting if needed
         if (collation) {
             productsQuery = productsQuery.collation(collation);
         }
 
         const products = await productsQuery;
 
-        // Log the sorted products for debugging (remove in production)
-        if (sort === 'alphabetical-a-z' || sort === 'alphabetical-z-a') {
-            console.log('Sorted products:', products.map(p => p.productName));
-        }
+        const productsWithStockStatus = products.map(product => {
+            let totalStock = 0;
+            if (product.variants && Array.isArray(product.variants)) {
+                product.variants.forEach(variant => {
+                    if (variant.sizes && Array.isArray(variant.sizes)) {
+                        variant.sizes.forEach(size => {
+                            totalStock += size.stock || 0;
+                        });
+                    }
+                });
+            }
+            return {
+                ...product.toObject(),
+                totalStock
+            };
+        });
 
         res.json({
             success: true,
-            products: products,
+            products: productsWithStockStatus,
             filters: { search, category, sort }
         });
 
@@ -87,9 +91,6 @@ const sortSearch = async (req, res) => {
     }
 };
 
-
-
 module.exports = {
     sortSearch,
-    
 };

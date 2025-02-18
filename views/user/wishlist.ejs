@@ -226,11 +226,14 @@
                 <% for(let product of wishlist){ %>
                     <div class="wishlist-card">
                         <div class="product-image">
-                            <img src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+                            <a href="/productDetails?id=<%= product._id %>" class="product-link">
+                                <img src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+                            </a>
                             <div class="heart-icon" onclick="confirmRemove('<%=product._id%>')">
                                 <i class="fi-rs-trash"></i>
                             </div>
                         </div>
+        
                         <div class="card-content">
                             <div class="product-name"><%= product.productName %></div>
                             <div class="product-category"><%= product.category.name %></div>
@@ -238,9 +241,15 @@
                                 <span class="current-price">₹<%= product.salePrice %></span>
                                 <span class="original-price">₹<%= product.regularPrice %></span>
                             </div>
-                            <div class="card-actions">
+        
+                            <% if (product.totalStock === 0) { %>
+                                <span class="badge out-of-stock-badge">Out of Stock</span>
+                                <button class="btn btn-disabled" disabled>Unavailable</button>
+                            <% } else { %>
                                 <button onclick="showProductOptions('<%= product._id %>')" class="btn btn-cart">Add to Cart</button>
-                            </div>
+                                <a href="/productDetails?id=<%= product._id %>" class="btn btn-primary">View Product</a>
+                                
+                            <% } %>
                         </div>
                     </div>
                 <% } %>
@@ -251,6 +260,7 @@
                 </div>
             <% } %>
         </div>
+        
 
       
         <% if (wishlist.length > 0 && totalPages > 1) { %>
@@ -296,17 +306,17 @@
                     <div class="size-selection mb-3">
                         <label class="form-label">Select Size:</label>
                         <div id="sizeOptions" class="d-flex gap-2 flex-wrap">
-                            <!-- Size buttons will be populated dynamically -->
+                            
                         </div>
                     </div>
                     <div class="color-selection mb-3">
                         <label class="form-label">Select Color:</label>
                         <div id="colorOptions" class="d-flex gap-2 flex-wrap">
-                            <!-- Color buttons will be populated dynamically -->
+
                         </div>
                     </div>
                     <div id="stockStatus" class="alert alert-warning d-none">
-                        <!-- Stock status message will be shown here -->
+                        
                     </div>
                 </div>
                 <div class="modal-footer">

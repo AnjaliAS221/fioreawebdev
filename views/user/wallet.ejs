@@ -4,166 +4,166 @@
 
     <style>
         .dashboard-menu {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
 
-.dashboard-menu .nav-link {
-    display: flex;
-    align-items: center;
-    padding: 0.8rem 1rem;
-    margin-bottom: 0.5rem;
-    color: #4a5568;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
+        .dashboard-menu .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
 
-.dashboard-menu .nav-link i {
-    margin-right: 0.8rem;
-    font-size: 1.1rem;
-}
+        .dashboard-menu .nav-link i {
+            margin-right: 0.8rem;
+            font-size: 1.1rem;
+        }
 
-.dashboard-menu .nav-link:hover,
-.dashboard-menu .nav-link.active {
-    background: linear-gradient(145deg, #3498db, #2980b9);
-    color: white;
-    transform: translateX(5px);
-    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
-}
-
-
-.wallet-table {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-}
-
-.wallet-table th {
-    background: #f7fafc;
-    padding: 1.2rem 1rem;
-    color: #4a5568;
-    font-weight: 600;
-    border: none;
-}
-
-.wallet-table td {
-    padding: 1.2rem 1rem;
-    border-top: 1px solid #edf2f7;
-    vertical-align: middle;
-}
+        .dashboard-menu .nav-link:hover,
+        .dashboard-menu .nav-link.active {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
+        }
 
 
-.wallet-table .balance strong {
-    background: linear-gradient(145deg, #3498db, #2980b9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-size: 2.5rem;
-    font-weight: 600;
-}
+        .wallet-table {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .wallet-table th {
+            background: #f7fafc;
+            padding: 1.2rem 1rem;
+            color: #4a5568;
+            font-weight: 600;
+            border: none;
+        }
+
+        .wallet-table td {
+            padding: 1.2rem 1rem;
+            border-top: 1px solid #edf2f7;
+            vertical-align: middle;
+        }
 
 
-.wallet-table .text-success {
-    color: #48bb78 !important;
-}
-
-.wallet-table .text-danger {
-    color: #f56565 !important;
-}
-
-.badge {
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    font-weight: 500;
-    font-size: 0.875rem;
-}
-
-.bg-success {
-    background: #c6f6d5 !important;
-    color: #22543d !important;
-}
-
-.bg-danger {
-    background: #fed7d7 !important;
-    color: #742a2a !important;
-}
-
-.btn {
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-primary {
-    background: linear-gradient(145deg, #3498db, #2980b9);
-    border: none;
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
+        .wallet-table .balance strong {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
 
 
-#addMoneyForm {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
+        .wallet-table .text-success {
+            color: #48bb78 !important;
+        }
 
-#addMoneyForm .form-control {
-    border-radius: 8px;
-    padding: 0.8rem;
-    border: 1px solid #e2e8f0;
-}
+        .wallet-table .text-danger {
+            color: #f56565 !important;
+        }
 
-#addMoneyForm .form-control:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-}
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .bg-success {
+            background: #c6f6d5 !important;
+            color: #22543d !important;
+        }
+
+        .bg-danger {
+            background: #fed7d7 !important;
+            color: #742a2a !important;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
 
 
-.pagination .page-link {
-    padding: 0.6rem 1rem;
-    margin: 0 0.2rem;
-    border-radius: 8px;
-    color: #4a5568;
-    border: 1px solid #e2e8f0;
-    transition: all 0.3s ease;
-}
+        #addMoneyForm {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
 
-.pagination .page-link:hover {
-    background: #f7fafc;
-    color: #2d3748;
-}
+        #addMoneyForm .form-control {
+            border-radius: 8px;
+            padding: 0.8rem;
+            border: 1px solid #e2e8f0;
+        }
 
-.pagination .active .page-link {
-    background: linear-gradient(145deg, #3498db, #2980b9);
-    border-color: transparent;
-    color: white;
-}
+        #addMoneyForm .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
 
-@media (max-width: 768px) {
-    .dashboard-menu {
-        margin-bottom: 1.5rem;
-    }
-    
-    .wallet-table td,
-    .wallet-table th {
-        padding: 1rem 0.8rem;
-    }
-    
-    .wallet-table .balance strong {
-        font-size: 2rem;
-    }
-}
+
+        .pagination .page-link {
+            padding: 0.6rem 1rem;
+            margin: 0 0.2rem;
+            border-radius: 8px;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-link:hover {
+            background: #f7fafc;
+            color: #2d3748;
+        }
+
+        .pagination .active .page-link {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border-color: transparent;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-menu {
+                margin-bottom: 1.5rem;
+            }
+
+            .wallet-table td,
+            .wallet-table th {
+                padding: 1rem 0.8rem;
+            }
+
+            .wallet-table .balance strong {
+                font-size: 2rem;
+            }
+        }
     </style>
 
     <main class="main">
@@ -240,7 +240,7 @@
                             </table>
                         </div>
 
-                       
+
                         <div id="addMoneyForm" class="mt-4" style="display: none;">
                             <div class="form-group">
                                 <label for="amount">Enter Amount to Add</label>
@@ -250,7 +250,7 @@
                             <button onclick="confirmAddMoney()" class="btn btn-success">Confirm Add Money</button>
                         </div>
 
-                       
+
                         <div class="table-responsive mt-4">
                             <table class="table wallet-table">
                                 <thead>
@@ -262,42 +262,45 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% for (let i=transactions.length - 1; i>= 0; i--) { %>
-                                        <tr>
-                                            <td data-title="Date">
-                                                <%=transactions[i].date.toLocaleDateString()%>
-                                            </td>
-                                            <td data-title="Transaction Type">
-                                                <%=transactions[i].type%>
-                                            </td>
-                                            <% if (transactions[i].type==="Purchase" ) { %>
-                                                <td data-title="Amount">
-                                                    <b class="text-danger" style="font-size: 25px;">-</b>&nbsp;
-                                                    <strong class="text-danger">₹
-                                                        <%=transactions[i].amount.toLocaleString()%></strong>
+                                    <% transactions.sort((a, b)=> new Date(b.date) - new Date(a.date)); %>
+                                        <% for (let i=0; i < transactions.length; i++) { %>
+                                            <tr>
+                                                <td data-title="Date">
+                                                    <%= transactions[i].date.toLocaleDateString() %>
                                                 </td>
-                                                <% } else if (transactions[i].type==="Refund" ) { %>
+                                                <td data-title="Transaction Type">
+                                                    <%= transactions[i].type %>
+                                                </td>
+                                                <% if (transactions[i].type==="Purchase" ) { %>
                                                     <td data-title="Amount">
-                                                        <b class="text-success" style="font-size: 20px;">+</b>&nbsp;
-                                                        <strong class="text-success">₹
-                                                            <%=transactions[i].amount.toLocaleString()%></strong>
-
+                                                        <b class="text-danger" style="font-size: 25px;">-</b>&nbsp;
+                                                        <strong class="text-danger">₹<%=
+                                                                transactions[i].amount.toLocaleString() %></strong>
                                                     </td>
-                                                    <% } else { %>
+                                                    <% } else if (transactions[i].type==="Refund" ) { %>
                                                         <td data-title="Amount">
                                                             <b class="text-success" style="font-size: 20px;">+</b>&nbsp;
-                                                            <strong class="text-success">₹
-                                                                <%=transactions[i].amount.toLocaleString()%></strong>
+                                                            <strong class="text-success">₹<%=
+                                                                    transactions[i].amount.toLocaleString() %></strong>
                                                         </td>
-                                                        <% } %>
-                                                            <td data-title="Status">
-                                                                <span
-                                                                    class="badge bg-<%=transactions[i].status === 'Success' ? 'success' : 'danger'%>">
-                                                                    <%=transactions[i].status%>
-                                                                </span>
+                                                        <% } else { %>
+                                                            <td data-title="Amount">
+                                                                <b class="text-success"
+                                                                    style="font-size: 20px;">+</b>&nbsp;
+                                                                <strong class="text-success">₹<%=
+                                                                        transactions[i].amount.toLocaleString() %>
+                                                                        </strong>
                                                             </td>
-                                        </tr>
-                                        <% } %>
+                                                            <% } %>
+                                                                <td data-title="Status">
+                                                                    <span
+                                                                        class="badge bg-<%= transactions[i].status === 'Success' ? 'success' : 'danger' %>">
+                                                                        <%= transactions[i].status %>
+                                                                    </span>
+                                                                </td>
+                                            </tr>
+                                            <% } %>
+
                                 </tbody>
                             </table>
                         </div>

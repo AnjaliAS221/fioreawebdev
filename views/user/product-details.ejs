@@ -491,6 +491,13 @@
                                                 <span class="qty-val" id="quantity">1</span>
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
+                                            <% if (totalStock === 0) { %>
+                                                <div class="out-of-stock-message">
+                                                    <span style="color: red; font-weight: bold;">Out of Stock</span>
+                                                </div>
+                                                <button class="button add-to-cart-btn" disabled>Add to Cart</button>
+                                                <button class="button buy-now-btn" disabled>Buy Now</button>
+                                            <% } else { %>
                                             <button type="button" class="button button-add-to-cart"
                                                 onclick="addToCart('<%= product._id %>')">
                                                 <i class="fas fa-shopping-cart mr-2"></i>Add to cart
@@ -499,6 +506,7 @@
                                                 onclick="buyNow('<%= product._id %>')">
                                                 Buy Now
                                             </button>
+                                            <% } %>
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"
                                                 onclick="addToWishlist('<%= product._id %>')">
                                                 <i class="fi-rs-heart"></i> Wishlist
@@ -525,8 +533,78 @@
 
 
     <script>
-        const isInWishlist = '<%- JSON.stringify(isInWishlist || false) %>';
+        const isInWishlist = JSON.parse('<%- JSON.stringify(isInWishlist || false) %>');
         let currentWishlistState = isInWishlist;
+
+
+        function initializeWishlistState() {
+            const wishlistBtn = document.querySelector('.action-btn.hover-up');
+            const wishlistIcon = wishlistBtn.querySelector('i');
+
+            wishlistBtn.classList.remove('in-wishlist');
+            if (wishlistIcon.nextSibling) {
+                wishlistIcon.nextSibling.textContent = ' Wishlist';
+            }
+
+            if (currentWishlistState) {
+                wishlistBtn.classList.add('in-wishlist');
+                if (wishlistIcon.nextSibling) {
+                    wishlistIcon.nextSibling.textContent = ' Wishlisted';
+                } else {
+                    wishlistIcon.after(document.createTextNode(' Wishlisted'));
+                }
+            }
+        }
+
+
+        function addToWishlist(productId) {
+            const wishlistBtn = document.querySelector('.action-btn.hover-up');
+            const wishlistIcon = wishlistBtn.querySelector('i');
+
+            $.ajax({
+                url: '/toggleWishlist',
+                method: 'POST',
+                data: { productId: productId },
+                success: (response) => {
+                    if (response.status) {
+                        currentWishlistState = !currentWishlistState;
+                        wishlistBtn.classList.toggle('in-wishlist');
+
+                        if (wishlistIcon.nextSibling) {
+                            wishlistIcon.nextSibling.textContent = currentWishlistState ? ' Wishlisted' : ' Wishlist';
+                        }
+
+                        Swal.fire({
+                            title: currentWishlistState ? "Added to wishlist" : "Removed from wishlist",
+                            text: response.message,
+                            icon: currentWishlistState ? 'success' : 'info',
+                            timer: 2000,
+                            showConfirmButton: true,
+                            confirmButtonColor: '#800000'
+                        });
+
+                        const wishlistCount = document.querySelector('.pro-count.blue');
+                        if (wishlistCount) {
+                            const currentCount = parseInt(wishlistCount.textContent);
+                            wishlistCount.textContent = currentWishlistState ? currentCount + 1 : currentCount - 1;
+                        }
+                    }
+                },
+                error: (xhr) => {
+                    if (xhr.status === 401) {
+                        window.location.href = "/login";
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'There was an error while updating your wishlist',
+                            icon: 'error',
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
+                    }
+                }
+            });
+        }
 
         const colorSizeMap = JSON.parse('<%- JSON.stringify(product.colorSizeMap) %>');
         const variants = JSON.parse('<%- JSON.stringify(product.variants) %>');
@@ -681,13 +759,11 @@
 
 
         function buyNow(productId) {
-            console.log("buyNow function called with productId:", productId);
 
-            const selectedColor = colorSelect.value;
-            console.log("Selected Color:", selectedColor);
+            const selectedColor = colorSelect.value
 
             const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
-            console.log("Selected Size:", selectedSize);
+            
 
 
             if (!selectedColor || !selectedSize) {
@@ -713,7 +789,6 @@
             }
 
             const variant = variants.find(v => v.color === selectedColor);
-            console.log("Found Variant:", variant);
 
             if (!variant) {
                 console.error("Error: No variant found for selected color");
@@ -728,7 +803,7 @@
 
 
             const sizeVariant = variant.sizes.find(s => s.size === selectedSize);
-            console.log("Found Size Variant:", sizeVariant);
+        
 
             if (!sizeVariant) {
                 console.error("Error: No size variant found for selected size");
@@ -842,71 +917,8 @@
         }
 
 
-        function initializeWishlistState() {
-            const wishlistBtn = document.querySelector('.action-btn.hover-up');
-            const wishlistIcon = wishlistBtn.querySelector('i');
+        
 
-            if (currentWishlistState) {
-                wishlistBtn.classList.add('in-wishlist');
-                if (wishlistIcon.nextSibling) {
-                    wishlistIcon.nextSibling.textContent = ' Wishlisted';
-                } else {
-                    wishlistIcon.after(document.createTextNode(' Wishlisted'));
-                }
-            }
-        }
-
-        function addToWishlist(productId) {
-            const wishlistBtn = document.querySelector('.action-btn.hover-up');
-            const wishlistIcon = wishlistBtn.querySelector('i');
-            const wishlistText = document.createTextNode(currentWishlistState ? ' Wishlist' : ' Wishlisted');
-
-            $.ajax({
-                url: '/toggleWishlist',
-                method: 'POST',
-                data: { productId: productId },
-                success: (response) => {
-                    if (response.status) {
-                        currentWishlistState = !currentWishlistState;
-
-                        wishlistBtn.classList.toggle('in-wishlist');
-
-                        if (wishlistIcon.nextSibling) {
-                            wishlistIcon.nextSibling.textContent = currentWishlistState ? ' Wishlisted' : ' Wishlist';
-                        } else {
-                            wishlistIcon.after(wishlistText);
-                        }
-
-                        Swal.fire({
-                            title: currentWishlistState ? "Added to wishlist" : "Removed from wishlist",
-                            text: response.message,
-                            icon: currentWishlistState ? 'success' : 'info',
-                            timer: 2000,
-                            showConfirmButton: false,
-                            confirmButtonColor: '#800000'
-                        });
-
-                        const wishlistCount = document.querySelector('.pro-count.blue');
-                        if (wishlistCount) {
-                            const currentCount = parseInt(wishlistCount.textContent);
-                            wishlistCount.textContent = currentWishlistState ? currentCount + 1 : currentCount - 1;
-                        }
-                    }
-                },
-                error: (xhr) => {
-                    if (xhr.status === 401) {
-                        window.location.href = "/login";
-                    } else {
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'There was an error while updating your wishlist',
-                            icon: 'error',
-                            timer: 2000
-                        });
-                    }
-                }
-            });
-        }
 
         function setupModals() {
             const sizeGuideModal = document.getElementById('size-guide-modal');
@@ -944,10 +956,6 @@
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
-
-        document.querySelector('.buy-now-btn').addEventListener('click', () => {
-            console.log("Buy Now clicked!");
-        });
 
     </script>
 

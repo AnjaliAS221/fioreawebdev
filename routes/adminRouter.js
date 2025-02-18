@@ -71,8 +71,6 @@ router.get("/search-products", adminAuth, stockController.searchProducts);
 //order Controller
 router.get('/orders', adminAuth, orderController.loadOrders);
 router.post('/update-order-status', adminAuth, orderController.updateOrderStatus);
-router.get('/getReturnRequest', adminAuth, orderController.getReturnPage);
-router.post('/returnDataUpdate', adminAuth, orderController.returnRequest);
 
 
 //coupon management

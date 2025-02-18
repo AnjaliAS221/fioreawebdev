@@ -166,7 +166,7 @@ const returnUpdate = async (req, res) => {
             }
         }
 
-        return res.redirect('/return-approvals');
+        return res.redirect('/admin/return-approvals');
 
     } catch (error) {
         console.error('Error in return update:', error);  
