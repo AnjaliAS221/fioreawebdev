@@ -112,7 +112,7 @@
       <ul class="pagination justify-content-center mb-20">
         <% for (let i=1; i <=totalPages; i++) { %>
           <li class="page-item <%= (i === parseInt(currentPage)) ? 'active' : '' %>">
-            <a class="page-link" href="?page=<%= i %>&search=<%= search %>">
+            <a class="page-link" href="?page=<%= i %>&search=<%=search%>">
               <%= i %>
             </a>
           </li>
