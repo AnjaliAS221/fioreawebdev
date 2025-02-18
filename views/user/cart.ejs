@@ -219,6 +219,32 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        .empty-cart-container {
+            padding: 120px 0;
+            text-align: center;
+        }
+
+        .empty-cart-container h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #212529;
+        }
+
+        .btn-shop {
+            background: #212529;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .btn-shop:hover {
+            background: #343a40;
+            color: white;
+        }
     </style>
 
     <div class="breadcrumb-wrap">
@@ -347,7 +373,18 @@
                     </div>
                 </div>
             </div>
-            <% } %>
+            <% } else { %>
+                <div class="empty-cart-container text-center">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#dee2e6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <h2>Your Cart is Empty</h2>
+                    <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
+                    <a href="/shop" class="btn-shop">Start Shopping</a>
+                </div>
+                <% } %>
     </div>
 
 

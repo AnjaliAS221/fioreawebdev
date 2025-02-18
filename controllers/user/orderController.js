@@ -10,33 +10,26 @@ const Wallet = require('../../models/walletSchema');
 
 const loadCheckout = async (req, res) => {
     try {
-        console.log("[INFO] Checkout process initiated.");
         const user = req.session.user;
-        console.log("[INFO] User session retrieved:", user);
 
         const addressDoc = await Address.findOne({ userId: user });
         const addresses = addressDoc ? addressDoc.address : [];
-        console.log("[INFO] User addresses retrieved:", addresses);
 
         let totalPrice = 0;
         const productId = req.query.id;
-        console.log("[INFO] Product ID from query:", productId);
 
         const availableCoupons = await Coupon.find({
             expireOn: { $gt: new Date() },
             isList: true
         });
-        console.log("[INFO] Available coupons fetched:", availableCoupons);
 
         if (productId) {
-            console.log("[INFO] Single product checkout detected.");
             
             const product = await Product.findOne({ _id: productId });
             if (!product) {
                 console.log("[ERROR] Product not found for ID:", productId);
                 return res.status(400).json({ message: "Product not found" });
             }
-            console.log("[INFO] Product details retrieved:", product);
 
             const structuredProduct = {
                 _id: product._id,
@@ -49,10 +42,8 @@ const loadCheckout = async (req, res) => {
                 salePrice: product.salePrice,
                 totalPrice: (product.salePrice || product.price) * (parseInt(req.query.quantity) || 1)
             };
-            console.log("[INFO] Structured product data:", structuredProduct);
 
             totalPrice = structuredProduct.totalPrice;
-            console.log("[INFO] Total price calculated:", totalPrice);
 
             return res.render('checkout', {
                 cart: null,
@@ -64,21 +55,17 @@ const loadCheckout = async (req, res) => {
             });
 
         } else {
-            console.log("[INFO] Cart checkout detected.");
             
             const cartItems = await Cart.findOne({ userId: user }).populate('items.productId');
             if (!cartItems) {
-                console.log("[ERROR] Cart not found for user:", user);
                 return res.status(400).json({ success: false, message: "Cart is empty" });
             }
             if (cartItems.items.length === 0) {
-                console.log("[INFO] Cart is empty. Redirecting to home page.");
                 return res.redirect('/');
             }
-            console.log("[INFO] Cart items retrieved:", cartItems.items);
 
             totalPrice = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0);
-            console.log("[INFO] Total cart price calculated:", totalPrice);
+            
 
             return res.render('checkout', {
                 cart: cartItems,

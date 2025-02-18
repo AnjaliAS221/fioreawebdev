@@ -1,5 +1,8 @@
 <%- include("../../views/partials/user/header") %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -25,7 +28,6 @@
         .hero {
             position: relative;
             height: 85vh;
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
             overflow: hidden;
         }
 
@@ -39,28 +41,41 @@
             position: relative;
         }
 
+        .hero__items::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+
         .hero__text {
             text-align: center;
             animation: fadeInUp 1.2s ease-out;
             z-index: 2;
+            position: relative;
+            padding: 20px;
         }
 
         .hero__text h2 {
             font-size: 5rem;
             margin-bottom: 20px;
             color: white;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
             letter-spacing: 8px;
+            font-weight: 700;
         }
 
         .hero__text p {
             font-size: 1.8rem;
             margin-bottom: 35px;
             color: white;
-            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 3px;
         }
-
 
         .primary-btn {
             display: inline-block;
@@ -75,6 +90,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            z-index: 3;
         }
 
         .primary-btn:hover {
@@ -289,13 +305,15 @@
         }
     </style>
 
-    <section class="hero">
-        <div class="hero__items" style="background-image: url('img/hero/hero-1.webp')">
-            <div class="hero__text">
-                <h2>FIOREA</h2>
-                <p>Wear the art of flowers</p>
-                <a href="/shop" class="primary-btn">Explore Collection</a>
-            </div>
+    <section class="relative h-[85vh] bg-cover bg-center flex items-center justify-center text-center text-white"
+        style="background-image: url('/img/hero/hero-1.webp')">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative z-10">
+            <h2 class="text-5xl font-bold mb-4">FIOREA</h2>
+            <p class="text-2xl mb-6">Wear the art of flowers</p>
+            <a href="/shop"
+                class="bg-rose-900 text-white px-6 py-3 rounded-full text-sm font-semibold uppercase shadow-md hover:bg-amber-600 transition">Explore
+                Collection</a>
         </div>
     </section>
 

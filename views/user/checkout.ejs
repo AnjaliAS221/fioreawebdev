@@ -202,9 +202,9 @@
 
     <div class="checkout-container">
         <div class="row">
-            <!-- Left Column -->
+        
             <div class="col-lg-8">
-                <!-- Address Selection Card -->
+                
                 <div class="checkout-card">
                     <div class="card-header">
                         <h4>Delivery Address</h4>
@@ -245,7 +245,7 @@
                     </div>
                 </div>
 
-                <!-- Payment Methods Card -->
+                
                 <div class="checkout-card">
                     <div class="card-header">
                         <h4>Payment Method</h4>
@@ -269,7 +269,7 @@
                             </div>
                         </div>
 
-                        <!-- Hidden Fields -->
+                        
                         <input type="hidden" name="finalPrice" id="finalPrice">
                         <input type="hidden" name="coupon" id="coupon">
                         <input type="hidden" name="discount" id="discountapp">
@@ -283,7 +283,6 @@
                 </div>
             </div>
 
-            <!-- Right Column -->
             <div class="col-lg-4">
                 <div class="order-summary-sticky">
                     <div class="checkout-card">
@@ -292,7 +291,7 @@
 
                         </div>
 
-                        <!-- Products List -->
+                        
                         <div class="products-list">
                             <% if (cart && cart.items && cart.items.length> 0) { %>
                                 <% cart.items.forEach(item=> { %>
@@ -344,7 +343,7 @@
                                                 <% } %>
                         </div>
 
-                        <!-- Coupon Section -->
+                        
                         <div class="coupon-section">
                             <div class="toggle_info">
                                 <span>Have a coupon? <a href="#coupon" data-bs-toggle="collapse">Click here</a></span>
@@ -365,7 +364,7 @@
                             </div>
                         </div>
 
-                        <!-- Price Summary -->
+                        
                         <div class="price-summary">
                             <div class="price-row">
                                 <span>Subtotal</span>

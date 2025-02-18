@@ -653,37 +653,38 @@
 
 
         function setupQuantityControls() {
-            const qtyUpBtn = document.querySelector('.qty-up');
-            const qtyDownBtn = document.querySelector('.qty-down');
-            const qtyVal = document.getElementById('quantity');
+    const qtyUpBtn = document.querySelector('.qty-up');
+    const qtyDownBtn = document.querySelector('.qty-down');
+    const qtyVal = document.getElementById('quantity');
+    const maxLimit = 5; 
 
-            qtyUpBtn.addEventListener('click', (e) => {
-                e.preventDefault();
+    qtyUpBtn.addEventListener('click', (e) => {
+        e.preventDefault();
 
-
-                if (quantity < currentStock) {
-                    quantity += 1;
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Stock Limit',
-                        text: 'Stock Limit Exceeded',
-                        confirmButtonColor: '#800000'
-                    });
-                }
-
-                qtyVal.textContent = quantity;
-            });
-
-            qtyDownBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (quantity > 1) {
-                    quantity -= 1;
-                    qtyVal.textContent = quantity;
-                }
+        if (quantity < currentStock && quantity < maxLimit) {
+            quantity += 1;
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Quantity Limit',
+                text: quantity >= maxLimit ? 
+                    'Maximum purchase limit is 5 items' : 
+                    'Stock Limit Exceeded',
+                confirmButtonColor: '#800000'
             });
         }
 
+        qtyVal.textContent = quantity;
+    });
+
+    qtyDownBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (quantity > 1) {
+            quantity -= 1;
+            qtyVal.textContent = quantity;
+        }
+    });
+}
 
         function handleColorChange(e) {
             quantity = 1;
@@ -759,12 +760,18 @@
 
 
         function buyNow(productId) {
+            if (quantity > 5) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Quantity Limit',
+                    text: 'Maximum purchase limit is 5 items',
+                    confirmButtonColor: '#800000'
+                });
+                return false;
+            }
 
             const selectedColor = colorSelect.value
-
             const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
-
-
 
             if (!selectedColor || !selectedSize) {
                 console.warn("Validation failed: Missing color or size selection");
@@ -843,6 +850,17 @@
 
 
         function addToCart(productId) {
+
+            if (quantity > 5) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Quantity Limit',
+                    text: 'Maximum purchase limit is 5 items',
+                    confirmButtonColor: '#800000'
+                });
+                return false;
+            }
+
             const selectedColor = colorSelect.value;
             const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
 
