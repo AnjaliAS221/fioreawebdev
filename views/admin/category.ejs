@@ -1,302 +1,306 @@
 <%- include("../../views/partials/admin/header") %>
 
-<head>
+  <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
     <style>
-        .category-form-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 24px;
-            height: fit-content;
-        }
+      .category-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        height: fit-content;
+      }
 
-        .table-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-left: 20px;
-        }
+      .table-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-left: 20px;
+      }
 
-        .form-control {
-            padding: 10px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            transition: border-color 0.3s ease;
-        }
+      .form-control {
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: border-color 0.3s ease;
+      }
 
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-        }
+      .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
 
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
+      .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+      }
 
-        .btn-primary {
-            background: #007bff;
-            border: none;
-        }
+      .btn-primary {
+        background: #007bff;
+        border: none;
+      }
 
-        .btn-primary:hover {
-            background: #0056b3;
-            transform: translateY(-1px);
-        }
+      .btn-primary:hover {
+        background: #0056b3;
+        transform: translateY(-1px);
+      }
 
-        .search-container {
-            max-width: 500px;
-            margin: 0 auto 30px;
-        }
+      .search-container {
+        max-width: 500px;
+        margin: 0 auto 30px;
+      }
 
-        .search-input {
-            border-radius: 25px;
-            padding: 12px 20px;
-            border: 1px solid #ddd;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
+      .search-input {
+        border-radius: 25px;
+        padding: 12px 20px;
+        border: 1px solid #ddd;
+        width: 100%;
+        transition: all 0.3s ease;
+      }
 
-        .search-input:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.1);
-        }
+      .search-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.1);
+      }
 
-        .badge {
-            padding: 8px 12px;
-            font-weight: 500;
-        }
+      .badge {
+        padding: 8px 12px;
+        font-weight: 500;
+      }
 
-        .error-message {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 4px;
-        }
+      .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 4px;
+      }
 
-        .table th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
+      .table th {
+        background: #f8f9fa;
+        font-weight: 600;
+      }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-        }
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+      }
 
-        .empty-state i {
-            font-size: 48px;
-            color: #6c757d;
-            margin-bottom: 16px;
-        }
+      .empty-state i {
+        font-size: 48px;
+        color: #6c757d;
+        margin-bottom: 16px;
+      }
 
-        .pagination {
-            margin-top: 30px;
-        }
+      .pagination {
+        margin-top: 30px;
+      }
 
-        .page-link {
-            padding: 8px 16px;
-            margin: 0 4px;
-            border-radius: 6px;
-        }
+      .page-link {
+        padding: 8px 16px;
+        margin: 0 4px;
+        border-radius: 6px;
+      }
 
-        .alert {
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+      .alert {
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <section class="content-main">
-        <div class="container-fluid p-4">
-          
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h3 mb-0">Category Management</h2>
-            </div>
+      <div class="container-fluid p-4">
 
-            <% if (messages.success && messages.success.length > 0) { %>
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                  <%= messages.success %>
-                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
-          <% } %>
-
-          <% if (messages.error && messages.error.length > 0) { %>
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  <%= messages.error %>
-                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
-          <% } %>
-
-            <div class="search-container">
-              <form action="/admin/category" method="GET" id="searchForm">
-                  <div class="input-group">
-                      <input type="text" 
-                             class="form-control search-input" 
-                             placeholder="Search categories..." 
-                             name="search"
-                             value="<%= locals.search ? search : '' %>"
-                             minlength="1">
-                      <button class="btn btn-primary" type="submit">
-                          <i class="fas fa-search"></i>
-                      </button>
-                  </div>
-              </form>
-          </div>
-
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="category-form-card">
-                        <h4 class="mb-4">Add New Category</h4>
-                        <form method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)">
-                            <div class="mb-3">
-                                <label class="form-label">Name</label>
-                                <input type="text" 
-                                       name="name" 
-                                       class="form-control" 
-                                       required />
-                                <div id="name-error" class="error-message"></div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Description</label>
-                                <textarea name="description" 
-                                          class="form-control" 
-                                          id="descriptionId" 
-                                          rows="4" 
-                                          required></textarea>
-                                <div id="description-error" class="error-message"></div>
-                            </div>
-
-                            <button class="btn btn-primary w-100" type="submit">
-                                Create Category
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Category Table -->
-                <div class="col-md-9">
-                    <div class="table-card">
-                        <% if (cat && cat.length > 0) { %>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Description</th>
-                                            <th>Offer Price</th>
-                                            <th>Offer</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% cat.reverse().forEach((category) => { %>
-                                            <tr>
-                                                <td><%= category.name %></td>
-                                                <td><%= category.description %></td>
-                                                <td>
-                                                    <%= category.categoryOffer ? `${category.categoryOffer}%` : '0%' %>
-                                                </td>
-                                                <td>
-                                                    <% if (!category.categoryOffer) { %>
-                                                        <button class="btn btn-sm btn-outline-primary" onclick="addOffer('<%= category._id %>')">
-                                                            Add Offer
-                                                        </button>
-                                                    <% } else { %>
-                                                        <button class="btn btn-sm btn-outline-danger" onclick="removeOffer('<%= category._id %>')">
-                                                            Remove Offer
-                                                        </button>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (category.isListed) { %>
-                                                        <span class="badge bg-success">Listed</span>
-                                                    <% } else { %>
-                                                        <span class="badge bg-danger">Unlisted</span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <a href="/admin/editCategory?id=<%= category._id %>" 
-                                                           class="btn btn-sm btn-outline-secondary">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <% if (category.isListed) { %>
-                                                            <a href="/admin/listCategory?id=<%= category._id %>" 
-                                                               class="btn btn-sm btn-outline-danger">
-                                                                Unlist
-                                                            </a>
-                                                        <% } else { %>
-                                                            <a href="/admin/unlistCategory?id=<%= category._id %>" 
-                                                               class="btn btn-sm btn-outline-success">
-                                                                List
-                                                            </a>
-                                                        <% } %>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <% }) %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <% } else { %>
-                            <div class="empty-state">
-                                <i class="fas fa-search mb-3"></i>
-                                <h5 class="text-muted">No Categories Found</h5>
-                                <p class="text-muted mb-3">
-                                    <%= search ? 'No categories match your search criteria.' : 'No categories have been created yet.' %>
-                                </p>
-                                <% if (search) { %>
-                                    <a href="/admin/category" class="btn btn-outline-primary">
-                                        View All Categories
-                                    </a>
-                                <% } %>
-                            </div>
-                        <% } %>
-                    </div>
-
-                    <% if (totalPages > 1) { %>
-                      <nav class="mt-4">
-                          <ul class="pagination justify-content-center">
-                              <% if (currentPage > 1) { %>
-                                  <li class="page-item">
-                                      <a class="page-link" href="?page=1<%= locals.search ? `&search=${search}` : '' %>">First</a>
-                                  </li>
-                                  <li class="page-item">
-                                      <a class="page-link" href="?page=<%= currentPage - 1 %><%= locals.search ? `&search=${search}` : '' %>">Previous</a>
-                                  </li>
-                              <% } %>
-                  
-                              <% let startPage = Math.max(1, currentPage - 2);
-                                 let endPage = Math.min(totalPages, currentPage + 2); %>
-                  
-                              <% for (let i = startPage; i <= endPage; i++) { %>
-                                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                      <a class="page-link" href="?page=<%= i %><%= locals.search ? `&search=${search}` : '' %>"><%= i %></a>
-                                  </li>
-                              <% } %>
-                  
-                              <% if (currentPage < totalPages) { %>
-                                  <li class="page-item">
-                                      <a class="page-link" href="?page=<%= currentPage + 1 %><%= locals.search ? `&search=${search}` : '' %>">Next</a>
-                                  </li>
-                                  <li class="page-item">
-                                      <a class="page-link" href="?page=<%= totalPages %><%= locals.search ? `&search=${search}` : '' %>">Last</a>
-                                  </li>
-                              <% } %>
-                          </ul>
-                      </nav>
-                  <% } %>
-
-
-                </div>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="h3 mb-0">Category Management</h2>
         </div>
+
+        <% if (messages.success && messages.success.length> 0) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= messages.success %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <% } %>
+
+            <% if (messages.error && messages.error.length> 0) { %>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= messages.error %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+              <% } %>
+
+                <div class="search-container">
+                  <form action="/admin/category" method="GET" id="searchForm">
+                    <div class="input-group">
+                      <input type="text" class="form-control search-input" placeholder="Search categories..."
+                        name="search" value="<%= locals.search ? search : '' %>" minlength="1">
+                      <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="category-form-card">
+                      <h4 class="mb-4">Add New Category</h4>
+                      <form method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)">
+                        <div class="mb-3">
+                          <label class="form-label">Name</label>
+                          <input type="text" name="name" class="form-control" required />
+                          <div id="name-error" class="error-message"></div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Description</label>
+                          <textarea name="description" class="form-control" id="descriptionId" rows="4"
+                            required></textarea>
+                          <div id="description-error" class="error-message"></div>
+                        </div>
+
+                        <button class="btn btn-primary w-100" type="submit">
+                          Create Category
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+
+
+                  <div class="col-md-9">
+                    <div class="table-card">
+                      <% if (cat && cat.length> 0) { %>
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Offer Price</th>
+                                <th>Offer</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% cat.reverse().forEach((category)=> { %>
+                                <tr>
+                                  <td>
+                                    <%= category.name %>
+                                  </td>
+                                  <td>
+                                    <%= category.description %>
+                                  </td>
+                                  <td>
+                                    <%= category.categoryOffer ? `${category.categoryOffer}%` : '0%' %>
+                                  </td>
+                                  <td>
+                                    <% if (!category.categoryOffer) { %>
+                                      <button class="btn btn-sm btn-outline-primary"
+                                        onclick="addOffer('<%= category._id %>')">
+                                        Add Offer
+                                      </button>
+                                      <% } else { %>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                          onclick="removeOffer('<%= category._id %>')">
+                                          Remove Offer
+                                        </button>
+                                        <% } %>
+                                  </td>
+                                  <td>
+                                    <% if (category.isListed) { %>
+                                      <span class="badge bg-success">Listed</span>
+                                      <% } else { %>
+                                        <span class="badge bg-danger">Unlisted</span>
+                                        <% } %>
+                                  </td>
+                                  <td>
+                                    <div class="btn-group">
+                                      <a href="/admin/editCategory?id=<%= category._id %>"
+                                        class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                      </a>
+                                      <% if (category.isListed) { %>
+                                        <a href="/admin/listCategory?id=<%= category._id %>"
+                                          class="btn btn-sm btn-outline-danger">
+                                          Unlist
+                                        </a>
+                                        <% } else { %>
+                                          <a href="/admin/unlistCategory?id=<%= category._id %>"
+                                            class="btn btn-sm btn-outline-success">
+                                            List
+                                          </a>
+                                          <% } %>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                          </table>
+                        </div>
+                        <% } else { %>
+                          <div class="empty-state">
+                            <i class="fas fa-search mb-3"></i>
+                            <h5 class="text-muted">No Categories Found</h5>
+                            <p class="text-muted mb-3">
+                              <%= search ? 'No categories match your search criteria.'
+                                : 'No categories have been created yet.' %>
+                            </p>
+                            <% if (search) { %>
+                              <a href="/admin/category" class="btn btn-outline-primary">
+                                View All Categories
+                              </a>
+                              <% } %>
+                          </div>
+                          <% } %>
+                    </div>
+
+                    <% if (totalPages> 1) { %>
+                      <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                          <% if (currentPage> 1) { %>
+                            <li class="page-item">
+                              <a class="page-link"
+                                href="?page=1<%= locals.search ? `&search=${search}` : '' %>">First</a>
+                            </li>
+                            <li class="page-item">
+                              <a class="page-link"
+                                href="?page=<%= currentPage - 1 %><%= locals.search ? `&search=${search}` : '' %>">Previous</a>
+                            </li>
+                            <% } %>
+
+                              <% let startPage=Math.max(1, currentPage - 2); let endPage=Math.min(totalPages,
+                                currentPage + 2); %>
+
+                                <% for (let i=startPage; i <=endPage; i++) { %>
+                                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link"
+                                      href="?page=<%= i %><%= locals.search ? `&search=${search}` : '' %>">
+                                      <%= i %>
+                                    </a>
+                                  </li>
+                                  <% } %>
+
+                                    <% if (currentPage < totalPages) { %>
+                                      <li class="page-item">
+                                        <a class="page-link"
+                                          href="?page=<%= currentPage + 1 %><%= locals.search ? `&search=${search}` : '' %>">Next</a>
+                                      </li>
+                                      <li class="page-item">
+                                        <a class="page-link"
+                                          href="?page=<%= totalPages %><%= locals.search ? `&search=${search}` : '' %>">Last</a>
+                                      </li>
+                                      <% } %>
+                        </ul>
+                      </nav>
+                      <% } %>
+
+
+                  </div>
+                </div>
+      </div>
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
@@ -432,10 +436,10 @@
                 icon: 'success',
                 title: 'Success',
                 text: data.message,
-              }).then(()=>{
+              }).then(() => {
                 window.location.href = '/admin/category';
               })
-              
+
             } else {
               Swal.fire({
                 icon: 'error',
@@ -445,10 +449,10 @@
             }
           } catch (error) {
             Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Something went wrong!',
-          });
+              icon: 'error',
+              title: 'Error',
+              text: 'Something went wrong!',
+            });
           }
         }
       }
@@ -471,10 +475,10 @@
               icon: 'success',
               title: 'Success',
               text: data.message,
-            }).then(()=>{
+            }).then(() => {
               window.location.href = '/admin/category';
             })
-            
+
           } else {
             Swal.fire({
               icon: 'error',
@@ -484,20 +488,20 @@
           }
         } catch (error) {
           Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Something went wrong!',
-        });
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong!',
+          });
         }
       }
 
-      document.getElementById('searchForm').addEventListener('submit', function(e) {
-            const searchInput = this.querySelector('input[name="search"]');
-            if (!searchInput.value.trim()) {
-                e.preventDefault();
-                window.location.href = '/admin/category';
-            }
-        });
+      document.getElementById('searchForm').addEventListener('submit', function (e) {
+        const searchInput = this.querySelector('input[name="search"]');
+        if (!searchInput.value.trim()) {
+          e.preventDefault();
+          window.location.href = '/admin/category';
+        }
+      });
 
     </script>
     <%- include("../../views/partials/admin/footer") %>

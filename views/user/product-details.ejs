@@ -491,26 +491,26 @@
                                                 <span class="qty-val" id="quantity">1</span>
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
-                                            <% if (totalStock === 0) { %>
+                                            <% if (totalStock===0) { %>
                                                 <div class="out-of-stock-message">
                                                     <span style="color: red; font-weight: bold;">Out of Stock</span>
                                                 </div>
                                                 <button class="button add-to-cart-btn" disabled>Add to Cart</button>
                                                 <button class="button buy-now-btn" disabled>Buy Now</button>
-                                            <% } else { %>
-                                            <button type="button" class="button button-add-to-cart"
-                                                onclick="addToCart('<%= product._id %>')">
-                                                <i class="fas fa-shopping-cart mr-2"></i>Add to cart
-                                            </button>
-                                            <button type="button" class="button buy-now-btn"
-                                                onclick="buyNow('<%= product._id %>')">
-                                                Buy Now
-                                            </button>
-                                            <% } %>
-                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"
-                                                onclick="addToWishlist('<%= product._id %>')">
-                                                <i class="fi-rs-heart"></i> Wishlist
-                                            </a>
+                                                <% } else { %>
+                                                    <button type="button" class="button button-add-to-cart"
+                                                        onclick="addToCart('<%= product._id %>')">
+                                                        <i class="fas fa-shopping-cart mr-2"></i>Add to cart
+                                                    </button>
+                                                    <button type="button" class="button buy-now-btn"
+                                                        onclick="buyNow('<%= product._id %>')">
+                                                        Buy Now
+                                                    </button>
+                                                    <% } %>
+                                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                            href="#" onclick="addToWishlist('<%= product._id %>')">
+                                                            <i class="fi-rs-heart"></i> Wishlist
+                                                        </a>
                                         </div>
 
                                         <ul class="product-meta font-xs color-grey mt-50">
@@ -763,7 +763,7 @@
             const selectedColor = colorSelect.value
 
             const selectedSize = document.querySelector('.size-box.selected')?.querySelector('span')?.textContent;
-            
+
 
 
             if (!selectedColor || !selectedSize) {
@@ -803,7 +803,7 @@
 
 
             const sizeVariant = variant.sizes.find(s => s.size === selectedSize);
-        
+
 
             if (!sizeVariant) {
                 console.error("Error: No size variant found for selected size");
@@ -835,7 +835,7 @@
                 quantity: quantity,
                 variantId: variant._id
             }).toString();
-            
+
 
             window.location.href = `/checkout?${queryParams}`;
         }
@@ -917,7 +917,7 @@
         }
 
 
-        
+
 
 
         function setupModals() {

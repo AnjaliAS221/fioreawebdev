@@ -1,286 +1,302 @@
 <%- include("../../views/partials/user/header") %>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-<style>
-  /* Global Styles */
-  body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f5f7fa;
-    margin: 0;
-    padding: 0;
-  }
-
-  .main {
-    padding: 40px 0;
-  }
-
-  /* Breadcrumb */
-  .breadcrumb-wrap {
-    background-color: #f1f3f5;
-    padding: 15px 0;
-    border-radius: 10px;
-  }
-
-  .breadcrumb {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
-    color: #6c757d;
-  }
-
-  .breadcrumb a {
-    color: #007bff;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    color: #0056b3;
-  }
-
-  .breadcrumb span {
-    margin: 0 5px;
-    color: #6c757d;
-  }
-
-  /* Sidebar */
-  .dashboard-menu {
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-
-  .dashboard-menu .nav-link {
-    font-weight: bold;
-    color: #4b5563;
-    margin-bottom: 12px;
-    transition: color 0.3s, transform 0.3s ease;
-  }
-
-  .dashboard-menu .nav-link:hover {
-    color: #007bff;
-    transform: translateX(5px);
-  }
-
-  .dashboard-menu .nav-link i {
-    margin-right: 10px;
-  }
-
-  /* Profile Card */
-  .card-green {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 25px;
-  }
-
-  .card-header {
-    background-color: #007bff;
-    color: white;
-    padding: 20px;
-    border-radius: 10px 10px 0 0;
-  }
-
-  .card-body {
-    text-align: center;
-  }
-
-  .card-body h5 {
-    margin-bottom: 10px;
-    font-size: 20px;
-  }
-
-  .card-body p {
-    color: #6c757d;
-    margin: 5px 0;
-  }
-
-  .card-body form .form-control {
-    margin-bottom: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
-
-  .card-body button {
-    background-color: #007bff;
-    border-color: #007bff;
-    padding: 10px 20px;
-    color: white;
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
-  }
-
-  .card-body button:hover {
-    background-color: #0056b3;
-  }
-
-  /* Address Card */
-  .address-card {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .address-card h5 {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-
-  .address-card address {
-    color: #6c757d;
-    font-size: 14px;
-  }
-
-  .address-card p {
-    color: #6c757d;
-    margin: 5px 0;
-  }
-
-  /* Responsive Styles */
-  @media (max-width: 768px) {
-    .dashboard-menu {
-      padding: 15px;
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
     }
 
-    .card-green {
+    .main {
+      padding: 40px 0;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-wrap {
+      background-color: #f1f3f5;
+      padding: 15px 0;
+      border-radius: 10px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      color: #6c757d;
+    }
+
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      color: #0056b3;
+    }
+
+    .breadcrumb span {
+      margin: 0 5px;
+      color: #6c757d;
+    }
+
+    /* Sidebar */
+    .dashboard-menu {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
       padding: 20px;
     }
 
-    .address-card {
-      margin-bottom: 15px;
+    .dashboard-menu .nav-link {
+      font-weight: bold;
+      color: #4b5563;
+      margin-bottom: 12px;
+      transition: color 0.3s, transform 0.3s ease;
     }
-  }
-</style>
 
-<main class="main">
-  <div class="container">
-    <!-- Breadcrumb -->
-    <div class="breadcrumb-wrap mb-4">
-      <div class="breadcrumb">
-        <a href="/" rel="nofollow">Home</a>
-        <span>/</span>
-        <a href="#" rel="nofollow">Profile</a>
-        <span>/</span>
-        <a href="#" rel="nofollow">Account</a>
-      </div>
-    </div>
+    .dashboard-menu .nav-link:hover {
+      color: #007bff;
+      transform: translateX(5px);
+    }
 
-    <!-- Main Content -->
-    <section>
-      <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3">
-          <div class="dashboard-menu">
-            <ul class="nav flex-column" role="tablist">
-              <li class="nav-item">
-                <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="false">
-                  <i class="fi-rs-settings-sliders mr-2"></i>Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false">
-                  <i class="fi-rs-marker mr-2"></i>My Address
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="orders-tab" href="/order-history" aria-selected="false">
-                  <i class="fi-rs-shopping-bag mr-2"></i>Orders
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="wishlist-tab" href="/wishlist" aria-selected="false">
-                  <i class="fa fa-heart mr-2"></i>Wishlist
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="wallet-tab" href="/wallet" aria-selected="false">
-                  <i class="fi-rs-shopping-cart-check mr-2"></i>Wallet
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/logout">
-                  <i class="fi-rs-sign-out mr-2"></i>Logout
-                </a>
-              </li>
-            </ul>
-          </div>
+    .dashboard-menu .nav-link i {
+      margin-right: 10px;
+    }
+
+    /* Profile Card */
+    .card-green {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+    }
+
+    .card-header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .card-body {
+      text-align: center;
+    }
+
+    .card-body h5 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .card-body p {
+      color: #6c757d;
+      margin: 5px 0;
+    }
+
+    .card-body form .form-control {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .card-body button {
+      background-color: #007bff;
+      border-color: #007bff;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .card-body button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Address Card */
+    .address-card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .address-card h5 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .address-card address {
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .address-card p {
+      color: #6c757d;
+      margin: 5px 0;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .dashboard-menu {
+        padding: 15px;
+      }
+
+      .card-green {
+        padding: 20px;
+      }
+
+      .address-card {
+        margin-bottom: 15px;
+      }
+    }
+  </style>
+
+  <main class="main">
+    <div class="container">
+      <div class="breadcrumb-wrap mb-4">
+        <div class="breadcrumb">
+          <a href="/" rel="nofollow">Home</a>
+          <span>/</span>
+          <a href="#" rel="nofollow">Profile</a>
+          <span>/</span>
+          <a href="#" rel="nofollow">Account</a>
         </div>
+      </div>
 
-        <!-- Profile Content -->
-        <div class="col-md-9">
-          <div class="tab-content">
-            <!-- Dashboard Tab -->
-            <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-              <div class="card-green">
-                <div class="card-header">
-                  <h5 class="mb-0 text-center">User Profile</h5>
-                </div>
-                <div class="card-body">
-                  <h5 class="card-title"><%=user.name%></h5>
-                  <p><strong>Phone:</strong> <%=user.phone%></p>
-                  <p><strong>Email:</strong> <%=user.email%></p>
+      <section>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="dashboard-menu">
+              <ul class="nav flex-column" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab"
+                    aria-controls="dashboard" aria-selected="false">
+                    <i class="fi-rs-settings-sliders mr-2"></i>Dashboard
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
+                    aria-controls="address" aria-selected="false">
+                    <i class="fi-rs-marker mr-2"></i>My Address
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="orders-tab" href="/order-history" aria-selected="false">
+                    <i class="fi-rs-shopping-bag mr-2"></i>Orders
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="wishlist-tab" href="/wishlist" aria-selected="false">
+                    <i class="fa fa-heart mr-2"></i>Wishlist
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="wallet-tab" href="/wallet" aria-selected="false">
+                    <i class="fi-rs-shopping-cart-check mr-2"></i>Wallet
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/logout">
+                    <i class="fi-rs-sign-out mr-2"></i>Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
 
-                  <form action="/update-profile" method="POST">
-                    <div class="form-group">
-                      <label for="username">Username</label>
-                      <input type="text" id="username" name="username" class="form-control" value="<%= user.name %>" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="phone">Phone</label>
-                      <input type="text" id="phone" name="phone" class="form-control" value="<%= user.phone %>" required>
-                    </div>
-                    <button type="submit" class="btn btn-success">Update</button>
-                  </form>
 
-                  <a href="/change-email" class="btn btn-success mt-3">Change Email</a>
-                  <a href="/change-password" class="btn btn-success mt-3">Change Password</a>
+          <div class="col-md-9">
+            <div class="tab-content">
+
+              <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                <div class="card-green">
+                  <div class="card-header">
+                    <h5 class="mb-0 text-center">User Profile</h5>
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <%=user.name%>
+                    </h5>
+                    <p><strong>Phone:</strong>
+                      <%=user.phone%>
+                    </p>
+                    <p><strong>Email:</strong>
+                      <%=user.email%>
+                    </p>
+
+                    <form action="/update-profile" method="POST">
+                      <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-control" value="<%= user.name %>"
+                          required>
+                      </div>
+                      <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" id="phone" name="phone" class="form-control" value="<%= user.phone %>"
+                          required>
+                      </div>
+                      <button type="submit" class="btn btn-success">Update</button>
+                    </form>
+
+                    <a href="/change-email" class="btn btn-success mt-3">Change Email</a>
+                    <a href="/change-password" class="btn btn-success mt-3">Change Password</a>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Address Tab -->
-            <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
-              <div class="row">
-                <% if (userAddress) { %>
-                  <% userAddress.address.forEach((address) => { %>
-                    <div class="col-md-6">
-                      <div class="address-card">
-                        <h5><%= address.addressType %></h5>
-                        <address>
-                          <%= address.name %>, <%= address.landMark %>, <%= address.city %>, <%= address.state %>
-                        </address>
-                        <p><%= address.pincode %></p>
-                        <p><%= address.phone %></p>
-                        <p><%= address.altPhone %></p>
-                        <div class="d-flex justify-content-between">
-                          <a href="/editAddress?id=<%= address._id %>" class="btn btn-primary btn-sm">Edit</a>
-                          <a href="/deleteAddress?id=<%= address._id %>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure want to delete this address?')">Delete</a>
+
+              <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                <div class="row">
+                  <% if (userAddress) { %>
+                    <% userAddress.address.forEach((address)=> { %>
+                      <div class="col-md-6">
+                        <div class="address-card">
+                          <h5>
+                            <%= address.addressType %>
+                          </h5>
+                          <address>
+                            <%= address.name %>, <%= address.landMark %>, <%= address.city %>, <%= address.state %>
+                          </address>
+                          <p>
+                            <%= address.pincode %>
+                          </p>
+                          <p>
+                            <%= address.phone %>
+                          </p>
+                          <p>
+                            <%= address.altPhone %>
+                          </p>
+                          <div class="d-flex justify-content-between">
+                            <a href="/editAddress?id=<%= address._id %>" class="btn btn-primary btn-sm">Edit</a>
+                            <a href="/deleteAddress?id=<%= address._id %>" class="btn btn-danger btn-sm"
+                              onclick="return confirm('Are you sure want to delete this address?')">Delete</a>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  <% }) %>
-                <% } else { %>
-                  <div class="col-md-6">
-                    <div class="address-card">
-                      <h5>No Address Available</h5>
-                    </div>
-                  </div>
-                <% } %>
+                      <% }) %>
+                        <% } else { %>
+                          <div class="col-md-6">
+                            <div class="address-card">
+                              <h5>No Address Available</h5>
+                            </div>
+                          </div>
+                          <% } %>
 
-                <div class="col-md-6">
-                  <a href="/addAddress" class="btn btn-primary w-100">Add Address</a>
+                            <div class="col-md-6">
+                              <a href="/addAddress" class="btn btn-primary w-100">Add Address</a>
+                            </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  </div>
-</main>
+      </section>
+    </div>
+  </main>
 
-<%- include("../../views/partials/user/footer") %>
+  <%- include("../../views/partials/user/footer") %>

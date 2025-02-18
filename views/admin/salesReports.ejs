@@ -194,50 +194,54 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (orders.length === 0) { %>
+                        <% if (orders.length===0) { %>
                             <tr>
                                 <td colspan="10" class="text-center text-muted">
                                     No results found for the selected filters.
                                 </td>
                             </tr>
-                        <% } else { %>
-                            <% orders.forEach((order, index) => { %>
-                                <tr>
-                                    <td>
-                                        <%= serialNumberOffset + index + 1 %>
-                                    </td>
-                                    <td>
-                                        <%= order.user ? order.user.name : 'N/A' %>
-                                    </td>
-                                    <td>
-                                        <%= order.user ? order.user.email : 'N/A' %>
-                                    </td>
-                                    <td>
-                                        <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                            <%= order.orderedItems.map(item =>
-                                                `${item.product ? item.product.productName : 'N/A'} (${item.quantity})`
-                                            ).join(', ') %>
-                                        <% } else { %>
-                                            No items
+                            <% } else { %>
+                                <% orders.forEach((order, index)=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= serialNumberOffset + index + 1 %>
+                                        </td>
+                                        <td>
+                                            <%= order.user ? order.user.name : 'N/A' %>
+                                        </td>
+                                        <td>
+                                            <%= order.user ? order.user.email : 'N/A' %>
+                                        </td>
+                                        <td>
+                                            <% if (order.orderedItems && order.orderedItems.length> 0) { %>
+                                                <%= order.orderedItems.map(item=>
+                                                    `${item.product ? item.product.productName : 'N/A'}
+                                                    (${item.quantity})`
+                                                    ).join(', ') %>
+                                                    <% } else { %>
+                                                        No items
+                                                        <% } %>
+                                        </td>
+                                        <td>
+                                            <%= moment(order.createdAt).format('DD/MM/YYYY') %>
+                                        </td>
+                                        <td>₹<%= Math.round(order.totalPrice).toLocaleString() %>
+                                        </td>
+                                        <td>₹<%= Math.round(order.discount).toLocaleString() %>
+                                        </td>
+                                        <td>₹<%= Math.round(order.finalAmount).toLocaleString() %>
+                                        </td>
+                                        <td>
+                                            <%= order.paymentMethod || 'N/A' %>
+                                        </td>
+                                        <td>
+                                            <%= order.status || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
                                         <% } %>
-                                    </td>
-                                    <td>
-                                        <%= moment(order.createdAt).format('DD/MM/YYYY') %>
-                                    </td>
-                                    <td>₹<%= Math.round(order.totalPrice).toLocaleString() %></td>
-                                    <td>₹<%= Math.round(order.discount).toLocaleString() %></td>
-                                    <td>₹<%= Math.round(order.finalAmount).toLocaleString() %></td>
-                                    <td>
-                                        <%= order.paymentMethod || 'N/A' %>
-                                    </td>
-                                    <td>
-                                        <%= order.status || 'N/A' %>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        <% } %>
                     </tbody>
-                    
+
                 </table>
             </div>
 

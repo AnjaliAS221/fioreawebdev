@@ -1,40 +1,42 @@
 <%- include("../../views/partials/admin/header") %>
-<div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="col-md-8">
-        <div class="card shadow-lg rounded-4 border-0" style="background-color: #f8f9fa;">
-            <div class="card-header bg-primary text-white text-center rounded-top-4">
-                <h4 class="mb-0">Edit Category</h4>
-            </div>
-            <div class="card-body p-5">
-                <form method="post" action="/admin/editCategory/<%=category._id%>" id="editCategoryForm" novalidate>
-                    <div class="mb-4">
-                        <label for="categoryName" class="form-label">Category Name</label>
-                        <input type="text" id="categoryName" name="categoryName" value="<%=category.name%>" class="form-control border" required />
-                        <div class="invalid-feedback">Category name is required.</div>
-                    </div>
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="col-md-8">
+            <div class="card shadow-lg rounded-4 border-0" style="background-color: #f8f9fa;">
+                <div class="card-header bg-primary text-white text-center rounded-top-4">
+                    <h4 class="mb-0">Edit Category</h4>
+                </div>
+                <div class="card-body p-5">
+                    <form method="post" action="/admin/editCategory/<%=category._id%>" id="editCategoryForm" novalidate>
+                        <div class="mb-4">
+                            <label for="categoryName" class="form-label">Category Name</label>
+                            <input type="text" id="categoryName" name="categoryName" value="<%=category.name%>"
+                                class="form-control border" required />
+                            <div class="invalid-feedback">Category name is required.</div>
+                        </div>
 
-                    <div class="mb-4">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea id="description" name="description" class="form-control border" rows="4" required><%=category.description%></textarea>
-                        <div class="invalid-feedback">Description is required.</div>
-                    </div>
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" name="description" class="form-control border" rows="4"
+                                required><%=category.description%></textarea>
+                            <div class="invalid-feedback">Description is required.</div>
+                        </div>
 
-                    <div class="d-flex justify-content-end">
-                        <button class="btn btn-success px-5 py-2" type="submit">Update Category</button>
-                    </div>
-                </form>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-success px-5 py-2" type="submit">Update Category</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<script>
-    document.getElementById('editCategoryForm').addEventListener('submit', function (event) {
-        const form = event.target;
-        if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-    });
-</script>
-<%- include("../../views/partials/admin/footer") %>
+    <script>
+        document.getElementById('editCategoryForm').addEventListener('submit', function (event) {
+            const form = event.target;
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    </script>
+    <%- include("../../views/partials/admin/footer") %>

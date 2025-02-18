@@ -252,10 +252,8 @@
 
         function validateAndSubmit(event) {
             if (validateForm()) {
-                // Only submit the form if validation passes
                 document.forms[0].submit();
             } else {
-                // If validation fails, prevent form submission
                 event.preventDefault();
             }
         }
@@ -314,7 +312,6 @@
                 displayErrorMessage("image-error", "Please upload an image file.");
                 isValid = false;
             } else {
-                // Check file type (only accept images)
                 const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
                 if (!validImageTypes.includes(File.type)) {
                     console.log('Invalid file type. Please upload a JPEG, PNG, or GIF file.');

@@ -1,185 +1,197 @@
 <%- include("../../views/partials/user/header") %>
 
-<style>
-    .payment-failed {
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 32px;
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-    }
+    <style>
+        .payment-failed {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 32px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
 
-    .payment-status {
-        text-align: center;
-        margin-bottom: 36px;
-    }
+        .payment-status {
+            text-align: center;
+            margin-bottom: 36px;
+        }
 
-    .error-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 24px;
-        background: linear-gradient(135deg, #fee2e2, #fecaca);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #dc2626;
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
-        animation: pulse 2s infinite;
-    }
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dc2626;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+            animation: pulse 2s infinite;
+        }
 
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
 
-    .error-title {
-        font-size: 28px;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 12px;
-    }
+            50% {
+                transform: scale(1.05);
+            }
 
-    .error-message {
-        color: #6b7280;
-        font-size: 16px;
-        line-height: 1.6;
-        margin-bottom: 24px;
-    }
+            100% {
+                transform: scale(1);
+            }
+        }
 
-    .order-details {
-        background: #f8fafc;
-        padding: 24px;
-        border-radius: 12px;
-        margin-bottom: 36px;
-        border: 1px solid #e2e8f0;
-    }
+        .error-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
 
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px dashed #e2e8f0;
-    }
+        .error-message {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
 
-    .detail-row:last-child {
-        border-bottom: none;
-    }
+        .order-details {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 36px;
+            border: 1px solid #e2e8f0;
+        }
 
-    .detail-label {
-        color: #64748b;
-        font-weight: 500;
-        font-size: 15px;
-    }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
 
-    .detail-value {
-        color: #0f172a;
-        font-weight: 600;
-        font-size: 15px;
-    }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
 
-    .actions {
-        display: flex;
-        justify-content: center;
-        gap: 16px;
-        margin-bottom: 36px;
-    }
+        .detail-label {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 15px;
+        }
 
-    .btn {
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        font-size: 15px;
-    }
+        .detail-value {
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 15px;
+        }
 
-    .btn-home {
-        background: #1f2937;
-        color: white;
-    }
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
 
-    .btn-home:hover {
-        background: #374151;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 15px;
+        }
 
-    .support {
-        text-align: center;
-        padding-top: 24px;
-        border-top: 1px solid #e2e8f0;
-    }
+        .btn-home {
+            background: #1f2937;
+            color: white;
+        }
 
-    .support-title {
-        color: #4b5563;
-        margin-bottom: 12px;
-        font-weight: 600;
-    }
+        .btn-home:hover {
+            background: #374151;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-    .support-email {
-        color: #2563eb;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s ease;
-    }
+        .support {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
 
-    .support-email:hover {
-        color: #1d4ed8;
-        text-decoration: underline;
-    }
+        .support-title {
+            color: #4b5563;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
 
-    .support p {
-        color: #6b7280;
-        line-height: 1.6;
-        margin-bottom: 8px;
-    }
-</style>
-</head>
-<body>
+        .support-email {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
 
-<div class="payment-failed">
-    <div class="payment-status">
-        <div class="error-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="15" y1="9" x2="9" y2="15"/>
-                <line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
+        .support-email:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .support p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+    </style>
+    </head>
+
+    <body>
+
+        <div class="payment-failed">
+            <div class="payment-status">
+                <div class="error-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                </div>
+                <h1 class="error-title">Payment Failed</h1>
+            </div>
+
+            <% if (order) { %>
+                <div class="order-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Order ID</span>
+                        <span class="detail-value">#<%= order._id.toString().slice(-8).toUpperCase() %></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Amount</span>
+                        <span class="detail-value">₹<%= order.totalAmount.toLocaleString() %></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Items</span>
+                        <span class="detail-value">
+                            <%= order.orderedItems.length %>
+                        </span>
+                    </div>
+                </div>
+                <% } %>
+
+                    <div class="actions">
+                        <a href="/" class="btn btn-home">Return to Home</a>
+                    </div>
+
+                    <div class="support">
+                        <p class="support-title">Need assistance?</p>
+                        <p>Our support team is here to help you</p>
+                        <p>Email us at <a href="mailto:support@fiorea.com" class="support-email">support@fiorea.com</a>
+                        </p>
+                        <p>Available 24/7 for your support</p>
+                    </div>
         </div>
-        <h1 class="error-title">Payment Failed</h1>
-    </div>
 
-    <% if (order) { %>
-    <div class="order-details">
-        <div class="detail-row">
-            <span class="detail-label">Order ID</span>
-            <span class="detail-value">#<%= order._id.toString().slice(-8).toUpperCase() %></span>
-        </div>
-        <div class="detail-row">
-            <span class="detail-label">Amount</span>
-            <span class="detail-value">₹<%= order.totalAmount.toLocaleString() %></span>
-        </div>
-        <div class="detail-row">
-            <span class="detail-label">Items</span>
-            <span class="detail-value"><%= order.orderedItems.length %></span>
-        </div>
-    </div>
-    <% } %>
-
-    <div class="actions">
-        <a href="/" class="btn btn-home">Return to Home</a>
-    </div>
-
-    <div class="support">
-        <p class="support-title">Need assistance?</p>
-        <p>Our support team is here to help you</p>
-        <p>Email us at <a href="mailto:support@fiorea.com" class="support-email">support@fiorea.com</a></p>
-        <p>Available 24/7 for your support</p>
-    </div>
-</div>
-
-</body>
-<%- include("../../views/partials/user/footer") %>
+    </body>
+    <%- include("../../views/partials/user/footer") %>

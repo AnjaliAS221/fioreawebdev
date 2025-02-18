@@ -86,7 +86,6 @@
 <body>
   <div class="container my-5">
     <div class="row g-4 align-items-center">
-      <!-- Signup Form Section -->
       <div class="col-md-6">
         <div class="form-container">
           <h2 class="form-title">Create an Account</h2>
@@ -145,7 +144,6 @@
           </form>
         </div>
       </div>
-      <!-- Image and Login Section -->
       <div class="col-md-6">
         <div class="image-section">
           <img
@@ -171,7 +169,6 @@
 
       let isValid = true;
 
-      // Validate Name (No numbers allowed)
       if (!/^[a-zA-Z\s]+$/.test(name)) {
         form.name.setCustomValidity("Name must contain only letters and spaces.");
         isValid = false;
@@ -179,7 +176,6 @@
         form.name.setCustomValidity("");
       }
 
-      // Validate Email (Basic email format)
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         form.email.setCustomValidity("Please enter a valid email address.");
         isValid = false;
@@ -187,7 +183,6 @@
         form.email.setCustomValidity("");
       }
 
-      // Validate Phone (Only numbers allowed, length 10)
       if (!/^\d{10}$/.test(phone)) {
         form.phone.setCustomValidity("Phone number must be 10 digits.");
         isValid = false;
@@ -195,7 +190,6 @@
         form.phone.setCustomValidity("");
       }
 
-      // Validate Password and Confirm Password
       if (password !== confirmPassword) {
         form.confirmPassword.setCustomValidity("Passwords do not match.");
         isValid = false;
@@ -203,22 +197,20 @@
         form.confirmPassword.setCustomValidity("");
       }
 
-      // Check if form is valid
       if (!isValid || !form.checkValidity()) {
-        event.preventDefault(); // Prevent submission if form is invalid
+        event.preventDefault();
         event.stopPropagation();
       }
 
       form.classList.add("was-validated");
     });
 
-    // Add dynamic validation for each field
     const fields = ["name", "email", "phone", "password", "confirmPassword"];
     fields.forEach((field) => {
       const input = document.getElementById(field);
       input.addEventListener("input", function () {
-        input.setCustomValidity(""); // Clear the custom validity
-        input.classList.remove("is-invalid"); // Optionally remove an invalid class
+        input.setCustomValidity("");
+        input.classList.remove("is-invalid");
       });
     });
   </script>
