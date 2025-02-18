@@ -27,7 +27,6 @@ const loadCheckout = async (req, res) => {
             
             const product = await Product.findOne({ _id: productId });
             if (!product) {
-                console.log("[ERROR] Product not found for ID:", productId);
                 return res.status(400).json({ message: "Product not found" });
             }
 
@@ -277,10 +276,19 @@ const cancelOrder = async (req, res) => {
         const { orderId, cancelReason, cancelNote } = req.body;
         const userId = req.session.user;
 
+       
+
         if (!orderId || !cancelReason) {
             return res.status(400).json({
                 success: false,
                 message: "Order ID and cancellation reason are required"
+            });
+        }
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User not authenticated"
             });
         }
 
@@ -293,6 +301,13 @@ const cancelOrder = async (req, res) => {
             });
         }
 
+        if (order.user.toString() !== userId.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized to cancel this order"
+            });
+        }
+
         if (order.status !== 'Pending' && order.status !== 'Processing') {
             return res.status(400).json({
                 success: false,
@@ -300,35 +315,44 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-
-
         if (order.paymentStatus === 'Paid') {
             const refundAmount = order.finalAmount || 0;
-            const refundResult = await handleOrderRefund(userId, orderId, refundAmount);
+            
+            try {
+                const refundResult = await handleOrderRefund(userId, orderId, refundAmount);
+                if (!refundResult.success) {
+                    throw new Error(refundResult.message || 'Refund processing failed');
+                }
 
-            if (!refundResult.success) {
-                throw new Error('Refund processing failed');
+                order.paymentStatus = 'Refunded';
+                order.refundDetails = {
+                    refundedAt: new Date(),
+                    refundAmount: refundAmount,
+                    refundStatus: 'Completed',
+                    refundedToWallet: true
+                };
+            } catch (refundError) {
+                console.error('Refund error:', refundError);
+                throw new Error(`Refund failed: ${refundError.message}`);
             }
-
-            order.paymentStatus = 'Refunded';
-            order.refundDetails = {
-                refundedAt: new Date(),
-                refundAmount: refundAmount,
-                refundStatus: 'Completed',
-                refundedToWallet: true
-            };
         }
 
-        for (const item of order.orderedItems) {
-            const product = item.product;
-            const variant = product.variants.find(v => v._id.toString() === item.variantId);
-            if (variant) {
-                const sizeVariant = variant.sizes.find(s => s.size === item.size);
-                if (sizeVariant) {
-                    sizeVariant.stock += item.quantity;
-                    await product.save();
+      
+        try {
+            for (const item of order.orderedItems) {
+                const product = item.product;
+                const variant = product.variants.find(v => v._id.toString() === item.variantId);
+                if (variant) {
+                    const sizeVariant = variant.sizes.find(s => s.size === item.size);
+                    if (sizeVariant) {
+                        sizeVariant.stock += item.quantity;
+                        await product.save();
+                    }
                 }
             }
+        } catch (stockError) {
+            console.error('Stock update error:', stockError);
+           
         }
 
         order.status = 'Cancelled';
@@ -341,25 +365,42 @@ const cancelOrder = async (req, res) => {
         };
 
         await order.save();
+        
         res.status(200).json({
             success: true,
             message: "Order cancelled successfully",
             order
         });
     } catch (error) {
-        console.error('Error in cancelOrder:', error);
+        console.error('Detailed error in cancelOrder:', {
+            error: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
-            message: "Failed to cancel order"
+            message: "Failed to cancel order",
+            error: error.message
         });
     }
 };
 
+
 const handleOrderRefund = async (userId, orderId, amount) => {
-    console.log(userId, orderId, amount);
+    
     try {
         if (!userId || !orderId || !amount) {
             throw new Error('Missing required parameters for refund');
+        }
+
+        let wallet = await Wallet.findOne({ userId });
+
+        if (!wallet) {
+            wallet = new Wallet({
+                userId: userId,
+                balance: 0,
+                transactions: []
+            });
+            await wallet.save();
         }
 
         const refundTransaction = {
@@ -385,20 +426,16 @@ const handleOrderRefund = async (userId, orderId, amount) => {
             },
             {
                 new: true,
-                runValidators: true
+                runValidators: true,
+                upsert: true
             }
         );
 
         if (!updatedWallet) {
-            throw new Error('Wallet not found or update failed');
+            throw new Error('Wallet update failed');
         }
 
-        console.log('Refund processed:', {
-            userId,
-            orderId,
-            amount,
-            newBalance: updatedWallet.balance
-        });
+       
 
         return {
             success: true,
@@ -443,7 +480,6 @@ const orderHistory = async (req, res) => {
         .skip(skip)
         .limit(limit);
 
-        console.log('Populated orders:', JSON.stringify(orders[0], null, 2));
 
         res.render('order-details', {
             orders,

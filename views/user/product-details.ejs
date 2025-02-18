@@ -633,7 +633,7 @@
                 currentStock = sizeInfo.stock;
 
                 if (quantity > currentStock) {
-                    quantity = currentStock;
+                    quantity = currentStock > 0 ? currentStock : 1;
                     document.getElementById('quantity').textContent = quantity;
                 }
 
@@ -651,40 +651,43 @@
             }
         }
 
-
         function setupQuantityControls() {
-    const qtyUpBtn = document.querySelector('.qty-up');
-    const qtyDownBtn = document.querySelector('.qty-down');
-    const qtyVal = document.getElementById('quantity');
-    const maxLimit = 5; 
+            const qtyUpBtn = document.querySelector('.qty-up');
+            const qtyDownBtn = document.querySelector('.qty-down');
+            const qtyVal = document.getElementById('quantity');
+            const maxLimit = 5;
 
-    qtyUpBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+            qtyVal.textContent = quantity;
 
-        if (quantity < currentStock && quantity < maxLimit) {
-            quantity += 1;
-        } else {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Quantity Limit',
-                text: quantity >= maxLimit ? 
-                    'Maximum purchase limit is 5 items' : 
-                    'Stock Limit Exceeded',
-                confirmButtonColor: '#800000'
+            qtyUpBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                if (quantity < maxLimit && quantity < currentStock) {
+                    quantity++;
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Quantity Limit',
+                        text: quantity >= maxLimit
+                            ? 'Maximum purchase limit is 5 items per order'
+                            : 'Stock Limit Exceeded',
+                        confirmButtonColor: '#800000'
+                    });
+                }
+
+                qtyVal.textContent = quantity;
+            });
+
+            qtyDownBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                if (quantity > 1) {
+                    quantity--;
+                }
+
+                qtyVal.textContent = quantity;
             });
         }
-
-        qtyVal.textContent = quantity;
-    });
-
-    qtyDownBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (quantity > 1) {
-            quantity -= 1;
-            qtyVal.textContent = quantity;
-        }
-    });
-}
 
         function handleColorChange(e) {
             quantity = 1;

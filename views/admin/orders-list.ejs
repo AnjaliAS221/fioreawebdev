@@ -360,6 +360,7 @@
       window.location.href = `/admin/orders?status=${status}`;
     }
 
+
     function showOrderDetails(orderData) {
       try {
         const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
@@ -367,11 +368,15 @@
         const modalBody = document.getElementById('orderDetailsModalBody');
 
         const orderDetails = {
+          id: order._id.toString().slice(-8).toUpperCase(),
           orderId: order.orderId || 'N/A',
           date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
           paymentMethod: order.paymentMethod || 'N/A',
-          paymentStatus: order.paymentStatus,
+          paymentStatus: order.paymentStatus || (order.status === 'Failed' ? 'Failed' : 'N/A'),
+          totalPrice: order.totalPrice || 0,
+          discount: order.discount || 0,
           finalAmount: order.finalAmount || 0,
+          couponCode: order.couponCode || 'N/A',
           status: order.status || 'N/A',
           shippingAddress: order.shippingAddress || null,
           items: order.orderedItems || []
@@ -381,25 +386,33 @@
             <div class="row">
                 <div class="col-md-6">
                     <h6><strong>Order Information</strong></h6>
-                    <p><strong>Order ID:</strong> ${orderDetails.orderId.toString().slice(-8).toUpperCase()}</p>
+                    <p><strong>Order ID:</strong> Order #${orderDetails.id}</p>
                     <p><strong>Date:</strong> ${orderDetails.date}</p>
                     <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
-                    <p><strong> Payment Status:</strong> ${orderDetails.paymentStatus}</p>
-                    <p><strong>Total Amount:</strong> ₹${orderDetails.finalAmount.toLocaleString()}</p>
+                    <p><strong>Payment Status:</strong> ${orderDetails.paymentStatus}</p>
+                    <div class="price-details">
+                        <p><strong>Total Amount:</strong> ₹${orderDetails.totalPrice.toLocaleString()}</p>
+                        ${orderDetails.discount > 0 ? `
+                            <p><strong>Coupon Applied:</strong> ${orderDetails.couponCode}</p>
+                            <p><strong>Discount:</strong> -₹${orderDetails.discount.toLocaleString()}</p>
+                            <p><strong>Final Amount:</strong> ₹${orderDetails.finalAmount.toLocaleString()}</p>
+                        ` : ''}
+                    </div>
                     <p><strong>Status:</strong> ${orderDetails.status}</p>
                 </div>
                 <div class="col-md-6">
                     <h6><strong>Shipping Address</strong></h6>
                     <p>
                         ${orderDetails.shippingAddress ? `
-                            ${orderDetails.address.name || 'Name not provided'}<br>
-                            ${orderDetails.shippingAddress.address || 'Address line not provided'}<br>
-                            ${orderDetails.shippingAddress.city || 'City'}, 
-                            ${orderDetails.shippingAddress.state || 'State'} 
-                            ${orderDetails.shippingAddress.pincode || 'Pincode'}<br>
-                            ${orderDetails.shippingAddress.landmark || 'landmark not provided'}<br>
-                            ${orderDetails.shippingAddress.phone || 'phone not provided'}
-                        ` : 'No shipping address available'}
+                            ${orderDetails.shippingAddress.name || 'Name not provided'}<br>
+                            ${orderDetails.shippingAddress.addressType ? `(${orderDetails.shippingAddress.addressType})` : ''}<br>
+                            ${orderDetails.shippingAddress.landmark || 'No landmark provided'}<br>
+                            ${orderDetails.shippingAddress.city || 'City not provided'}, 
+                            ${orderDetails.shippingAddress.state || 'State not provided'} 
+                            ${orderDetails.shippingAddress.pincode || 'Pincode not provided'}<br>
+                            Phone: ${orderDetails.shippingAddress.phone || 'Not provided'}<br>
+                            ${orderDetails.shippingAddress.altPhone ? `Alt Phone: ${orderDetails.shippingAddress.altPhone}` : ''}`
+            : 'No shipping address available'}
                     </p>
                 </div>
             </div>
@@ -408,22 +421,25 @@
             <div class="row">
                 ${orderDetails.items.length > 0 ?
             orderDetails.items.map(item => `
-                        <div class="col-md-12 d-flex align-items-center product-row mb-3 pb-3 border-bottom">
-                            <div class="me-3" style="width: 100px; height: 100px; flex-shrink: 0;">
-                                <img src="${(item.product && item.product.productImage) ?
-                '/uploads/re-image/' + item.product.productImage[0] :
-                '/default-product-image.png'
-              }" 
-                                     alt="${(item.product && item.product.productName) ? item.product.productName : 'Product'}" 
-                                     class="img-fluid rounded object-fit-cover w-100 h-100">
-                            </div>
-                            <div>
-                                <p class="mb-1"><strong>${(item.product && item.product.productName) ? item.product.productName : 'Product Name Unavailable'}</strong></p>
-                                <p class="mb-1">Quantity: ${item.quantity || 'N/A'}</p>
-                                <p class="mb-0">Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
+                        <div class="col-md-12 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <img src="/uploads/re-image/${item.product.productImage[0]}" 
+                                         alt="${item.product.productName}" 
+                                         class="product-image" style="width: 80px; height: 80px; object-fit: cover;">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">${item.product.productName}</h6>
+                                    <div class="d-flex flex-wrap">
+                                        ${item.size ? `<p class="mb-0 me-3"><strong>Size:</strong> ${item.size}</p>` : ''}
+                                        ${item.color ? `<p class="mb-0 me-3"><strong>Color:</strong> ${item.color}</p>` : ''}
+                                        <p class="mb-0 me-3"><strong>Quantity:</strong> ${item.quantity}</p>
+                                        <p class="mb-0"><strong>Price:</strong> ₹${item.price.toLocaleString()}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    `).join('') :
+                    `).join('<hr>') :
             '<p>No items found in this order.</p>'
           }
             </div>
@@ -436,16 +452,16 @@
 
       } catch (error) {
         console.error('Error in showOrderDetails:', error);
-
         Swal.fire({
           icon: 'error',
           title: 'Failed to Load Details',
           text: 'There was an issue loading the order details. Please try again.',
           confirmButtonText: 'OK',
         });
-
       }
     }
+
+
   </script>
 
   <%- include("../../views/partials/admin/footer") %>

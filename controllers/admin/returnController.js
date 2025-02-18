@@ -52,15 +52,12 @@ const returnUpdate = async (req, res) => {
 
         
         const returnData = await Return.findById(returnId);
-        console.log('Return Data:', returnData);
-        if (!returnData) {
-            console.log('Return not found for ID:', returnId);  
+        if (!returnData) { 
             return res.status(404).send('Return request not found');
         }
 
       
-        if (returnData.status !== 'Pending') {
-            console.log('Return already processed:', returnData.status);  
+        if (returnData.status !== 'Pending') { 
             return res.status(400).send('Return request already processed');
         }
 
@@ -109,7 +106,6 @@ const returnUpdate = async (req, res) => {
                 
                 returnData.status = status;
                 returnData.approvedAt = new Date();
-                console.log('Before Save:', returnData);
                 await returnData.save();
                 console.log('After Save:', returnData);
 

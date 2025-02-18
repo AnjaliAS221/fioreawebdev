@@ -635,9 +635,15 @@
 
                     } catch (error) {
                         console.error('Error in showOrderDetails:', error);
-                        alert('Failed to load order details. Please check the console for more information.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Failed to load order details. Please try again later.',
+                        });
+
                     }
                 }
+
 
                 function viewOrderDetails(orderId) {
                     window.location.href = `/order-details/${orderId}`;
