@@ -7,8 +7,13 @@ const loadShoppingPage = async (req, res) => {
     try {
         const allCategories = await Category.find();
 
-        const user = req.session.user;
-        const userData = await User.findOne({ _id: user });
+        let userData = null;
+        let wishlistProducts = [];
+
+        if (req.session.user) {
+            userData = await User.findOne({ _id: req.session.user });
+            wishlistProducts = userData.wishlist.map(item => item.toString());
+        }
 
         const listedCategories = await Category.find({ isListed: true });
         const categoryIds = listedCategories.map((category) => category._id.toString());
@@ -47,8 +52,6 @@ const loadShoppingPage = async (req, res) => {
                 totalStock
             };
         });
-
-        const wishlistProducts = userData.wishlist.map(item => item.toString());
 
         res.render("shop", {
             user: userData,
