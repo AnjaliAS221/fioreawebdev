@@ -4,11 +4,14 @@ const User = require("../models/userSchema");
 require("dotenv").config();
 
 passport.use(new googleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: 'http://localhost:3006/auth/google/callback',
-    scope: ['profile', 'email']
-}, 
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.NODE_ENV === 'production' 
+      ? 'https://yourwebsite.com/auth/google/callback' 
+      : 'http://localhost:3000/auth/google/callback',
+  scope: ['profile', 'email']
+},
+
 async (accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ googleId: profile.id });
