@@ -308,76 +308,76 @@
 
     <script>
 
-      function handleFormSubmit(event) {
-        event.preventDefault();
-        if (!validateForm()) {
-          return;
+function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    if (!validateForm()) {
+        return;
+    }
+
+    const name = document.getElementsByName("name")[0].value.trim();
+    const description = document.getElementById("descriptionId").value.trim();
+
+    fetch('/admin/addCategory', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, description })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || "Something went wrong.");
+            });
         }
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Category added successfully!',
+        }).then(() => {
+            window.location.reload(); 
+        });
+    })
+    .catch(error => {
+        console.error("Error:", error);
 
-        const name = document.getElementsByName("name")[0].value;
-        const description = document.getElementById("descriptionId").value;
-
-        fetch('/admin/addCategory', {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({ name, description })
-        })
-          .then(response => {
-            if (!response.ok) {
-              return response.text().then(text => {
-                throw new Error(text);
-              });
-            }
-
-            if (response.headers.get('content-type').includes('application/json')) {
-              return response.json();
-            } else {
-              throw new Error('Expected JSON response');
-            }
-          })
-          .then(data => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Success',
-              text: 'Category added successfully!',
-            });
-
-          })
-          .catch(error => {
-            console.error("Error:", error);
-
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: error.message || 'Something went wrong. Please try again later.',
-            });
-          });
-      }
+        Swal.fire({
+            icon: 'warning',
+            title: 'Try again',
+            text: error.message || 'Something went wrong. Please try again.',
+        });
+    });
+}
 
 
       function validateForm() {
-        clearErrorMessages();
-        const name = document.getElementsByName("name")[0].value.trim();
-        const description = document.getElementById("descriptionId").value.trim();
-        let isValid = true;
+    clearErrorMessages();
+    const name = document.getElementsByName("name")[0].value.trim();
+    const description = document.getElementById("descriptionId").value.trim();
+    let isValid = true;
 
-        if (name === "") {
-          displayErrorMessage("name-error", "Please enter a name");
-          isValid = false;
-        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-          displayErrorMessage("name-error", "Name can only contain letters and spaces");
-          isValid = false;
-        }
+    if (name === "") {
+        displayErrorMessage("name-error", "Please enter a name");
+        isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        displayErrorMessage("name-error", "Name can only contain letters and spaces");
+        isValid = false;
+    }
 
-        if (description === "") {
-          displayErrorMessage("description-error", "Please enter a description");
-          isValid = false;
-        }
+    if (description === "") {
+        displayErrorMessage("description-error", "Please enter a description");
+        isValid = false;
+    } else if (/^\d+$/.test(description)) {
+        displayErrorMessage("description-error", "Description should include letters, not just numbers");
+        isValid = false;
+    }
 
-        return isValid;
-      }
+    return isValid;
+}
 
       function displayErrorMessage(elementId, message) {
         const errorElement = document.getElementById(elementId);
@@ -394,6 +394,8 @@
           element.style.display = "none";
         });
       }
+
+
 
       async function addOffer(categoryId) {
         const { value: amount } = await Swal.fire({
@@ -502,6 +504,29 @@
           window.location.href = '/admin/category';
         }
       });
+
+      // document.addEventListener("DOMContentLoaded", function () {
+      //   const nameInput = document.getElementsByName("name")[0];
+      //   const descriptionInput = document.getElementById("descriptionId");
+
+      //   // Attach event listeners to clear errors dynamically when user starts typing
+      //   nameInput.addEventListener("input", function () {
+      //     clearSingleErrorMessage("name-error");
+      //   });
+
+      //   descriptionInput.addEventListener("input", function () {
+      //     clearSingleErrorMessage("description-error");
+      //   });
+      // });
+
+      // function clearSingleErrorMessage(elementId) {
+      //   const errorElement = document.getElementById(elementId);
+      //   if (errorElement) {
+      //     errorElement.innerText = "";
+      //     errorElement.style.display = "none";
+      //   }
+      // }
+
 
     </script>
     <%- include("../../views/partials/admin/footer") %>

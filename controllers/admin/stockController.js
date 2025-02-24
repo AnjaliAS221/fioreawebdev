@@ -1,5 +1,6 @@
 const Product = require("../../models/productSchema");
 
+
 const loadStock = async (req, res) => {
     try {
         const limit = 8; 

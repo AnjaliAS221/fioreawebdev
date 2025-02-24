@@ -154,8 +154,6 @@ const verifyWallet = async (req, res) => {
 
 
 
-
-
 module.exports={
     loadWallet,
     verifyWallet,

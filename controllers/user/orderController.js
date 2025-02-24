@@ -1,4 +1,4 @@
-
+const User = require('../../models/userSchema')
 const Order = require('../../models/orderSchema');
 const Address = require('../../models/addressSchema');
 const Product = require('../../models/productSchema');
@@ -81,6 +81,23 @@ const loadCheckout = async (req, res) => {
     }
 };
 
+const getWalletBalance = async (req, res) => {
+    try {
+        const userId = req.user.id; 
+        const wallet = await Wallet.findOne({ userId }); 
+
+        if (!wallet) {
+            return res.status(404).json({ balance: 0 }); 
+        }
+
+        res.json({ balance: wallet.balance });
+    } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
 
 const placeOrderInitial = async (req, res) => {
     try {
@@ -125,6 +142,21 @@ const placeOrderInitial = async (req, res) => {
             });
         }
 
+        if (payment_method === 'Wallet') {
+            const userWallet = await Wallet.findOne({ userId });
+
+            if (!userWallet) {
+                return res.status(400).json({ success: false, message: 'Wallet not found' });
+            }
+
+            if (userWallet.balance < finalPrice) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: "Insufficient wallet balance. Please add funds or use another payment method." 
+                });
+            }
+        }
+
         let orderedItems = [];
         
         if (parsedSingleProduct) {
@@ -135,8 +167,6 @@ const placeOrderInitial = async (req, res) => {
                 return res.status(400).json({ success: false, message: 'Variant not found for product' });
             }
 
-           
-
             const sizeVariant = variant.sizes.find(s => s.size === product.size);
             if (!sizeVariant) {
                 return res.status(400).json({ success: false, message: 'Size not found for product' });
@@ -146,7 +176,6 @@ const placeOrderInitial = async (req, res) => {
                 return res.status(400).json({ success: false, message: 'Insufficient stock for selected variant' });
             }
 
-            
             sizeVariant.stock -= product.quantity;
             await productFromDB.save();
 
@@ -212,6 +241,8 @@ const placeOrderInitial = async (req, res) => {
             });
         }
 
+        let paymentStatus = 'Pending';
+
         const order = new Order({
             orderedItems,
             totalPrice,
@@ -221,12 +252,30 @@ const placeOrderInitial = async (req, res) => {
             address: addressId,
             status: 'Pending',
             paymentMethod: payment_method,
-            paymentStatus: 'Pending',
+            paymentStatus,
             couponCode: coupon || 'N/A',
             couponApplied: Boolean(coupon && discount)
         });
 
         await order.save();
+
+        if (payment_method === 'Wallet') {
+            const userWallet = await Wallet.findOne({ userId });
+
+            userWallet.balance -= finalPrice;
+            userWallet.transactions.push({
+                type: 'Purchase',
+                amount: finalPrice,
+                orderId: order._id,
+                status: 'Completed',
+                description: 'Wallet payment for order'
+            });
+            await userWallet.save();
+
+            order.paymentStatus = 'Paid'; 
+            order.status = 'Processing';
+            await order.save();
+        }
 
         if (coupon) {
             await Coupon.findOneAndUpdate(
@@ -257,6 +306,7 @@ const placeOrderInitial = async (req, res) => {
         });
     }
 };
+
 
 const orderConfirm = async (req, res) => {
     try {
@@ -308,12 +358,16 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        if (order.status !== 'Pending' && order.status !== 'Processing') {
+        if (
+            order.status !== 'Pending' && 
+            !(order.status === 'Processing' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet'))
+        ) {
             return res.status(400).json({
                 success: false,
                 message: 'Order cannot be cancelled at this stage'
             });
         }
+        
 
         if (order.paymentStatus === 'Paid') {
             const refundAmount = order.finalAmount || 0;
@@ -496,6 +550,7 @@ const orderHistory = async (req, res) => {
     }
 };
 
+
 const returnOrder = async (req, res) => {
     try {
         const { orderId, reason } = req.body;
@@ -532,6 +587,7 @@ const returnOrder = async (req, res) => {
 
 module.exports = {
     loadCheckout,
+    getWalletBalance,
     placeOrderInitial,
     orderConfirm,
     cancelOrder,

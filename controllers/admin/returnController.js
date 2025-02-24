@@ -76,7 +76,7 @@ const returnUpdate = async (req, res) => {
                         userId,
                         balance: amount,
                         transactions: [{
-                            type: 'credit',
+                            type: 'Refund',
                             amount: amount,
                             description: 'Refund for your returned product',
                             orderId,
@@ -92,7 +92,7 @@ const returnUpdate = async (req, res) => {
                             $inc: { balance: amount },
                             $push: {
                                 transactions: {
-                                    type: 'credit',
+                                    type: 'Refund',
                                     amount: amount,
                                     description: 'Refund for your returned product',
                                     orderId,

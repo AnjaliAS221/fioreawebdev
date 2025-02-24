@@ -29,14 +29,54 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
-        document.getElementById('editCategoryForm').addEventListener('submit', function (event) {
+        document.getElementById('editCategoryForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+    
             const form = event.target;
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const categoryId = "<%= category._id %>"; 
+    
+            try {
+                const response = await fetch(`/admin/editCategory/${categoryId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+    
+                const result = await response.json().catch(() => null);
+    
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Try again!',
+                        text: result?.error || 'Something went wrong!',
+                        confirmButtonColor: '#d33'
+                    });
+                    return;
+                }
+    
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Updated!',
+                    text: 'Category updated successfully!',
+                    confirmButtonColor: '#28a745'
+                }).then(() => {
+                    window.location.href = "/admin/category"; 
+                });
+    
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'An unexpected error occurred. Try again!',
+                    confirmButtonColor: '#d33'
+                });
             }
-            form.classList.add('was-validated');
-        });
+        });        
     </script>
+    
     <%- include("../../views/partials/admin/footer") %>

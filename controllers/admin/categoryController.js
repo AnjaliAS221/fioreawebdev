@@ -43,13 +43,20 @@ const categoryInfo = async (req,res)=>{
 const addCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
+        const formattedName = name.trim().toLowerCase(); 
 
-        const existingCategory = await Category.findOne({ name });
+        const existingCategory = await Category.findOne({
+            name: { $regex: `^${formattedName}$`, $options: 'i' }
+        });
+
         if (existingCategory) {
-            return res.status(400).json({ error: 'Category already exists' });
+            return res.status(400).json({ error: "A category with this name already exists. Try another name." });
         }
 
-        const newCategory = new Category({ name, description });
+        const newCategory = new Category({ 
+            name: formattedName, 
+            description 
+        });
         await newCategory.save();
 
         return res.status(200).json({ message: 'Category added successfully' });
@@ -59,8 +66,6 @@ const addCategory = async (req, res) => {
 };
 
 
-
-  
 
 const addCategoryOffer = async (req, res) => {
     try {
@@ -168,33 +173,35 @@ const editCategory = async (req, res) => {
     try {
         const id = req.params.id;
         const { categoryName, description, parentCategoryId } = req.body;
+        const formattedName = categoryName.trim();
 
-        const existingCategory = await Category.findOne({ 
-            name: categoryName,
-            _id: { $ne: id }, });
+        const existingCategory = await Category.findOne({
+            name: { $regex: `^${formattedName}$`, $options: 'i' },
+            _id: { $ne: id }
+        });
+
         if (existingCategory) {
-            req.flash('error', 'Category exists, please choose another one');
-            return res.redirect(`/admin/editCategory?id=${id}`);
+            return res.status(400).json({ error: "Category already exists, please choose another one." });
         }
 
         const updateCategory = await Category.findByIdAndUpdate(id, {
-            name: categoryName,
+            name: formattedName,
             description: description,
             parentCategory: parentCategoryId
         }, { new: true });
 
-        if (updateCategory) {
-            req.flash('success', 'Category updated successfully');
-            res.redirect("/admin/category");
-        } else {
-            req.flash('error', 'Category not found');
-            res.redirect("/admin/category");
+        if (!updateCategory) {
+            return res.status(404).json({ error: "Category not found!" });
         }
+
+        return res.status(200).json({ success: "Category updated successfully!" });
+
     } catch (error) {
-        req.flash('error', 'Internal server error');
-        res.redirect("/admin/category");
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error. Please try again!" });
     }
 };
+
 
 
 module.exports = {

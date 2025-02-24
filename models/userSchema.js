@@ -61,9 +61,13 @@ const userSchema = new Schema({
         default:Date.now,
         immutable: true
     },
-    referalCode:{
-        type:String
-    },
+    referralCode: {
+        type: String,
+        unique: true
+     },
+     referredBy: { 
+        type: String, 
+        default: null },
     redeemed:{
         type:Boolean
     },

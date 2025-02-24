@@ -1,0 +1,286 @@
+<%- include("../../views/partials/user/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
+<style>
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main {
+      padding: 40px 0;
+    }
+
+    .breadcrumb-wrap {
+      background-color: #f1f3f5;
+      padding: 15px 0;
+      border-radius: 10px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      color: #6c757d;
+    }
+
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      color: #0056b3;
+    }
+
+    .breadcrumb span {
+      margin: 0 5px;
+      color: #6c757d;
+    }
+
+    /* Sidebar */
+    .dashboard-menu {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .dashboard-menu .nav-link {
+      font-weight: bold;
+      color: #4b5563;
+      margin-bottom: 12px;
+      transition: color 0.3s, transform 0.3s ease;
+    }
+
+    .dashboard-menu .nav-link:hover {
+      color: #007bff;
+      transform: translateX(5px);
+    }
+
+    .dashboard-menu .nav-link i {
+      margin-right: 10px;
+    }
+
+   
+    .card-green {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+    }
+
+    .card-header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .card-body {
+      text-align: center;
+    }
+
+    .card-body h5 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .card-body p {
+      color: #6c757d;
+      margin: 5px 0;
+    }
+
+    .card-body form .form-control {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .card-body button {
+      background-color: #007bff;
+      border-color: #007bff;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .card-body button:hover {
+      background-color: #0056b3;
+    }
+
+    .address-card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .address-card h5 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .address-card address {
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .address-card p {
+      color: #6c757d;
+      margin: 5px 0;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-menu {
+        padding: 15px;
+      }
+
+      .card-green {
+        padding: 20px;
+      }
+
+      .address-card {
+        margin-bottom: 15px;
+      }
+    }
+  </style>
+
+
+
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/" rel="nofollow">Home</a>
+                <span></span> My Address
+            </div>
+        </div>
+    </div>
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 order-1 order-md-1">
+                    <div class="dashboard-menu">
+                        <ul class="nav flex-column" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link" id="dashboard-tab" href="/userProfile">
+                                    <i class="fi-rs-settings-sliders mr-10"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" id="address-tab" href="/address">
+                                    <i class="fi-rs-marker mr-10"></i>My Address
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="orders-tab" href="/order-history">
+                                    <i class="fi-rs-shopping-bag mr-10"></i>Orders
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="wishlist-tab" href="/wishlist">
+                                    <i class="fa fa-heart mr-10"></i>Wishlist
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="wallet-tab" href="/wallet">
+                                    <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout">
+                                    <i class="fi-rs-sign-out mr-10"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Address Content -->
+                <div class="col-md-9 order-2 order-md-2">
+                    <div class="tab-pane fade show active" id="address" role="tabpanel">
+                        <div class="row">
+                            <% if (userAddress && userAddress.address.length > 0) { %>
+                                <% userAddress.address.forEach((address) => { %>
+                                    <div class="col-md-6">
+                                        <div class="address-card p-3 border rounded">
+                                            <h5 class="fw-bold"><%= address.addressType %></h5>
+                                            <address>
+                                                <%= address.name %>, <%= address.landMark %>, <%= address.city %>, <%= address.state %>
+                                            </address>
+                                            <p><strong>Pincode:</strong> <%= address.pincode %></p>
+                                            <p><strong>Phone:</strong> <%= address.phone %></p>
+                                            <% if (address.altPhone) { %>
+                                                <p><strong>Alt Phone:</strong> <%= address.altPhone %></p>
+                                            <% } %>
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <a href="/editAddress?id=<%= address._id %>" class="btn btn-primary btn-sm">Edit</a>
+                                                <button class="btn btn-danger btn-sm" onclick="confirmDelete('<%= address._id %>')">
+                                                    Delete
+                                                </button>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="col-md-12 text-center">
+                                    <div class="address-card p-4 border rounded">
+                                        <h5>No Address Available</h5>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            
+                            <div class="col-md-6 mt-3">
+                                <a href="/addAddress" class="btn btn-primary w-100">Add Address</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this address?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</main>
+
+   <script>
+    function confirmDelete(addressId) {
+        // Set the delete URL dynamically in the modal's delete button
+        document.getElementById("confirmDeleteBtn").href = "/deleteAddress?id=" + addressId;
+
+        // Show the modal
+        var myModal = new bootstrap.Modal(document.getElementById("deleteConfirmModal"));
+        myModal.show();
+    }
+</script>
+
+<%- include("../../views/partials/user/footer") %>

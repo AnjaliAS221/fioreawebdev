@@ -641,13 +641,23 @@
                 if (currentStock <= 0) {
                     stockInfo.innerHTML = `<i class="fas fa-times-circle"></i> Out of Stock`;
                     stockInfo.className = 'text-danger';
-                } else if (currentStock > 0 && currentStock <= 10) {
+                } else if (currentStock === 1) {
+                    stockInfo.innerHTML = `<i class="fas fa-exclamation-circle"></i> Hurry! Only 1 left in stock!`;
+                    stockInfo.className = 'text-warning';
+                } else if (currentStock === 2) {
+                    stockInfo.innerHTML = `<i class="fas fa-exclamation-circle"></i> Only 2 left! Order soon!`;
+                    stockInfo.className = 'text-warning';
+                } else if (currentStock === 3) {
+                    stockInfo.innerHTML = `<i class="fas fa-exclamation-circle"></i> Limited stock! Just 3 available!`;
+                    stockInfo.className = 'text-warning';
+                } else if (currentStock > 3 && currentStock <= 10) {
                     stockInfo.innerHTML = `<i class="fas fa-exclamation-circle"></i> Only a few left!`;
                     stockInfo.className = 'text-warning';
                 } else {
                     stockInfo.innerHTML = `<i class="fas fa-check-circle"></i> In Stock`;
                     stockInfo.className = 'text-success';
                 }
+
             }
         }
 
@@ -936,9 +946,6 @@
                     }
                 });
         }
-
-
-
 
 
         function setupModals() {

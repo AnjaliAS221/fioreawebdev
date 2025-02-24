@@ -364,7 +364,8 @@
                 const description = document.getElementsByName('descriptionData')[0].value;
                 const price = document.getElementsByName('regularPrice')[0].value;
                 const saleprice = document.getElementsByName('salePrice')[0].value;
-                const imageDatas = document.getElementById("imageDatas")?.value;
+                const existingImagesContainer = document.getElementById('existingImagesContainer');
+                const hasExistingImages = existingImagesContainer && existingImagesContainer.getElementsByClassName('thumbnail').length > 0;
                 const images = document.getElementById('input1');
 
                 if (name.trim() === "") {
@@ -387,10 +388,11 @@
                     isValid = false;
                 }
 
-                if (!imageDatas && (!images || images.files.length === 0)) {
+                if (!hasExistingImages && (!images || images.files.length === 0)) {
                     displayErrorMessage('images-error', 'Please select at least one image.');
                     isValid = false;
                 }
+
 
                 const variants = collectVariantsData();
                 if (variants.length === 0) {

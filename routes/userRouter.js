@@ -12,6 +12,7 @@ const invoiceController = require("../controllers/user/invoiceController");
 const orderController = require("../controllers/user/orderController");
 const paymentController = require("../controllers/user/paymentController");
 const couponController = require("../controllers/user/couponController");
+const addressController = require("../controllers/user/addressController");
 const {userAuth} = require("../middlewares/auth");
 const User = require('../models/userSchema.js')
 
@@ -62,16 +63,16 @@ router.post("/change-email",userAuth,profileController.changeEmailValid);
 router.post("/verify-email-otp",userAuth,profileController.verifyEmailOtp);
 router.post("/update-email",userAuth,profileController.updateEmail);
 router.get("/change-password",userAuth,profileController.changePassword);
-router.post("/change-password",userAuth,profileController.changePasswordValid);
-router.post("/verify-changepassword-otp",userAuth,profileController.verifyChangePassOtp);
+router.post("/change-password",userAuth,profileController.changeCurrentPassword);
 router.post("/update-profile",userAuth,profileController.updateProfile);
 
 // Address management
-router.get("/addAddress",userAuth,profileController.addAddress);
-router.post("/addAddress",userAuth,profileController.postAddAddress);
-router.get("/editAddress",userAuth,profileController.editAddress);
-router.post("/editAddress",userAuth,profileController.postEditAddress);
-router.get("/deleteAddress",userAuth,profileController.deleteAddress);
+router.get("/address",userAuth,addressController.getMyAddress);
+router.get("/addAddress",userAuth,addressController.addAddress);
+router.post("/addAddress",userAuth,addressController.postAddAddress);
+router.get("/editAddress",userAuth,addressController.editAddress);
+router.post("/editAddress",userAuth,addressController.postEditAddress);
+router.get("/deleteAddress",userAuth,addressController.deleteAddress);
 
 
 //shopping management
@@ -93,6 +94,7 @@ router.post('/update-cart-item',userAuth,cartController.updateCartItem);
 
 //order management
 router.get('/checkout',userAuth, orderController.loadCheckout);
+router.get("/get-wallet-balance",userAuth,orderController.getWalletBalance);
 router.get('/order-confirmation',userAuth, orderController.orderConfirm);
 router.post('/cancel-order',userAuth, orderController.cancelOrder);
 router.get('/order-history',userAuth,orderController.orderHistory);

@@ -233,14 +233,6 @@ const editProduct = async (req, res) => {
         }
 
 
-        const images = [];
-        if (req.files && req.files.length > 0) {
-            for (let i = 0; i < req.files.length; i++) {
-                images.push(req.files[i].filename);
-            }
-        }
-
-
         let variants = [];
         try {
             variants = JSON.parse(data.variants);
@@ -250,6 +242,15 @@ const editProduct = async (req, res) => {
             req.flash('error_msg', 'Invalid variants data');
             return res.redirect('/admin/editProduct?id=' + id);
         }
+
+        
+        const images = [];
+        if (req.files && req.files.length > 0) {
+            for (let i = 0; i < req.files.length; i++) {
+                images.push(req.files[i].filename);
+            }
+        }
+
 
         const updateData = {
             productName: data.productName,

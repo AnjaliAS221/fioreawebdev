@@ -346,6 +346,28 @@
         height: 250px;
       }
     }
+
+    .clear-filters-btn {
+      padding: 12px 20px;
+      background-color: #f8f9fa;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .clear-filters-btn:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .clear-filters-btn {
+        width: 100%;
+      }
+    }
   </style>
 
   <div class="page-header breadcrumb-wrap">
@@ -389,6 +411,7 @@
               <% }) %>
           </select>
         </div>
+        <button id="clear-filters" class="clear-filters-btn">Reset Filters</button>
       </div>
 
       <main class="product-grid" id="products-container">
@@ -448,6 +471,8 @@
 
   <script>
 
+    
+
     function handleSortChange() {
 
       $('#products-container').addClass('loading');
@@ -500,6 +525,49 @@
         }
       });
     }
+
+    function clearFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('sort-by').value = 'default';
+      document.getElementById('cat-filter').value = 'all-categories';
+
+      
+      sessionStorage.removeItem('currentFilters');
+
+    
+      $('#products-container').addClass('loading');
+
+      $.ajax({
+        url: '/sort-and-search',
+        method: 'POST',
+        data: {
+          sort: 'default',
+          category: 'all-categories',
+          search: ''
+        },
+        success: function (response) {
+          if (response.products && response.products.length > 0) {
+            updateProductList(response.products);
+          } else {
+            $('#products-container').html('<p>No products found.</p>');
+          }
+        },
+        complete: function () {
+          $('#products-container').removeClass('loading');
+        },
+        error: function (error) {
+          console.error('Error:', error);
+          Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Failed to reset products",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      });
+    }
+
 
     document.addEventListener('DOMContentLoaded', function () {
       const wishlistIcons = document.querySelectorAll('.wishlist-icon');
@@ -556,7 +624,10 @@
           event.stopPropagation();
         });
       });
+
+      document.getElementById('clear-filters').addEventListener('click', clearFilters);
     });
+
 
     let clientWishlist = new Set();
 

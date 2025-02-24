@@ -2,8 +2,8 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
+
   <style>
-    /* Global Styles */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f5f7fa;
@@ -15,7 +15,6 @@
       padding: 40px 0;
     }
 
-    /* Breadcrumb */
     .breadcrumb-wrap {
       background-color: #f1f3f5;
       padding: 15px 0;
@@ -43,7 +42,6 @@
       color: #6c757d;
     }
 
-    /* Sidebar */
     .dashboard-menu {
       background-color: #ffffff;
       border-radius: 12px;
@@ -67,7 +65,7 @@
       margin-right: 10px;
     }
 
-    /* Profile Card */
+   
     .card-green {
       background-color: #ffffff;
       border-radius: 10px;
@@ -116,7 +114,6 @@
       background-color: #0056b3;
     }
 
-    /* Address Card */
     .address-card {
       background-color: #ffffff;
       border-radius: 12px;
@@ -140,7 +137,6 @@
       margin: 5px 0;
     }
 
-    /* Responsive Styles */
     @media (max-width: 768px) {
       .dashboard-menu {
         padding: 15px;
@@ -180,7 +176,7 @@
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
+                  <a class="nav-link" id="address-tab"  href="/address" role="tab"
                     aria-controls="address" aria-selected="false">
                     <i class="fi-rs-marker mr-2"></i>My Address
                   </a>
@@ -228,6 +224,11 @@
                     <p><strong>Email:</strong>
                       <%=user.email%>
                     </p>
+                    <p><strong>Referral Code:</strong> 
+                      <span id="referralCode"><%= user.referralCode %></span>
+                      <i class="fa fa-clone" id="copyIcon" style="cursor: pointer; margin-left: 5px;" onclick="copyReferralCode()"></i>
+                    </p>
+                    
 
                     <form action="/update-profile" method="POST">
                       <div class="form-group">
@@ -248,55 +249,32 @@
                   </div>
                 </div>
               </div>
-
-
-              <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
-                <div class="row">
-                  <% if (userAddress) { %>
-                    <% userAddress.address.forEach((address)=> { %>
-                      <div class="col-md-6">
-                        <div class="address-card">
-                          <h5>
-                            <%= address.addressType %>
-                          </h5>
-                          <address>
-                            <%= address.name %>, <%= address.landMark %>, <%= address.city %>, <%= address.state %>
-                          </address>
-                          <p>
-                            <%= address.pincode %>
-                          </p>
-                          <p>
-                            <%= address.phone %>
-                          </p>
-                          <p>
-                            <%= address.altPhone %>
-                          </p>
-                          <div class="d-flex justify-content-between">
-                            <a href="/editAddress?id=<%= address._id %>" class="btn btn-primary btn-sm">Edit</a>
-                            <a href="/deleteAddress?id=<%= address._id %>" class="btn btn-danger btn-sm"
-                              onclick="return confirm('Are you sure want to delete this address?')">Delete</a>
-                          </div>
-                        </div>
-                      </div>
-                      <% }) %>
-                        <% } else { %>
-                          <div class="col-md-6">
-                            <div class="address-card">
-                              <h5>No Address Available</h5>
-                            </div>
-                          </div>
-                          <% } %>
-
-                            <div class="col-md-6">
-                              <a href="/addAddress" class="btn btn-primary w-100">Add Address</a>
-                            </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
     </div>
   </main>
+
+  <script>
+    
+    function copyReferralCode() {
+  const referralText = document.getElementById("referralCode").innerText;
+  navigator.clipboard.writeText(referralText)
+    .then(() => {
+      const icon = document.getElementById("copyIcon");
+      icon.classList.remove("fa-clone");
+      icon.classList.add("fa-check");
+      setTimeout(() => {
+        icon.classList.remove("fa-check");
+        icon.classList.add("fa-clone");
+      }, 1500);
+    })
+    .catch(err => {
+      console.error("Error copying referral code:", err);
+    });
+}
+
+  </script>
 
   <%- include("../../views/partials/user/footer") %>

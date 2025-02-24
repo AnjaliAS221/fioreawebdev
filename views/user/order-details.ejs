@@ -366,17 +366,19 @@
                         </div>
                         <div class="order-actions">
                             <% if (order.status==='Pending' || (order.status==='Processing' &&
-                                order.paymentMethod==='Online' )) { %>
+                                (order.paymentMethod==='Online' || order.paymentMethod==='Wallet' ))) { %>
                                 <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>')">
                                     Cancel Order
                                 </button>
                                 <% } %>
 
 
-                                    <% if (order.paymentStatus==='Failed' ) { %>
+                                    <% if ((order.paymentStatus==='Failed' || order.paymentStatus==='Pending' ) &&
+                                        order.paymentMethod !=='COD' ) { %>
                                         <button class="btn-edit" onclick="retryPayment('<%= order._id %>')">Retry
                                             Payment</button>
                                         <% } %>
+
 
                                             <% if (order.status=='Delivered' ) { %>
                                                 <a href="/download-invoice/<%= order._id %>" class="btn-edit"

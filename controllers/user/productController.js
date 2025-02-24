@@ -138,6 +138,7 @@ const productDetails = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 }
+
 const searchProducts = async (req, res) => {
     try {
         const user = req.session.user;

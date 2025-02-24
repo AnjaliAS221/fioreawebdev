@@ -133,6 +133,12 @@
                     Please provide a valid 10-digit phone number.
                   </div>
                 </div>
+
+                <div class="mb-3">
+                  <label for="referralCode" class="form-label">Referral Code </label>
+                  <input type="text" class="form-control" id="referralCode" name="referralCode" placeholder="Enter referral code" />
+                </div>
+                
                 <button type="submit" class="btn btn-primary w-100">
                   Signup
                 </button>
@@ -166,6 +172,7 @@
       const phone = form.phone.value.trim();
       const password = form.password.value;
       const confirmPassword = form.confirmPassword.value;
+      const referralCode = form.referralCode.value.trim();
 
       let isValid = true;
 
@@ -195,6 +202,13 @@
         isValid = false;
       } else {
         form.confirmPassword.setCustomValidity("");
+      }
+
+      if (referralCode && !/^[a-zA-Z0-9]+$/.test(referralCode)) {
+        form.referralCode.setCustomValidity("Invalid referral code format.");
+        isValid = false;
+      } else {
+        form.referralCode.setCustomValidity("");
       }
 
       if (!isValid || !form.checkValidity()) {

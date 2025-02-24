@@ -182,13 +182,13 @@
                         <div class="dashboard-menu">
                             <ul class="nav flex-column" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard"
+                                    <a class="nav-link active" id="dashboard-tab" href="/userProfile"
                                         role="tab" aria-controls="dashboard" aria-selected="false">
                                         <i class="fi-rs-settings-sliders mr-10"></i>Dashboard
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
+                                    <a class="nav-link" id="address-tab" href="/address" role="tab"
                                         aria-controls="address" aria-selected="false">
                                         <i class="fi-rs-marker mr-10"></i>My Address
                                     </a>
@@ -262,7 +262,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% transactions.sort((a, b)=> new Date(b.date) - new Date(a.date)); %>
+                                    <% if (transactions.length === 0) { %>
+                                        <tr>
+                                            <td colspan="4" class="text-center" style="padding: 20px; font-size: 18px; color: #777;">
+                                                No transactions made yet.
+                                            </td>
+                                        </tr>
+                                    <% } else { %>
                                         <% for (let i=0; i < transactions.length; i++) { %>
                                             <tr>
                                                 <td data-title="Date">
@@ -271,37 +277,28 @@
                                                 <td data-title="Transaction Type">
                                                     <%= transactions[i].type %>
                                                 </td>
-                                                <% if (transactions[i].type==="Purchase" ) { %>
+                                                <% if (transactions[i].type === "Purchase") { %>
                                                     <td data-title="Amount">
                                                         <b class="text-danger" style="font-size: 25px;">-</b>&nbsp;
-                                                        <strong class="text-danger">₹<%=
-                                                                transactions[i].amount.toLocaleString() %></strong>
+                                                        <strong class="text-danger">₹<%= transactions[i].amount.toLocaleString() %></strong>
                                                     </td>
-                                                    <% } else if (transactions[i].type==="Refund" ) { %>
-                                                        <td data-title="Amount">
-                                                            <b class="text-success" style="font-size: 20px;">+</b>&nbsp;
-                                                            <strong class="text-success">₹<%=
-                                                                    transactions[i].amount.toLocaleString() %></strong>
-                                                        </td>
-                                                        <% } else { %>
-                                                            <td data-title="Amount">
-                                                                <b class="text-success"
-                                                                    style="font-size: 20px;">+</b>&nbsp;
-                                                                <strong class="text-success">₹<%=
-                                                                        transactions[i].amount.toLocaleString() %>
-                                                                </strong>
-                                                            </td>
-                                                            <% } %>
-                                                                <td data-title="Status">
-                                                                    <span
-                                                                        class="badge bg-<%= transactions[i].status === 'Success' ? 'success' : 'danger' %>">
-                                                                        <%= transactions[i].status %>
-                                                                    </span>
-                                                                </td>
+                                                <% } else { %>
+                                                    <td data-title="Amount">
+                                                        <b class="text-success" style="font-size: 20px;">+</b>&nbsp;
+                                                        <strong class="text-success">₹<%= transactions[i].amount.toLocaleString() %></strong>
+                                                    </td>
+                                                <% } %>
+                                                <td data-title="Status">
+                                                    <span class="badge bg-<%= (transactions[i].status === 'Success' || transactions[i].status === 'Completed') ? 'success' : 'danger' %>">
+                                                        <%= transactions[i].status %>
+                                                    </span>
+                                                    
+                                                </td>
                                             </tr>
-                                            <% } %>
-
+                                        <% } %>
+                                    <% } %>
                                 </tbody>
+                                
                             </table>
                         </div>
                     </div>
