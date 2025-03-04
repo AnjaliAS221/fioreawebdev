@@ -1,467 +1,353 @@
 <%- include("../../views/partials/admin/header") %>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
-  <style>
-    :root {
-      --primary-color: #2563eb;
-      --secondary-color: #64748b;
-      --success-color: #059669;
-      --warning-color: #d97706;
-      --danger-color: #dc2626;
-      --background-color: #f1f5f9;
-      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    }
-
-    body {
-      background-color: var(--background-color);
-      font-family: 'Inter', sans-serif;
-      color: #1e293b;
-    }
-
-    .dashboard-container {
-      background-color: white;
-      border-radius: 1rem;
-      box-shadow: var(--card-shadow);
-    }
-
-    .header-section {
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .status-filter {
-      position: relative;
-      min-width: 200px;
-    }
-
-    .status-filter select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234b5563'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      background-size: 1rem;
-      padding-right: 2.5rem;
-    }
-
-    .table {
-      margin: 0;
-    }
-
-    .table thead th {
-      background-color: #f8fafc;
-      padding: 1rem;
-      font-weight: 600;
-      color: var(--secondary-color);
-      border-bottom: 2px solid #e2e8f0;
-    }
-
-    .table tbody td {
-      padding: 1rem;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .status-badge {
-      padding: 0.5rem 1rem;
-      border-radius: 9999px;
-      font-weight: 500;
-      font-size: 0.875rem;
-      width: auto;
-      min-width: 140px;
-      text-align: center;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .status-pending {
-      background-color: #fef3c7;
-      color: #92400e;
-    }
-
-    .status-processing {
-      background-color: #dbeafe;
-      color: #1e40af;
-    }
-
-    .status-shipped {
-      background-color: #e0e7ff;
-      color: #3730a3;
-    }
-
-    .status-delivered {
-      background-color: #dcfce7;
-      color: #166534;
-    }
-
-    .status-cancelled {
-      background-color: #fee2e2;
-      color: #991b1b;
-    }
-
-    .status-return-request {
-      background-color: #fff7ed;
-      color: #9a3412;
-    }
-
-    .status-returned {
-      background-color: #f1f5f9;
-      color: #475569;
-    }
-
-    .action-button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      font-size: 0.875rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s;
-      background-color: #f8fafc;
-      border: 1px solid #e2e8f0;
-      color: var(--secondary-color);
-    }
-
-    .action-button:hover {
-      background-color: #f1f5f9;
-      color: var(--primary-color);
-    }
-
-    .pagination {
-      gap: 0.25rem;
-    }
-
-    .page-link {
-      border-radius: 0.5rem;
-      padding: 0.5rem 1rem;
-      color: var(--secondary-color);
-      border: 1px solid #e2e8f0;
-    }
-
-    .page-item.active .page-link {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-      color: white;
-    }
-
-    .modal-content {
-      border-radius: 1rem;
-      border: none;
-    }
-
-    .modal-header {
-      border-bottom: 1px solid #e2e8f0;
-      padding: 1.5rem;
-    }
-
-    .modal-body {
-      padding: 1.5rem;
-    }
-
-    @media (max-width: 768px) {
-      .dashboard-container {
-        border-radius: 0;
-      }
-
-      .table-responsive {
-        font-size: 0.875rem;
-      }
-
-      .status-badge {
-        min-width: 120px;
-        padding: 0.375rem 0.75rem;
-      }
-    }
-  </style>
-
-  <div class="container-fluid py-6">
+<div class="container-fluid py-6">
     <div class="row">
-      <div class="col-12">
-        <div class="dashboard-container">
-          <div class="header-section p-4">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-              <h2 class="h4 mb-0 text-gray-900">Order Management</h2>
-              <div class="status-filter">
-                <select class="form-select shadow-sm" onchange="filterByStatus(this.value)">
-                  <option value="All" <%=currentStatus==='All' ? 'selected' : '' %>>All Orders</option>
-                  <option value="Pending" <%=currentStatus==='Pending' ? 'selected' : '' %>>Pending</option>
-                  <option value="Processing" <%=currentStatus==='Processing' ? 'selected' : '' %>>Processing</option>
-                  <option value="Shipped" <%=currentStatus==='Shipped' ? 'selected' : '' %>>Shipped</option>
-                  <option value="Delivered" <%=currentStatus==='Delivered' ? 'selected' : '' %>>Delivered</option>
-                  <option value="Cancelled" <%=currentStatus==='Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                  <option value="Return Request" <%=currentStatus==='Return Request' ? 'selected' : '' %>>Return Request
-                  </option>
-                  <option value="Returned" <%=currentStatus==='Returned' ? 'selected' : '' %>>Returned</option>
-                </select>
-              </div>
-            </div>
-          </div>
+        <div class="col-12">
+            <div class="dashboard-container">
+                <div class="header-section p-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <h2 class="h4 mb-0 text-gray-900">Order Items Management</h2>
+                        <div class="status-filter">
+                            <select class="form-select shadow-sm" onchange="filterByStatus(this.value)">
+                                <option value="All" <%=currentStatus==='All' ? 'selected' : '' %>>All Items</option>
+                                <option value="Pending" <%=currentStatus==='Pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="Processing" <%=currentStatus==='Processing' ? 'selected' : '' %>>Processing</option>
+                                <option value="Shipped" <%=currentStatus==='Shipped' ? 'selected' : '' %>>Shipped</option>
+                                <option value="Delivered" <%=currentStatus==='Delivered' ? 'selected' : '' %>>Delivered</option>
+                                <option value="Cancelled" <%=currentStatus==='Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                <option value="Return Request" <%=currentStatus==='Return Request' ? 'selected' : '' %>>Return Request</option>
+                                <option value="Returned" <%=currentStatus==='Returned' ? 'selected' : '' %>>Returned</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Date</th>
-                  <th>Customer</th>
-                  <th>Total</th>
-                  <th>Payment</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (orders.length===0) { %>
-                  <tr>
-                    <td colspan="7" class="text-center py-4">
-                      <div class="text-secondary">No orders found for this status.</div>
-                    </td>
-                  </tr>
-                  <% } else { %>
-                    <% orders.forEach(order=> { %>
-                      <tr>
-                        <td class="font-medium">
-                          <%= order.orderId.toString().slice(-8).toUpperCase() %>
-                        </td>
-                        <td>
-                          <%= order.createdAt.toLocaleDateString() %>
-                        </td>
-                        <td>
-                          <%= order.user ? order.user.name : 'Unknown' %>
-                        </td>
-                        <td>₹<%= order.finalAmount.toLocaleString() %>
-                        </td>
-                        <td>
-                          <%= order.paymentMethod %>
-                        </td>
-                        <td>
-                          <select class="status-badge status-<%= order.status.toLowerCase().replace(/ /g, '-') %>"
-                            onchange="updateOrderStatus('<%= order._id %>', this.value)">
-                            <% const statuses=["Pending", "Processing" , "Shipped" , "Delivered" , "Cancelled"
-                              , "Return Request" , "Returned" ]; const currentIndex=statuses.indexOf(order.status); %>
-                              <% statuses.forEach((statusOption, index)=> { %>
-                                <option value="<%= statusOption %>" <%=order.status===statusOption ? 'selected' : '' %>
-                                  <%= index < currentIndex ? 'disabled' : '' %>>
-                                    <%= statusOption %>
-                                </option>
-                                <% }) %>
-                          </select>
-                        </td>
-                        <td>
-                          <button class="action-button" onclick="showOrderDetails('<%= JSON.stringify(order) %>')">
-                            <i class="ri-eye-line"></i>
-                            View Details
-                          </button>
-                        </td>
-                      </tr>
-                      <% }) %>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Price</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <% if (groupedOrders.length === 0) { %>
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-secondary">No orders found for this status.</div>
+                                </td>
+                            </tr>
+                        <% } else { %>
+                            <% groupedOrders.forEach(order => { %>
+                                <tr>
+                                    <td class="font-medium">
+                                        <%= order.orderId.toString().slice(-8).toUpperCase() %>
+                                    </td>
+                                    <td>
+                                        <%= order.createdAt.toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <%= order.userName || 'Unknown' %>
+                                    </td>
+                                    <td>
+                                        ₹<%= order.finalAmount.toLocaleString() %>
+                                    </td>
+                                    <td>
+                                        <%= order.paymentMethod || 'N/A' %>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-<%= order.status.toLowerCase().replace(/ /g, '-') %>">
+                                            <%= order.status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="action-button" 
+                                                onclick="showOrderDetails('<%= JSON.stringify(order).replace(/'/g, "\\'").replace(/"/g, '&quot;') %>')">
+                                            <i class="ri-eye-line"></i>
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }) %>
                         <% } %>
-              </tbody>
-            </table>
-          </div>
+                        
+                        </tbody>
+                    </table>
+                </div>
 
-          <div class="d-flex justify-content-center p-4">
-            <nav>
-              <ul class="pagination">
-                <% if (currentPage> 1) { %>
-                  <li class="page-item">
-                    <a class="page-link" href="/admin/orders?page=<%= currentPage - 1 %>&status=<%= currentStatus %>">
-                      <i class="ri-arrow-left-line"></i>
-                    </a>
-                  </li>
-                  <% } %>
-
-                    <% const maxPages=5; let startPage=Math.max(1, currentPage - Math.floor(maxPages / 2)); let
-                      endPage=Math.min(totalPages, startPage + maxPages - 1); if (endPage - startPage + 1 < maxPages) {
-                      startPage=Math.max(1, endPage - maxPages + 1); } %>
-
-                      <% for (let i=startPage; i <=endPage; i++) { %>
-                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                          <a class="page-link" href="/admin/orders?page=<%= i %>&status=<%= currentStatus %>">
-                            <%= i %>
-                          </a>
-                        </li>
-                        <% } %>
-
-                          <% if (currentPage < totalPages) { %>
-                            <li class="page-item">
-                              <a class="page-link"
-                                href="/admin/orders?page=<%= currentPage + 1 %>&status=<%= currentStatus %>">
-                                <i class="ri-arrow-right-line"></i>
-                              </a>
-                            </li>
+                <div class="d-flex justify-content-center p-4">
+                    <nav>
+                        <ul class="pagination">
+                            <% if (currentPage > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="/admin/orders?page=<%= currentPage - 1 %>&status=<%= currentStatus %>">
+                                        <i class="ri-arrow-left-line"></i>
+                                    </a>
+                                </li>
                             <% } %>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="modal fade" id="orderDetailsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+                            <% const maxPages = 5; 
+                               let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+                               let endPage = Math.min(totalPages, startPage + maxPages - 1);
+                               if (endPage - startPage + 1 < maxPages) {
+                                   startPage = Math.max(1, endPage - maxPages + 1);
+                               }
+                            %>
+
+                            <% for (let i = startPage; i <= endPage; i++) { %>
+                                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                    <a class="page-link" href="/admin/orders?page=<%= i %>&status=<%= currentStatus %>">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <% if (currentPage < totalPages) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="/admin/orders?page=<%= currentPage + 1 %>&status=<%= currentStatus %>">
+                                        <i class="ri-arrow-right-line"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="orderDetailsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Order Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="orderDetailsModalBody"></div>
+          <div class="modal-header">
+              <h5 class="modal-title">Order Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="orderDetailsModalBody">
+          </div>
       </div>
-    </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function updateOrderStatus(orderId, newStatus) {
-      fetch(`/admin/update-order-status`, {
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function updateItemStatus(orderId, itemId, status) {
+    if (!status) return; 
+    
+    fetch('/admin/update-item-status', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orderId, newStatus })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, itemId, status })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
             Swal.fire({
-              icon: 'success',
-              title: 'Order Status Updated',
-              text: 'The order status has been updated successfully!',
-              confirmButtonColor: '#3085d6',
-              confirmButtonText: 'OK'
+                title: 'Updated!',
+                text: 'Item status updated successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload();
             });
+        } else {
+            Swal.fire('Error', data.message || 'Failed to update item status.', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire('Error', 'Something went wrong.', 'error');
+    });
+}
 
-            const selectElement = document.querySelector(`select[onchange="updateOrderStatus('${orderId}', this.value)"]`);
-            selectElement.className = `form-select status-badge status-${newStatus.toLowerCase().replace(/ /g, '-')}`;
+function filterByStatus(status) {
+    window.location.href = `/admin/orders?status=${status}`;
+}
 
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Update Failed',
-              text: 'Failed to update order status. Please try again.',
-              confirmButtonColor: '#d33',
-              confirmButtonText: 'Close'
-            });
-          }
-        })
-        .catch(error => {
-          console.error('Error updating order status:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'An Error Occurred',
-            text: 'There was a problem updating the order status. Please try again.',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Close'
-          });
-        });
-    }
-
-    function filterByStatus(status) {
-      window.location.href = `/admin/orders?status=${status}`;
-    }
-
-
-    function showOrderDetails(orderData) {
-      try {
-        const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
+function showOrderDetails(orderData) {
+    try {
+        const order = typeof orderData === 'string' ? JSON.parse(orderData.replace(/&quot;/g, '"')) : orderData;
 
         const modalBody = document.getElementById('orderDetailsModalBody');
 
-        const orderDetails = {
-          id: order._id.toString().slice(-8).toUpperCase(),
-          orderId: order.orderId || 'N/A',
-          date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
-          paymentMethod: order.paymentMethod || 'N/A',
-          paymentStatus: order.paymentStatus || (order.status === 'Failed' ? 'Failed' : 'N/A'),
-          totalPrice: order.totalPrice || 0,
-          discount: order.discount || 0,
-          finalAmount: order.finalAmount || 0,
-          couponCode: order.couponCode || 'N/A',
-          status: order.status || 'N/A',
-          shippingAddress: order.shippingAddress || null,
-          items: order.orderedItems || []
-        };
-
         let detailsHTML = `
-            <div class="row">
-                <div class="col-md-6">
-                    <h6><strong>Order Information</strong></h6>
-                    <p><strong>Order ID:</strong> Order #${orderDetails.id}</p>
-                    <p><strong>Date:</strong> ${orderDetails.date}</p>
-                    <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
-                    <p><strong>Payment Status:</strong> ${orderDetails.paymentStatus}</p>
-                    <div class="price-details">
-                        <p><strong>Total Amount:</strong> ₹${orderDetails.totalPrice.toLocaleString()}</p>
-                        ${orderDetails.discount > 0 ? `
-                            <p><strong>Coupon Applied:</strong> ${orderDetails.couponCode}</p>
-                            <p><strong>Discount:</strong> -₹${orderDetails.discount.toLocaleString()}</p>
-                            <p><strong>Final Amount:</strong> ₹${orderDetails.finalAmount.toLocaleString()}</p>
-                        ` : ''}
-                    </div>
-                    <p><strong>Status:</strong> ${orderDetails.status}</p>
-                </div>
-                <div class="col-md-6">
-                    <h6><strong>Shipping Address</strong></h6>
-                    <p>
-                        ${orderDetails.shippingAddress ? `
-                            ${orderDetails.shippingAddress.name || 'Name not provided'}<br>
-                            ${orderDetails.shippingAddress.addressType ? `(${orderDetails.shippingAddress.addressType})` : ''}<br>
-                            ${orderDetails.shippingAddress.landmark || 'No landmark provided'}<br>
-                            ${orderDetails.shippingAddress.city || 'City not provided'}, 
-                            ${orderDetails.shippingAddress.state || 'State not provided'} 
-                            ${orderDetails.shippingAddress.pincode || 'Pincode not provided'}<br>
-                            Phone: ${orderDetails.shippingAddress.phone || 'Not provided'}<br>
-                            ${orderDetails.shippingAddress.altPhone ? `Alt Phone: ${orderDetails.shippingAddress.altPhone}` : ''}`
-            : 'No shipping address available'}
-                    </p>
-                </div>
-            </div>
+            <h5 class="fw-bold">Order Summary</h5>
+            <p><strong>Order ID:</strong> ${order.orderId.toString().slice(-8).toUpperCase()}</p>
+            <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+            <p><strong>Customer:</strong> ${order.userName || 'Unknown'}</p>
+            <p><strong>Payment Method:</strong> ${order.paymentMethod || 'N/A'}</p>
+            <p><strong>Total Amount:</strong> ₹${order.finalAmount.toLocaleString()}</p>
+            ${order.couponCode ? `<p><strong>Coupon Applied:</strong> ${order.couponCode} (-₹${order.discount.toLocaleString()})</p>` : ''}
             <hr>
-            <h6><strong>Ordered Items</strong></h6>
-            <div class="row">
-                ${orderDetails.items.length > 0 ?
-            orderDetails.items.map(item => `
-                        <div class="col-md-12 mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="me-3">
-                                    <img src="/uploads/re-image/${item.product.productImage[0]}" 
-                                         alt="${item.product.productName}" 
-                                         class="product-image" style="width: 80px; height: 80px; object-fit: cover;">
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">${item.product.productName}</h6>
-                                    <div class="d-flex flex-wrap">
-                                        ${item.size ? `<p class="mb-0 me-3"><strong>Size:</strong> ${item.size}</p>` : ''}
-                                        ${item.color ? `<p class="mb-0 me-3"><strong>Color:</strong> ${item.color}</p>` : ''}
-                                        <p class="mb-0 me-3"><strong>Quantity:</strong> ${item.quantity}</p>
-                                        <p class="mb-0"><strong>Price:</strong> ₹${item.price.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('<hr>') :
-            '<p>No items found in this order.</p>'
-          }
-            </div>
+            <h5 class="fw-bold">Ordered Items</h5>
         `;
+
+        order.orderedItems.forEach(item => {
+            detailsHTML += `
+                <div class="item-row border rounded p-2 mb-2">
+                    <div class="d-flex align-items-center">
+                        <img src="/uploads/re-image/${item.productImage[0]}" class="me-3 rounded" 
+                             style="width:60px;height:60px;object-fit:cover;">
+
+                        <div class="flex-grow-1">
+                            <p class="mb-1"><strong>${item.productName}</strong></p>
+                            <p class="mb-1">Qty: ${item.quantity} | Price: ₹${item.price.toLocaleString()}</p>
+                        </div>
+
+                        <div class="status-update">
+                            <label class="form-label mb-1">Update Status</label>
+                            <select class="form-select form-select-sm" 
+                                id="statusSelect_${item._id}" 
+                                onchange="updateItemStatus('${order.orderId}', '${item._id}', this.value)">
+                            <option value="Pending" ${item.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Processing" ${item.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                            <option value="Shipped" ${item.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="Delivered" ${item.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${item.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            <option value="Return Requested" ${item.status === 'Return Requested' ? 'selected' : ''}>Return Requested</option>
+                            <option value="Returned" ${item.status === 'Returned' ? 'selected' : ''}>Returned</option>
+                        </select>
+
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
 
         modalBody.innerHTML = detailsHTML;
 
         const orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
         orderDetailsModal.show();
 
-      } catch (error) {
+    } catch (error) {
         console.error('Error in showOrderDetails:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed to Load Details',
-          text: 'There was an issue loading the order details. Please try again.',
-          confirmButtonText: 'OK',
-        });
-      }
+        Swal.fire('Error', 'Failed to load order details.', 'error');
     }
+}
 
 
-  </script>
+function showItemDetails(itemData) {
+    try {
+        const item = typeof itemData === 'string' ? JSON.parse(itemData.replace(/&quot;/g, '"')) : itemData;
+        
+        const modalBody = document.getElementById('itemDetailsModalBody');
+        
+        const productImage = item.product?.productImage?.[0] || 'placeholder.png';
+        const productName = item.product?.productName || 'Product Name Missing';
+        
+        
+        const isCancelled = item.status === 'Cancelled';
+        const cancelledBadge = isCancelled
+            ? `<div class="mt-2"><span class="badge bg-danger">${item.cancelledBy === 'user' ? 'Cancelled by User' : 'Cancelled by Admin'}</span></div>`
+            : '';
+        const cancellationReason = item.cancelledReason
+            ? `<div class="text-muted mt-2">Reason: ${item.cancelledReason}</div>`
+            : '';
+            
+        let detailsHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><strong>Product Information</strong></h6>
+                    <div class="d-flex align-items-start mb-3">
+                        <img src="/uploads/re-image/${productImage}" class="me-3" 
+                             style="width:100px;height:100px;object-fit:cover;">
+                        <div>
+                            <h5>${productName}</h5>
+                            <p><strong>Price:</strong> ₹${item.price.toLocaleString()}</p>
+                            <p><strong>Quantity:</strong> ${item.quantity}</p>
+                            <p><strong>Total:</strong> ₹${(item.price * item.quantity).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    
+                    <h6><strong>Order Information</strong></h6>
+                    <p><strong>Order ID:</strong> ${item.orderId.toString().slice(-8).toUpperCase()}</p>
+                    <p><strong>Date:</strong> ${new Date(item.createdAt).toLocaleDateString()}</p>
+                    <p><strong>Customer:</strong> ${item.userName || 'Unknown'}</p>
+                    <p><strong>Payment Method:</strong> ${item.paymentMethod || 'N/A'}</p>
+                    <p><strong>Payment Status:</strong> ${item.paymentStatus || 'N/A'}</p>
+                    
+                    <!-- Coupon details (only shown if present in the item data) -->
+                    ${item.couponCode ? `
+                        <h6 class="mt-3"><strong>Coupon Information</strong></h6>
+                        <p><strong>Coupon Applied:</strong> ${item.couponCode}</p>
+                        <p><strong>Discount:</strong> ${item.discount ? `₹${item.discount.toLocaleString()}` : 'N/A'}</p>
+                    ` : ''}
+                </div>
+                
+                <div class="col-md-6">
+                    <h6><strong>Status Information</strong></h6>
+                    <p><strong>Current Status:</strong> <span class="badge bg-${getStatusColor(item.status)}">${item.status}</span></p>
+                    ${cancelledBadge}
+                    ${cancellationReason}
+                    
+                    <div class="mt-3 mb-4">
+                        <h6><strong>Update Status</strong></h6>
+                        <select class="form-select" id="statusUpdateSelect" 
+                                ${isCancelled ? 'disabled' : ''}>
+                            <option value="">Select Status</option>
+                            <option value="Pending" ${item.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Processing" ${item.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                            <option value="Shipped" ${item.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="Delivered" ${item.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${item.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            <option value="Return Request" ${item.status === 'Return Request' ? 'selected' : ''}>Return Request</option>
+                            <option value="Returned" ${item.status === 'Returned' ? 'selected' : ''}>Returned</option>
+                        </select>
+                        <button class="btn btn-primary mt-2" 
+                                onclick="updateItemStatus('${item.orderId}', '${item._id}', document.getElementById('statusUpdateSelect').value)"
+                                ${isCancelled ? 'disabled' : ''}>
+                            Update Status
+                        </button>
+                    </div>
+                    
+                    <h6 class="mt-4"><strong>Shipping Address</strong></h6>
+                    <div class="border p-3 rounded">
+                        ${item.shippingAddress ? `
+                            <strong>${item.shippingAddress.name || 'Name not provided'}</strong>
+                            ${item.shippingAddress.addressType ? `<span class="badge bg-secondary ms-2">${item.shippingAddress.addressType}</span>` : ''}<br>
+                            ${item.shippingAddress.landmark ? `${item.shippingAddress.landmark}<br>` : ''}
+                            ${item.shippingAddress.city || 'City not provided'}, 
+                            ${item.shippingAddress.state || 'State not provided'} 
+                            ${item.shippingAddress.pincode || 'Pincode not provided'}<br>
+                            <i class="ri-phone-line"></i> ${item.shippingAddress.phone || 'Not provided'}<br>
+                            ${item.shippingAddress.altPhone ? `<i class="ri-phone-line"></i> ${item.shippingAddress.altPhone} (Alt)` : ''}
+                        ` : 'No shipping address available'}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        modalBody.innerHTML = detailsHTML;
+        
+        const itemDetailsModal = new bootstrap.Modal(document.getElementById('itemDetailsModal'));
+        itemDetailsModal.show();
+        
+    } catch (error) {
+        console.error('Error in showItemDetails:', error);
+        Swal.fire('Error', 'Failed to load item details.', 'error');
+    }
+}
 
-  <%- include("../../views/partials/admin/footer") %>
+function getStatusColor(status) {
+    switch(status) {
+        case 'Pending': return 'warning';
+        case 'Processing': return 'info';
+        case 'Shipped': return 'primary';
+        case 'Delivered': return 'success';
+        case 'Cancelled': return 'danger';
+        case 'Return Request': return 'secondary';
+        case 'Returned': return 'dark';
+        default: return 'secondary';
+    }
+}
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

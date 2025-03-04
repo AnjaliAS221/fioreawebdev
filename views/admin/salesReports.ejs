@@ -95,6 +95,12 @@
         <div class="report-container">
             <div class="filter-section">
                 <form id="filterForm" method="get" action="/admin/salesReport">
+                    <% if (message) { %>
+                        <div class="alert alert-danger">
+                            <%= message %>
+                        </div>
+                    <% } %>
+                    
                     <% if (currentPage) { %>
                         <input type="hidden" name="page" value="<%= currentPage %>">
                         <% } %>
@@ -184,7 +190,6 @@
                             <th>Sl No</th>
                             <th>Customer</th>
                             <th>Products</th>
-                            <th>Quantity</th>
                             <th>Date</th>
                             <th>Price</th>
                             <th>Discount</th>
@@ -194,8 +199,8 @@
                     <tbody>
                         <% if (orders.length === 0) { %>
                             <tr>
-                                <td colspan="8" class="text-center text-muted">
-                                    No results found for the selected filters.
+                                <td colspan="7" class="text-center text-muted">
+                                    No delivered items found for the selected filters.
                                 </td>
                             </tr>
                         <% } else { %>
@@ -205,16 +210,11 @@
                                     <td><%= order.user ? order.user.name : 'N/A' %></td>
                                     <td>
                                         <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                            <%= order.orderedItems.map(item => item.product ? item.product.productName : 'N/A').join(', ') %>
+                                            <%= order.orderedItems.map(item => 
+                                                `${item.product ? item.product.productName : 'N/A'} (${item.quantity})`
+                                            ).join(', ') %>
                                         <% } else { %>
-                                            No items
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                            <%= order.orderedItems.map(item => item.quantity).join(', ') %>
-                                        <% } else { %>
-                                            0
+                                            No delivered items
                                         <% } %>
                                     </td>
                                     <td><%= moment(order.createdAt).format('DD/MM/YYYY') %></td>

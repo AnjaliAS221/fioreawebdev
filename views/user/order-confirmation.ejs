@@ -1,58 +1,147 @@
 <style>
     body {
-        font-family: Arial, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         line-height: 1.6;
         margin: 0;
         padding: 0;
-        background-color: #f4f4f4;
+        background-color: #f8f9fa;
+        color: #333;
     }
 
     .container {
         width: 90%;
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 2rem;
+        max-width: 600px;
+        margin: 3rem auto;
+        padding: 2.5rem;
         background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         text-align: center;
     }
 
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background-color: #f0fff4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .checkmark {
+        width: 40px;
+        height: 40px;
+        color: #28a745;
+    }
+
     h1 {
-        color: #800000;
+        color: #333;
+        font-size: 28px;
         margin-bottom: 1rem;
+        font-weight: 600;
     }
 
-    .btn-order-details {
-        background-color: #800000;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 20px;
-        text-decoration: none;
-    }
-
-    .btn-order-details:hover {
-        background-color: #5c0202;
-        color: white;
+    .order-number {
+        font-size: 18px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 10px 15px;
+        margin: 1.5rem auto;
+        display: inline-block;
+        font-weight: 500;
     }
 
     .order-date {
-        font-size: 1rem;
-        color: #00ff44;
-        margin-top: 10px;
+        font-size: 16px;
+        color: #495057;
+        margin: 1.5rem 0;
+        font-weight: 500;
+    }
+    
+    .highlight {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .button-container {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        font-size: 16px;
+        text-decoration: none;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    
+    .thank-you-message {
+        margin-bottom: 1.5rem;
+        font-size: 18px;
     }
 </style>
-
+</head>
+<body>
 <div class="container">
-    <h1>Order Confirmation</h1>
-    <p>Thank you for your order!</p>
-    <br>
-    <p class="order-date">Delivery Date: <%= new Date(Date.now() + 7* 24 * 60 * 60 * 1000).toLocaleDateString() %>
-    </p>
-
-    <br>
-    <a href='/order-history' class="btn-order-details">View Order Details</a>
+    <div class="success-icon">
+        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+            <path fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+    </div>
+    
+    <h1>Order Confirmed!</h1>
+    <p class="thank-you-message">Thank you for your purchase.</p>
+    
+    <div class="order-number">
+        <p><strong>Order #:</strong> <%= order.orderId.toString().slice(-8).toUpperCase() %></p>
+    </div>
+    
+    <p class="order-date">Estimated Delivery: <span class="highlight">
+        <script>
+            const deliveryDate = new Date();
+            deliveryDate.setDate(deliveryDate.getDate() + 7);
+            document.write(deliveryDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long', 
+                day: 'numeric'
+            }));
+        </script>
+    </span></p>
+    
+    <div class="button-container">
+        <a href="/order-history" class="btn btn-primary">View Order Details</a>
+        <a href="/" class="btn btn-secondary">Continue Shopping</a>
+    </div>
 </div>
+</body>

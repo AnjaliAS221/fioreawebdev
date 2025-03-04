@@ -4,7 +4,7 @@ const {v4:uuidv4} = require("uuid");
 
 
 const orderSchema = new Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User',required: true },
     orderId: {
         type: String,
         default: () => uuidv4(),
@@ -31,6 +31,45 @@ const orderSchema = new Schema({
             type: Number,
             default: 0
         },
+        discountAmount: {   
+            type: Number,
+            default: 0   
+        },
+        returnRequested: {
+            type: Boolean,
+            default: false
+        },
+        status: {
+            type: String,
+            enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Requested", "Returned"],
+            default: "Pending"
+        },
+        cancellation: {
+            isCancelled: {
+                type: Boolean,
+                default: false
+            },
+            cancelledAt: Date,
+            cancelReason: String,
+            cancelNote: String,
+            cancelledBy: {
+                type: String,
+                enum: ['user', 'admin']
+            }
+        },
+        returnDetails: {
+            reason: String,
+            note: String,
+            requestedAt: Date,
+            approvedAt: Date,
+            rejectedAt: Date,
+            completedAt: Date,
+            status: {
+                type: String,
+                enum: ['Pending', 'Approved', 'Rejected', 'Completed'],
+                default: 'Pending'
+            }
+        },
     }],
     totalPrice: {
         type: Number,
@@ -55,7 +94,19 @@ const orderSchema = new Schema({
     status: {
         type: String,
         required: true,
-        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned", "Failed"]
+        enum: [
+            'Pending', 
+            'Processing', 
+            'Shipped', 
+            'Delivered', 
+            'Cancelled', 
+            'Partially Cancelled',
+            'Partially Delivered',
+            'Partially Returned',
+            'Return Requested',
+            'Returned'
+        ],
+        default: 'Pending'
     },
     createdAt: {
         type: Date,
@@ -76,27 +127,9 @@ const orderSchema = new Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ["Pending", "Processing", "Paid", "Refunded", "Failed"]
+        enum: ['Pending', 'Paid', 'Failed', 'Refunded', 'Partially Refunded'],
     },
-    cancellation: {
-        isCancelled: {
-            type: Boolean,
-            default: false
-        },
-        cancelledAt: {
-            type: Date,
-        },
-        cancelReason: {
-            type: String,
-        },
-        cancelNote: {
-            type: String,
-        },
-        cancelledBy: {
-            type: String,
-            enum: ['user', 'admin'],
-        }
-    },
+    
     refundDetails: {
         refundedAt: Date,
         refundAmount: Number,
@@ -110,4 +143,5 @@ const orderSchema = new Schema({
 });
 
 const Order = mongoose.model("Order",orderSchema);
+
 module.exports = Order;

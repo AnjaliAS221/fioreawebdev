@@ -1,23 +1,12 @@
 <%- include("../../views/partials/admin/header") %>
-    <title>Return Data Requests</title>
+    <title>Item-Level Return Requests</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --bg-light: #f4f6f7;
-        }
-
-        body {
-            background-color: var(--bg-light);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         .return-card {
             border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
             transition: transform 0.3s ease;
         }
 
@@ -25,139 +14,119 @@
             transform: translateY(-5px);
         }
 
-        .return-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--primary-color);
+        .return-header {
+            background-color: #3498db;
             color: white;
-            padding: 10px 15px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
+            padding: 10px;
+        }
+
+        .return-body {
+            padding: 15px;
+        }
+
+        .action-buttons button {
+            margin-right: 5px;
         }
 
         .status-badge {
+            padding: 3px 8px;
             font-size: 0.8rem;
-            padding: 0.3rem 0.6rem;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .pagination {
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .return-card {
-                flex-direction: column;
-            }
-
-            .return-card-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
         }
     </style>
-    </head>
 
-    <body>
-        <div class="container py-4">
-            <h1 class="mb-4 text-center">Return Request Tracker</h1>
+    <div class="container py-4">
+        <h1 class="mb-4 text-center">Return Requests</h1>
 
-            <div class="row">
-                <% returns.forEach(returnData=> { %>
-                    <div class="col-12 col-md-6 col-lg-4 mb-3">
-                        <div class="card return-card">
-                            <div class="return-card-header">
-                                <div>
-                                    <strong>Order #<%= returnData.orderId?.orderId.toString().slice(-8).toUpperCase()
-                                            || 'N/A' %></strong>
-                                </div>
-                                <% let badgeClass; if(returnData.status==='Approved' ) { badgeClass='bg-success' ; }
-                                    else if(returnData.status==='Rejected' ) { badgeClass='bg-danger' ; } else {
-                                    badgeClass='bg-warning text-dark' ; } %>
-                                    <span class="badge <%= badgeClass %> status-badge">
-                                        <%= returnData.status || 'Pending' %>
-                                    </span>
+        <div class="row">
+            <% returns.forEach(returnData=> { %>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card return-card mb-4">
+                        <div class="return-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order #<%= returnData.orderId ?
+                                        returnData.orderId.orderId.toString().slice(-8).toUpperCase() : 'N/A' %>
+                                        </strong>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <small class="text-muted">User</small>
-                                        <p class="fw-bold">
-                                            <%= returnData.userId?.name || 'N/A' %>
-                                        </p>
-                                    </div>
-                                    <div class="col-6">
-                                        <small class="text-muted">Refund Amount</small>
-                                        <p class="fw-bold">₹<%= (returnData.refundAmount || 0).toFixed(2) %>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <small class="text-muted">Return Reason</small>
-                                    <p class="text-truncate">
-                                        <%= returnData.reason || 'No reason provided' %>
-                                    </p>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <%= new Date(returnData.returnedAt || Date.now()).toLocaleDateString('en-US', {
-                                            year: 'numeric' , month: 'short' , day: 'numeric' }) %>
-                                    </small>
-                                    <% if(!returnData.status || returnData.status==='Pending' ) { %>
+                            <span
+                                class="badge bg-<%= returnData.status === 'Approved' ? 'success' : returnData.status === 'Rejected' ? 'danger' : 'warning' %>">
+                                <%= returnData.status %>
+                            </span>
+                        </div>
+                        <div class="return-body">
+                            <% let orderItem=null; if (returnData.orderId && returnData.itemId &&
+                                returnData.orderId.orderedItems) { orderItem=returnData.orderId.orderedItems.find(item=>
+                                item._id && returnData.itemId &&
+                                item._id.toString() === returnData.itemId.toString()
+                                );
+                                }
+                                %>
+                                <p><strong>Product:</strong>
+                                    <%= returnData.productName || (returnData.product && returnData.product.productName)
+                                        || 'Unknown' %>
+                                </p>
+                                <p><strong>Color:</strong>
+                                    <%= returnData.variant?.color || 'N/A' %>
+                                </p>
+                                <p><strong>Size:</strong>
+                                    <%= returnData.variant?.size || 'N/A' %>
+                                </p>
+                                <p><strong>Refund Amount:</strong> ₹<%= returnData.refundAmount.toFixed(2) %>
+                                </p>
+                                <p><strong>Reason:</strong>
+                                    <%= returnData.reason || 'No reason provided' %>
+                                </p>
+                                <p><small class="text-muted">Requested by: <%= returnData.userId?.name || 'Unknown' %></small></p>
+                                
+                                <% if (returnData.status==='Pending' ) { %>
+                                    <form action="/admin/returnDataUpdate?id=<%= returnData._id %>" method="POST">
+                                        <textarea class="form-control mb-2" name="comments"
+                                            placeholder="Admin comments (optional)"></textarea>
                                         <div class="action-buttons">
-                                            <form action="/admin/returnDataUpdate?id=<%= returnData._id %>"
-                                                method="POST">
-                                                <button type="submit" name="status" value="Approved"
-                                                    class="btn btn-sm btn-success">
-                                                    Approve
-                                                </button>
-                                                <button type="submit" name="status" value="Rejected"
-                                                    class="btn btn-sm btn-danger">
-                                                    Reject
-                                                </button>
-                                            </form>
+                                            <button type="submit" name="status" value="Approved"
+                                                class="btn btn-success btn-sm">Approve</button>
+                                            <button type="submit" name="status" value="Rejected"
+                                                class="btn btn-danger btn-sm">Reject</button>
                                         </div>
-                                        <% } else { %>
-                                            <span class="text-muted small">Processed</span>
-                                            <% } %>
-                                </div>
-                            </div>
+                                    </form>
+                                    <% } else { %>
+                                        <p><strong>Processed on:</strong>
+                                            <%= returnData.approvedAt ? new
+                                                Date(returnData.approvedAt).toLocaleDateString() : returnData.rejectedAt
+                                                ? new Date(returnData.rejectedAt).toLocaleDateString() : 'Pending' %>
+                                        </p>
+                                        <p><strong>Admin Comments:</strong>
+                                            <%= returnData.comments || 'No comments' %>
+                                        </p>
+                                        <% } %>
                         </div>
                     </div>
-                    <% }) %>
-            </div>
+                </div>
+                <% }) %>
         </div>
 
-        <nav aria-label="Return requests pagination">
-            <ul class="pagination">
-                <% if(hasPrevPage) { %>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% if (hasPrevPage) { %>
                     <li class="page-item">
                         <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
                     </li>
                     <% } %>
 
-                        <% for(let i=1; i <=totalPages; i++) { %>
-                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
                                 <a class="page-link" href="?page=<%= i %>">
                                     <%= i %>
                                 </a>
                             </li>
                             <% } %>
 
-                                <% if(hasNextPage) { %>
+                                <% if (hasNextPage) { %>
                                     <li class="page-item">
                                         <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
                                     </li>
                                     <% } %>
             </ul>
         </nav>
-        </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <%- include("../../views/partials/admin/footer") %>
+    <%- include("../../views/partials/admin/footer") %>

@@ -3,172 +3,154 @@ const Wallet = require("../../models/walletSchema");
 const Order = require("../../models/orderSchema");
 const Notification = require("../../models/notificationSchema");
 
+const { recalculateOrderStatus } = require('../user/orderController');
+const { recalculatePaymentStatus } = require('../user/orderController');
+
+
+
+
 const getReturnApprovals = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 6; 
-        const skip = (page - 1) * limit;
+        const pageSize = 6; 
 
         const totalReturns = await Return.countDocuments();
-        const totalPages = Math.ceil(totalReturns / limit);
-
-        const returnData = await Return.find()
-            .populate('orderId userId')
-            .skip(skip)
-            .limit(limit)
-            .sort({ createdAt: -1 }); 
+        const returns = await Return.find()
+            .populate('userId')
+            .populate({
+                path: 'orderId',
+                populate: {
+                    path: 'orderedItems.product'
+                }
+            })
+            .populate('product')
+            .sort({ returnedAt: -1 })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
 
         res.render('returnOrder', {
-            returns: returnData,
+            returns,
             currentPage: page,
-            totalPages: totalPages,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1
+            totalPages: Math.ceil(totalReturns / pageSize),
+            hasPrevPage: page > 1,
+            hasNextPage: page < Math.ceil(totalReturns / pageSize)
         });
     } catch (error) {
-        console.error('Error fetching return approvals:', error);
-        res.status(500).send('Server error');
+        console.error('Error fetching returns:', error);
+        res.status(500).send('Internal Server Error');
     }
 };
+
+
 
 const returnUpdate = async (req, res) => {
     try {
         const returnId = req.query.id;
-        const { status } = req.body;
+        const { status, comments } = req.body;
 
-        console.log('Return ID:', returnId);  
-        console.log('Status:', status);      
+        if (!returnId) return res.status(400).send('Return ID is required');
+        if (!['Approved', 'Rejected'].includes(status)) return res.status(400).send('Invalid status value');
 
-        
-        if (!returnId) {
-            console.log('No return ID provided');  
-            return res.status(400).send('Return ID is required');
-        }
+        const returnData = await Return.findById(returnId).populate('orderId userId product');
+        if (!returnData) return res.status(404).send('Return request not found');
 
-        if (!status || !['Approved', 'Rejected'].includes(status)) {
-            console.log('Invalid status:', status);  
-            return res.status(400).send('Invalid status value');
-        }
+        const { userId, orderId, itemId, product, quantity, variant } = returnData;
 
-        
-        const returnData = await Return.findById(returnId);
-        if (!returnData) { 
-            return res.status(404).send('Return request not found');
-        }
+        const order = await Order.findById(orderId).populate('orderedItems.product');
+        if (!order) return res.status(404).send('Order not found');
 
-      
-        if (returnData.status !== 'Pending') { 
-            return res.status(400).send('Return request already processed');
-        }
-
-        const userId = returnData.userId;
-        const orderId = returnData.orderId;
-        const amount = returnData.refundAmount;
+        const item = order.orderedItems.id(itemId);
+        if (!item) return res.status(404).send('Item not found in order');
 
         if (status === 'Approved') {
-            try {
-                
-                let wallet = await Wallet.findOne({ userId });
-                
-                if (!wallet) {
-                    
-                    wallet = new Wallet({
-                        userId,
-                        balance: amount,
-                        transactions: [{
-                            type: 'Refund',
-                            amount: amount,
-                            description: 'Refund for your returned product',
-                            orderId,
-                            date: new Date()
-                        }]
-                    });
-                    await wallet.save();
+
+            item.status = 'Returned';
+
+            const itemBaseAmount = item.price * item.quantity;
+            const itemDiscountAmount = (item.discountAmount || 0) * item.quantity; 
+            const refundAmount = itemBaseAmount - itemDiscountAmount;
+
+            
+            const productDoc = item.product;
+            const variantDoc = productDoc.variants.find(v => v.color === variant.color);
+
+            if (variantDoc) {
+                const sizeVariant = variantDoc.sizes.find(s => s.size === variant.size);
+                if (sizeVariant) {
+                    sizeVariant.stock += quantity;
+                    await productDoc.save();
                 } else {
-                    
-                    await Wallet.findOneAndUpdate(
-                        { userId },
-                        {
-                            $inc: { balance: amount },
-                            $push: {
-                                transactions: {
-                                    type: 'Refund',
-                                    amount: amount,
-                                    description: 'Refund for your returned product',
-                                    orderId,
-                                    date: new Date()
-                                }
-                            }
-                        }
-                    );
+                    console.warn(`Size ${variant.size} not found for product ${productDoc._id}`);
                 }
-
-                
-                returnData.status = status;
-                returnData.approvedAt = new Date();
-                await returnData.save();
-                console.log('After Save:', returnData);
-
-                
-                await Notification.findOneAndUpdate(
-                    { userId },
-                    {
-                        userId,
-                        message: 'Your Return Request Has Been Approved, Amount Is Added To Your Wallet',
-                        status: 'unread',
-                        createdAt: new Date()
-                    },
-                    { upsert: true, new: true }
-                );
-
-                
-                await Order.findByIdAndUpdate(
-                    orderId,
-                    { status: 'Return Request Approved' }
-                );
-
-            } catch (error) {
-                console.error('Error in approval process:', error);  
-                return res.status(500).send('Error processing approval');
+            } else {
+                console.warn(`Variant ${variant.color} not found for product ${productDoc._id}`);
             }
-        } else {
-            try {
-                
-                returnData.status = status;
-                returnData.rejectedAt = new Date();
-                await returnData.save();
 
-                
-                await Notification.findOneAndUpdate(
-                    { userId },
-                    {
-                        userId,
-                        message: 'Your Return Request Is Rejected',
-                        status: 'unread',
-                        createdAt: new Date()
-                    },
-                    { upsert: true, new: true }
-                );
-
-                
-                await Order.findByIdAndUpdate(
+            let wallet = await Wallet.findOne({ userId });
+            if (!wallet) {
+                wallet = new Wallet({
+                    userId,
+                    balance: refundAmount,
+                    transactions: [{
+                        type: 'Refund',
+                        amount: refundAmount,
+                        description: `Refund for ${product.productName} (${variant.size})`,
+                        orderId,
+                        date: new Date()
+                    }]
+                });
+            } else {
+                wallet.balance += refundAmount;
+                wallet.transactions.push({
+                    type: 'Refund',
+                    amount: refundAmount,
+                    description: `Refund for ${product.productName} (${variant.size})`,
                     orderId,
-                    { status: 'Return Request Rejected' }
-                );
-
-            } catch (error) {
-                console.error('Error in rejection process:', error);  
-                return res.status(500).send('Error processing rejection');
+                    date: new Date()
+                });
             }
+            await wallet.save();
+
+            returnData.status = 'Approved';
+            returnData.approvedAt = new Date();
+            returnData.comments = comments;
+            returnData.refundAmount = refundAmount;  
+            await returnData.save();
+
+            await Notification.create({
+                userId,
+                message: `Your return for ${product.productName} (${variant.size}) has been approved. Refund of ₹${refundAmount.toFixed(2)} added to wallet.`,
+                status: 'unread',
+                createdAt: new Date()
+            });
+
+        } else if (status === 'Rejected') {
+            returnData.status = 'Rejected';
+            returnData.rejectedAt = new Date();
+            returnData.comments = comments;
+            await returnData.save();
+
+            await Notification.create({
+                userId,
+                message: `Your return for ${product.productName} (${variant.size}) has been rejected.`,
+                status: 'unread',
+                createdAt: new Date()
+            });
         }
 
-        return res.redirect('/admin/return-approvals');
+        order.status = recalculateOrderStatus(order);
+        order.paymentStatus = recalculatePaymentStatus(order);  
+        await order.save();
+
+        res.redirect('/admin/return-approvals');
 
     } catch (error) {
-        console.error('Error in return update:', error);  
-        return res.status(500).send('Internal server error');
+        console.error('Error in return update:', error);
+        res.status(500).send('Internal server error');
     }
 };
+
+
 
 
 module.exports = {

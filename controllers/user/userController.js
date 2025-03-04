@@ -74,8 +74,15 @@ const pageNotFound = async(req,res)=>{
 
 // load signup
 const loadSignup = async(req,res)=>{
+    console.log("entered");
+    
     try {
-        return res.render("signup")
+        if(req.session.user){
+            return res.redirect('/')
+        }else{
+            return res.render("signup")
+        }
+        
     } catch (error) {
         console.log("home page not loading",error);
         res.status(500).send("Server error");

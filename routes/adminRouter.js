@@ -70,7 +70,7 @@ router.get("/search-products", adminAuth, stockController.searchProducts);
 
 //order Controller
 router.get('/orders', adminAuth, orderController.loadOrders);
-router.post('/update-order-status', adminAuth, orderController.updateOrderStatus);
+router.post('/update-item-status',adminAuth,orderController.updateItemStatus);
 
 
 //coupon management

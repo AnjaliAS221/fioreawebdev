@@ -24,6 +24,8 @@
     <link rel="stylesheet" href="css/style.css" type="text/css">
     <link rel="stylesheet" href="./user-assets/css/maind134.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css">
  
     <style>
 
@@ -188,7 +190,16 @@
             display: none !important;
         }
 
+        .header__nav__option .header-icon-link {
+        font-size: 20px;
+        color: #333;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
 
+    .header__nav__option .header-icon-link:hover {
+        color: #007bff;
+    }
         
         </style>
         
@@ -244,15 +255,15 @@
                             <ul>
                                 <li class="active"><a href="/">Home</a></li>
                                 <li><a href="/shop">Shop</a></li>
-                                <li><a href="./blog.html">Women-Contemporary</a></li>
-                                <li><a href="./contact.html">Women-Ethnic</a></li>
+                                <li><a href="/shop">Women-Contemporary</a></li>
+                                <li><a href="/shop">Women-Ethnic</a></li>
                                 <li><a href="/shop">All Collections</a>
                                     <ul class="dropdown">
-                                        <li><a href="./about.html">Prints</a></li>
-                                        <li><a href="./shop-details.html">Embroidery</a></li>
-                                        <li><a href="/cart">Co-Ods Sets</a></li>
-                                        <li><a href="./checkout.html">Sustain Wear</a></li>
-                                        <li><a href="./blog-details.html">Occassional Wear</a></li>
+                                        <li><a href="/shop">Prints</a></li>
+                                        <li><a href="/shop">Embroidery</a></li>
+                                        <li><a href="/shop">Co-Ods Sets</a></li>
+                                        <li><a href="/shop">Sustain Wear</a></li>
+                                        <li><a href="/shop">Occassional Wear</a></li>
                                     </ul>
                                 </li>
                                 
@@ -260,13 +271,23 @@
                         </nav>
                     </div>
                     <div class="col-lg-3 col-md-3">
-                        <div class="header__nav__option">
-                            <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
-                            <a href="/wishlist"><img src="img/icon/heart.png" alt=""></a>
-                            <a href="/cart"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
-                            <div class="price">$0.00</div>
+                        <div class="header__nav__option" >
+                            
+                
+                            <a href="/wishlist" class="header-icon-link" title="Wishlist">
+                                <i class="ri-heart-line"></i>
+                            </a>
+                    
+                            <a href="/cart" class="header-icon-link" title="Cart">
+                                <i class="ri-shopping-cart-line"></i>
+                            </a>
+                    
+                            <a href="/wallet" class="header-icon-link" title="Wallet">
+                                <i class="ri-wallet-line"></i>
+                            </a>
                         </div>
                     </div>
+                    
                 </div>
                 <div class="canvas__open"><i class="fa fa-bars"></i></div>
             </div>

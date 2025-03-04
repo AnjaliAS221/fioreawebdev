@@ -909,7 +909,17 @@
                     size: selectedSize
                 }),
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        // Unauthorized: Redirect to login
+                        window.location.href = "/login";
+                        return Promise.reject('Unauthorized'); // Stop further processing
+                    }
+                    if (!response.ok) {
+                        throw new Error('Server error');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         Swal.fire({
@@ -933,9 +943,7 @@
                     }
                 })
                 .catch(error => {
-                    if (error.message === "Unauthorized: Please log in first.") {
-                        window.location.href = "/login";
-                    } else {
+                    if (error !== 'Unauthorized') { // Avoid duplicate redirect handling
                         console.error('Error:', error);
                         Swal.fire({
                             icon: 'error',

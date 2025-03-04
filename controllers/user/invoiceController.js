@@ -196,6 +196,117 @@ const generateInvoice = async (req, res) => {
     }
 };
 
+const generateItemInvoice = async (req, res) => {
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+
+    try {
+        const { orderId, itemId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(orderId) || !mongoose.Types.ObjectId.isValid(itemId)) {
+            throw new Error('Invalid Order ID or Item ID');
+        }
+
+        const order = await Order.findById(orderId).populate({
+            path: 'orderedItems.product',
+            select: 'productName price'
+        });
+
+        if (!order) {
+            throw new Error('Order not found');
+        }
+
+        const item = order.orderedItems.find(i => i._id.toString() === itemId);
+        if (!item) {
+            throw new Error('Item not found in this order');
+        }
+
+        if (item.status !== 'Delivered') {
+            return res.status(403).json({
+                error: 'Invoice unavailable',
+                message: 'Invoice can only be generated for delivered items'
+            });
+        }
+
+        const addressDoc = await Address.findOne({ userId: req.session.user });
+        const address = addressDoc?.address.find(addr => addr._id.toString() === order.address.toString());
+
+        if (!address) {
+            throw new Error('Shipping address not found');
+        }
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Item_Invoice_${itemId}.pdf`);
+
+        doc.pipe(res);
+
+        doc.fillColor('#f4f4f4').rect(50, 50, 500, 50).fill();
+        doc.fillColor('#800000').fontSize(25).font('Helvetica-Bold').text('Fiorea', 50, 65, { align: 'center' });
+        doc.fontSize(10).font('Helvetica').fillColor('#666666').text('Wear the Art of Flowers', 50, 95, { align: 'center' });
+
+        doc.fillColor('#333333').fontSize(12).font('Helvetica-Bold').text('ITEM INVOICE', 50, 140);
+        doc.font('Helvetica').fontSize(10).fillColor('#666666')
+            .text(`Invoice Number: ITEM-${itemId.slice(-8).toUpperCase()}`, 50, 160)
+            .text(`Date: ${moment(order.createdAt).format('DD/MM/YYYY')}`, 50, 175)
+            .text(`Payment Method: ${order.paymentMethod}`, 50, 190)
+            .text(`Payment Status: ${order.paymentStatus}`, 50, 205);
+
+        doc.font('Helvetica-Bold').fontSize(12).fillColor('#333333').text('Shipping Address', 350, 140);
+        doc.font('Helvetica').fontSize(10).fillColor('#666666')
+            .text(address.name, 350, 160)
+            .text(address.landMark, 350, 175)
+            .text(`${address.city}, ${address.state}`, 350, 190)
+            .text(address.pincode, 350, 205);
+
+        const tableTop = 250;
+        doc.fillColor('#800000').font('Helvetica-Bold').fontSize(10)
+            .text('Product', 50, tableTop)
+            .text('Quantity', 250, tableTop)
+            .text('Unit Price', 350, tableTop)
+            .text('Total', 450, tableTop);
+
+        const itemTotal = (item.quantity * item.price).toFixed(2);
+
+        doc.font('Helvetica').fillColor('#666666').fontSize(10)
+            .text(item.product.productName || 'Unknown Product', 50, tableTop + 30)
+            .text(item.quantity.toString(), 250, tableTop + 30)
+            .text(`RS ${item.price.toFixed(2)}`, 350, tableTop + 30)
+            .text(`RS ${itemTotal}`, 450, tableTop + 30);
+
+      
+        const summaryTop = tableTop + 80;
+        doc.strokeColor('#e0e0e0').lineWidth(1).moveTo(50, summaryTop).lineTo(550, summaryTop).stroke();
+
+        doc.font('Helvetica-Bold').fontSize(12).fillColor('#800000').text('Order Summary', 50, summaryTop + 20);
+
+        doc.font('Helvetica').fontSize(10).fillColor('#666666')
+            .text('Item Total:', 350, summaryTop + 20)
+            .text(`RS ${itemTotal}`, 450, summaryTop + 20);
+
+        doc.fontSize(8).fillColor('#999999')
+            .text('Thank you for shopping with Fiorea!', 50, 750, { align: 'center' })
+            .text('This is a computer-generated invoice for the selected item', 50, 765, { align: 'center' });
+
+        doc.end();
+
+    } catch (error) {
+        console.error('Item Invoice Generation Error:', error.message);
+
+        try {
+            doc.end();
+        } catch (e) {
+            console.error('PDF Document Cleanup Error:', e);
+        }
+
+        if (!res.headersSent) {
+            res.status(500).json({
+                error: 'Failed to generate item invoice',
+                message: error.message
+            });
+        }
+    }
+};
+
 module.exports = {
-    generateInvoice
+    generateInvoice,
+    generateItemInvoice
 };

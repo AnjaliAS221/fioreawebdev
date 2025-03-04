@@ -96,10 +96,10 @@ router.post('/update-cart-item',userAuth,cartController.updateCartItem);
 router.get('/checkout',userAuth, orderController.loadCheckout);
 router.get("/get-wallet-balance",userAuth,orderController.getWalletBalance);
 router.get('/order-confirmation',userAuth, orderController.orderConfirm);
-router.post('/cancel-order',userAuth, orderController.cancelOrder);
 router.get('/order-history',userAuth,orderController.orderHistory);
 router.post('/place-order-initial',userAuth,orderController.placeOrderInitial);
-router.post('/return-order',orderController.returnOrder);
+router.post('/cancel-order-item', userAuth, orderController.cancelOrderItem);
+router.post('/return-order-item', userAuth, orderController.returnOrderItem);
 
 //payment management
 router.post('/create-order',userAuth,paymentController.createOrder)
@@ -133,6 +133,8 @@ router.post('/verify-wallet', userAuth, walletController.verifyWallet);
 
 //invoice
 router.get('/download-invoice/:orderId', userAuth, invoiceController.generateInvoice);
+router.get('/download-item-invoice/:orderId/:itemId', userAuth, invoiceController.generateItemInvoice);
+
 
 
 
